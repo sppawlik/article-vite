@@ -4,6 +4,7 @@ export interface Article {
   summary: string
   url: string
   relativeDate: string
+  publishedDate?: Date
   relevance: number
   score1: number
   score2: number
@@ -48,7 +49,8 @@ export async function getArticles(): Promise<Article[]> {
       summary: item.Summary,
       url: item.URL,
       relativeDate: getRelativeTime(new Date(item.PublishedDate), new Date()),
-      relevance: 4, // Default value, adjust as needed
+      publishedDate: item.publishedDate,
+      relevance: Math.floor(Math.random() * 5) + 1, // Default value, adjust as needed
       score1: 2, // Default value, adjust as needed
       score2: 2, // Default value, adjust as needed
       score3: 2, // Default value, adjust as needed
