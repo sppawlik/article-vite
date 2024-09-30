@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
-import { BookmarkIcon, StarIcon } from 'lucide-react'
+import {BookmarkIcon, ChevronDownIcon, ChevronUpIcon, StarIcon} from 'lucide-react'
 import { Article, getArticles } from '@/services/articleService'
 import React from 'react'
 import { Input } from './ui/input'
@@ -9,9 +9,11 @@ import { Button } from './ui/button'
 
 export default function ArticleTable() {
     const [articles, setArticles] = useState<Article[]>([])
+    const [ageFilter, setAgeFilter] = useState('')
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [searchTerm, setSearchTerm] = useState('')
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   
     const fetchArticles = async () => {
       setLoading(true)
@@ -42,25 +44,40 @@ export default function ArticleTable() {
         article.title.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
+    const toggleSortOrder = () => {
+        setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc')
+    }
+
     const handleGenerateNewsletter = () => {
         // Placeholder for newsletter generation logic
         console.log("Generating newsletter with filtered articles:", filteredArticles)
         // Here you would typically call an API or perform some action to generate the newsletter
       }
 
+    // const articles = useArticles();
+
     return (
-        <div>
-            <div className="flex justify-between items-center">
-            <Input
-                type="text"
-                placeholder="Search articles..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="max-w-sm mb-4"
-            />
-            <Button onClick={handleGenerateNewsletter}>
-          Generate Newsletter
-        </Button>
+        <div className="space-y-4">
+            <div className="flex justify-between items-center gap-4">
+                <div className="flex-1 flex gap-2">
+                    <Input
+                        type="text"
+                        placeholder="Search articles..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="flex-1"
+                    />
+                    <Input
+                        type="text"
+                        placeholder="Age in days"
+                        value={ageFilter}
+                        onChange={(e) => setAgeFilter(e.target.value)}
+                        className="w-32"
+                    />
+                </div>
+                <Button onClick={handleGenerateNewsletter}>
+                    Generate Newsletter
+                </Button>
             </div>
             {filteredArticles.length === 0 ? (
                 <div>No articles found matching your search.</div>
@@ -72,14 +89,22 @@ export default function ArticleTable() {
                             <TableHead className="w-[200px]">Source</TableHead>
                             <TableHead>Title</TableHead>
                             <TableHead className="w-[100px]">Age</TableHead>
-                            <TableHead className="w-[100px]">Relevance</TableHead>
+                            <TableHead className="w-[100px] cursor-pointer" onClick={toggleSortOrder}>
+                                Relevance
+                                {sortOrder === 'asc' ? (
+                                    <ChevronUpIcon className="inline ml-2 h-4 w-4" />
+                                ) : (
+                                    <ChevronDownIcon className="inline ml-2 h-4 w-4" />
+                                )}
+                            </TableHead>
+
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {filteredArticles.map((article, index) => (
                             <TableRow key={index}>
                                 <TableCell>
-                                    <BookmarkIcon className="h-4 w-4" />
+                                    <BookmarkIcon className="h-4 w-4"/>
                                 </TableCell>
                                 <TableCell>{article.source}</TableCell>
                                 <TableCell>
@@ -95,7 +120,7 @@ export default function ArticleTable() {
                                         <Tooltip>
                                             <TooltipTrigger>
                                                 <div className="flex items-center">
-                                                    {Array.from({ length: 5 }).map((_, i) => (
+                                                    {Array.from({length: 5}).map((_, i) => (
                                                         <StarIcon
                                                             key={i}
                                                             className={`h-4 w-4 ${
