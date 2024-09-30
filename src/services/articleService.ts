@@ -12,7 +12,7 @@ export interface Article {
 }
 
 interface APIArticle {
-  FeedID: string
+  Source: string
   Title: string
   Summary: string
   URL: string
@@ -20,7 +20,7 @@ interface APIArticle {
 }
 
 interface APIArticleEnhanced {
-  FeedID: string
+  Source: string
   Title: string
   Summary: string
   URL: string
@@ -43,7 +43,7 @@ export async function getArticles(): Promise<Article[]> {
 
 
     return dataEnhanced.map((item: APIArticleEnhanced) => ({
-      source: item.FeedID,
+      source: item.Source,
       title: item.Title,
       summary: item.Summary,
       url: item.URL,
