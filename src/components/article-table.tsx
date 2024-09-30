@@ -6,6 +6,7 @@ import { Article, getArticles } from '@/services/articleService'
 import React from 'react'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 
 export default function ArticleTable() {
     const [articles, setArticles] = useState<Article[]>([])
@@ -85,7 +86,6 @@ export default function ArticleTable() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-[50px]"></TableHead>
                             <TableHead className="w-[200px]">Source</TableHead>
                             <TableHead>Title</TableHead>
                             <TableHead className="w-[100px]">Age</TableHead>
@@ -97,15 +97,12 @@ export default function ArticleTable() {
                                     <ChevronDownIcon className="inline ml-2 h-4 w-4" />
                                 )}
                             </TableHead>
-
+                            <TableHead className="w-[120px]">Summary Type</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {filteredArticles.map((article, index) => (
                             <TableRow key={index}>
-                                <TableCell>
-                                    <BookmarkIcon className="h-4 w-4"/>
-                                </TableCell>
                                 <TableCell>{article.source}</TableCell>
                                 <TableCell>
                                     <a href={article.url} className="text-primary hover:underline">
@@ -138,6 +135,18 @@ export default function ArticleTable() {
                                             </TooltipContent>
                                         </Tooltip>
                                     </TooltipProvider>
+                                </TableCell>
+                                <TableCell>
+                                    <Select>
+                                        <SelectTrigger className="w-[180px]">
+                                            <SelectValue placeholder="Choice.." />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="light">Small</SelectItem>
+                                            <SelectItem value="dark">Avg</SelectItem>
+                                            <SelectItem value="system">Big</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </TableCell>
                             </TableRow>
                         ))}
