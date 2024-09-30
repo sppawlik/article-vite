@@ -1,0 +1,129 @@
+import React, { useState } from 'react'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Checkbox } from "@/components/ui/checkbox"
+import { BookmarkIcon, StarIcon } from 'lucide-react'
+
+interface Article {
+    id: number
+    source: string
+    title: string
+    summary: string
+    relativeDate: string
+    score: number
+    additionalScores: {
+        score1: number
+        score2: number
+        score3: number
+        score4: number
+    }
+}
+
+const articles: Article[] = [
+    {
+        id: 1,
+        source: "https://example.com/article1",
+        title: "Grant Funding Round Available Through MDA Sustainable Ag Demonstration Program",
+        summary: "Another round of grant funding is available through the Department of Ag's Sustainable Agriculture Demonstration Program.",
+        relativeDate: "2h",
+        score: 4,
+        additionalScores: { score1: 3, score2: 4, score3: 5, score4: 4 }
+    },
+    {
+        id: 2,
+        source: "https://example.com/article2",
+        title: "RAM Fund's 2024 Report Emphasizes ESG and Growth",
+        summary: "RAM Essential Services Property Fund (AU:REP) has released an update. The RAM Essential Services Property Fund has released its Annual Report for 2024.",
+        relativeDate: "2h",
+        score: 3,
+        additionalScores: { score1: 2, score2: 3, score3: 4, score4: 3 }
+    },
+    {
+        id: 3,
+        source: "https://example.com/article3",
+        title: "Topre : ESG Data Book 2024 (CSR Report) English Version Released",
+        summary: "Topre Group ESG Databook 2024 Sustainability Environment Social Governance ESG Data CONTENTS High-level concepts.",
+        relativeDate: "2h",
+        score: 5,
+        additionalScores: { score1: 4, score2: 5, score3: 5, score4: 4 }
+    },
+]
+
+export default function ArticleTable() {
+    const [checkedArticles, setCheckedArticles] = useState<number[]>([])
+
+    const handleCheckboxChange = (articleId: number) => {
+        setCheckedArticles(prev =>
+            prev.includes(articleId)
+                ? prev.filter(id => id !== articleId)
+                : [...prev, articleId]
+        )
+    }
+
+    return (
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead className="w-[200px]">Source</TableHead>
+                    <TableHead>Title and Summary</TableHead>
+                    <TableHead>Relative Date</TableHead>
+                    <TableHead>Score</TableHead>
+                    <TableHead>Select</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {articles.map((article) => (
+                    <TableRow
+                        key={article.id}
+                        className={checkedArticles.includes(article.id) ? "bg-gray-100" : ""}
+                    >
+                        <TableCell className="font-medium">
+                            <a href={article.source} className="flex items-center">
+                                <BookmarkIcon className="mr-2" size={16} />
+                                {new URL(article.source).hostname}
+                            </a>
+                        </TableCell>
+                        <TableCell>
+                            <div className="max-h-[3em] overflow-hidden">
+                                <a href={article.source} className="font-bold hover:underline">
+                                    {article.title}
+                                </a>
+                                <p className="text-sm text-gray-500">{article.summary}</p>
+                            </div>
+                        </TableCell>
+                        <TableCell>{article.relativeDate}</TableCell>
+                        <TableCell>
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <div className="flex">
+                                            {[...Array(5)].map((_, i) => (
+                                                <StarIcon
+                                                    key={i}
+                                                    size={16}
+                                                    className={i < article.score ? "text-yellow-400" : "text-gray-300"}
+                                                />
+                                            ))}
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Score 1: {article.additionalScores.score1}</p>
+                                        <p>Score 2: {article.additionalScores.score2}</p>
+                                        <p>Score 3: {article.additionalScores.score3}</p>
+                                        <p>Score 4: {article.additionalScores.score4}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        </TableCell>
+                        <TableCell>
+                            <Checkbox
+                                checked={checkedArticles.includes(article.id)}
+                                onCheckedChange={() => handleCheckboxChange(article.id)}
+                            />
+                        </TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+    )
+}
