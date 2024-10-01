@@ -180,10 +180,10 @@ export default function ArticleTable() {
                                                 </div>
                                             </TooltipTrigger>
                                             <TooltipContent>
-                                                <p>Score 1: {article.score1}</p>
-                                                <p>Score 2: {article.score2}</p>
-                                                <p>Score 3: {article.score3}</p>
-                                                <p>Score 4: {article.score4}</p>
+                                                <p>Relevance: {article.score.relevance}</p>
+                                                <p>Quality: {article.score.quality}</p>
+                                                <p>Depth and originality: {article.score.depth_and_originality}</p>
+                                                <p>Simplified: {article.score.simplified}</p>
                                             </TooltipContent>
                                         </Tooltip>
                                     </TooltipProvider>

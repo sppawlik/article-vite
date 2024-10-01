@@ -5,11 +5,20 @@ export interface Article {
   url: string
   relativeDate: string
   publishedDate?: Date
+  score: Score
   rating: number
   score1: number
   score2: number
   score3: number
   score4: number
+}
+
+interface Score {
+  depth_and_originality: number
+  quality: number
+  relevance: number
+  rating: number
+  simplified: number
 }
 
 interface APIArticle {
@@ -18,6 +27,7 @@ interface APIArticle {
   Summary: string
   URL: string
   PublishedDate: string
+  Score: Score
 }
 
 interface APIArticleEnhanced {
@@ -26,7 +36,8 @@ interface APIArticleEnhanced {
   Summary: string
   URL: string
   PublishedDate: string,
-  publishedDate: Date
+  publishedDate: Date,
+  Score: Score
 }
 
 const API_URL = '/api/articles';
@@ -50,7 +61,8 @@ export async function getArticles(): Promise<Article[]> {
       url: item.URL,
       relativeDate: getRelativeTime(new Date(item.PublishedDate), new Date()),
       publishedDate: item.publishedDate,
-      rating: Math.floor(Math.random() * 5) + 1, // Default value, adjust as needed
+      score:item.Score,
+      rating: item.Score.rating/10,
       score1: 2, // Default value, adjust as needed
       score2: 2, // Default value, adjust as needed
       score3: 2, // Default value, adjust as needed
