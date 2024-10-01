@@ -6,13 +6,17 @@ import { Article, getArticles } from '@/services/articleService'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from './ui/label'
+import { Slider } from './ui/slider'
 
 export default function ArticleTable() {
     const [articles, setArticles] = useState<Article[]>([])
     const [ageFilter, setAgeFilter] = useState<number | ''>('')
+    const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+    const [summaryValues, setSummaryValues] = useState<{ [key: number]: string }>({})
 
     useEffect(() => {
         const fetchArticles = async () => {
@@ -32,24 +36,30 @@ export default function ArticleTable() {
     }, [])
 
     const filteredArticles = useMemo(() => {
-        if (ageFilter === '') return articles;
-        
-        const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - ageFilter);
-        
         return articles.filter(article => {
-            if (!article.publishedDate) return false;
-            const publishedDate = new Date(article.publishedDate);
-            return !isNaN(publishedDate.getTime()) && publishedDate >= cutoffDate;
+            // Age filter
+            if (ageFilter !== '') {
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - Number(ageFilter));
+                
+                if (!article.publishedDate) return false;
+                const publishedDate = new Date(article.publishedDate);
+                if (isNaN(publishedDate.getTime()) || publishedDate < cutoffDate) return false;
+            }
+            
+            // Rating filter
+            return !(article.rating < ratingFilter[0] || article.rating > ratingFilter[1]);
+            
+
         });
-    }, [articles, ageFilter]);
+    }, [articles, ageFilter, ratingFilter]);
 
     const sortedArticles = useMemo(() => {
         return [...filteredArticles].sort((a, b) => {
             if (sortOrder === 'asc') {
-                return a.relevance - b.relevance
+                return a.rating - b.rating
             } else {
-                return b.relevance - a.relevance
+                return b.rating - a.rating
             }
         })
     }, [filteredArticles, sortOrder])
@@ -74,6 +84,10 @@ export default function ArticleTable() {
         }
     }
 
+    const handleSummaryChange = (index: number, value: string) => {
+        setSummaryValues(prev => ({ ...prev, [index]: value }))
+    }
+
     if (loading) {
         return <div>Loading articles...</div>
     }
@@ -84,16 +98,35 @@ export default function ArticleTable() {
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-center gap-4">
-                <div className="flex-1 flex gap-2">
-                    <Input
-                        type="number"
-                        placeholder="Age in days"
-                        value={ageFilter}
-                        onChange={handleAgeFilterChange}
-                        min="0"
-                        className="w-32"
-                    />
+            <div className="flex justify-between items-end">
+                <div className="flex gap-4">
+                    <div className="w-32">
+                    <Label htmlFor="age-filter" className="text-sm">Age (days)</Label>
+                        <Input
+                            id="age-filter"
+                            type="number"
+                            value={ageFilter}
+                            onChange={handleAgeFilterChange}
+                            min={1}
+                            max={365}
+                            className="h-8"
+                        />
+                    </div>
+                    <div className="w-48">
+                        <Label className="text-sm">Rating</Label>
+                        <Slider
+                            min={1}
+                            max={5}
+                            step={1}
+                            value={ratingFilter}
+                            onValueChange={setRatingFilter}
+                            className="mt-2"
+                            />
+                            <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>{ratingFilter[0]}</span>
+                                <span>{ratingFilter[1]}</span>
+                        </div>
+                    </div>
                 </div>
                 <Button onClick={handleGenerateNewsletter}>
                     Generate Newsletter
@@ -110,7 +143,7 @@ export default function ArticleTable() {
                             <TableHead className="w-[100px]">Age</TableHead>
                             <TableHead className="w-[100px] cursor-pointer" onClick={toggleSortOrder}>
                                 <div className="flex items-center">
-                                    Relevance
+                                    Rating
                                     {sortOrder === 'asc' ? (
                                         <ChevronUpIcon className="ml-1 h-4 w-4" />
                                     ) : (
@@ -123,14 +156,19 @@ export default function ArticleTable() {
                     </TableHeader>
                     <TableBody>
                         {sortedArticles.map((article, index) => (
-                            <TableRow key={index}>
+                            <TableRow 
+                                key={index}
+                                className={['dark', 'light', 'system'].includes(summaryValues[index]) ? 'bg-gray-200' : ''}
+                            >
                                 <TableCell>{article.source}</TableCell>
                                 <TableCell>
+                                <div className="max-h-[3em] overflow-hidden">
                                     <a href={article.url} className="text-primary hover:underline">
                                         {article.title}
                                     </a>
                                     {" "}
                                     <span className="text-muted-foreground text-sm">{article.summary}</span>
+                                    </div>
                                 </TableCell>
                                 <TableCell>{article.relativeDate}</TableCell>
                                 <TableCell>
@@ -138,7 +176,7 @@ export default function ArticleTable() {
                                         <Tooltip>
                                             <TooltipTrigger>
                                                 <div className="flex items-center">
-                                                    {article.relevance}
+                                                    {article.rating}
                                                 </div>
                                             </TooltipTrigger>
                                             <TooltipContent>
@@ -151,8 +189,8 @@ export default function ArticleTable() {
                                     </TooltipProvider>
                                 </TableCell>
                                 <TableCell>
-                                    <Select>
-                                        <SelectTrigger className="w-[180px]">
+                                    <Select onValueChange={(value) => handleSummaryChange(index, value)}>
+                                        <SelectTrigger className="w-[120px]">
                                             <SelectValue placeholder="-" />
                                         </SelectTrigger>
                                         <SelectContent>
