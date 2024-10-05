@@ -163,7 +163,7 @@ export default function ArticleTable() {
                                 <TableCell>{article.source}</TableCell>
                                 <TableCell>
                                 <div className="max-h-[3em] overflow-hidden">
-                                    <a href={article.url} className="text-primary hover:underline">
+                                    <a href={article.url} className="text-primary hover:underline" target="_blank">
                                         {article.title}
                                     </a>
                                     {" "}

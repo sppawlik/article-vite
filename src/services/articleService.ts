@@ -40,15 +40,18 @@ interface APIArticleEnhanced {
   Score: Score
 }
 
-const API_URL = '/api/articles';
+const API_URL = 'https://sg0gsvxdji.execute-api.eu-central-1.amazonaws.com/prod/articles';
 
 export async function getArticles(): Promise<Article[]> {
   try {
     const response = await fetch(API_URL);
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      console.error(`HTTP error! status: ${response.status}`);
+      return [];
     }
     const data: APIArticle[] = await response.json();
+    console.log('Article size:',data.length);
     const dataEnhanced: APIArticleEnhanced[] = data.map((item: APIArticle) => ({
       ...item, publishedDate: new Date(item.PublishedDate)
     })).sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime())

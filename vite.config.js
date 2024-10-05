@@ -1,6 +1,10 @@
-import path from "path"
-import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react"
+import path from "path"
+import { fileURLToPath } from "url"
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export default defineConfig({
   plugins: [react()],
@@ -8,14 +12,5 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-  },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'https://sg0gsvxdji.execute-api.eu-central-1.amazonaws.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/prod'),
-      },
-    },
-  },
+  }
 })
