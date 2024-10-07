@@ -139,10 +139,10 @@ export default function ArticleTable() {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-[200px]">Source</TableHead>
-                            <TableHead className="whitespace-nowrap overflow-hidden text-ellipsis">Title</TableHead>
-                            <TableHead className="w-[100px]">Age</TableHead>
-                            <TableHead className="w-[100px] cursor-pointer" onClick={toggleSortOrder}>
+                            <TableHead className="w-[200px] text-left">Source</TableHead>
+                            <TableHead className="whitespace-nowrap overflow-hidden text-ellipsis text-left">Title</TableHead>
+                            <TableHead className="w-[100px] text-left">Age</TableHead>
+                            <TableHead className="w-[100px] cursor-pointer text-left" onClick={toggleSortOrder}>
                                 <div className="flex items-center">
                                     Rating
                                     {sortOrder === 'asc' ? (
@@ -152,7 +152,7 @@ export default function ArticleTable() {
                                     )}
                                 </div>
                             </TableHead>
-                            <TableHead className="w-[120px]">Summary</TableHead>
+                            <TableHead className="w-[120px] text-left">Summary</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -161,8 +161,8 @@ export default function ArticleTable() {
                                 key={index}
                                 className={['dark', 'light', 'system'].includes(summaryValues[index]) ? 'bg-gray-200' : ''}
                             >
-                                <TableCell>{article.source}</TableCell>
-                                <TableCell>
+                                <TableCell className="text-left">{article.source}</TableCell>
+                                <TableCell className="text-left">
                                 <div className="max-h-[3em] overflow-hidden">
                                     <a href={article.url} className="text-primary hover:underline" target="_blank">
                                         {article.title}
@@ -171,8 +171,8 @@ export default function ArticleTable() {
                                     <span className="text-muted-foreground text-sm">{article.summary}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell>{article.relativeDate}</TableCell>
-                                <TableCell>
+                                <TableCell className="text-left">{article.relativeDate}</TableCell>
+                                <TableCell className="text-left">
                                     <TooltipProvider>
                                         <Tooltip>
                                             <TooltipTrigger>
@@ -189,7 +189,7 @@ export default function ArticleTable() {
                                         </Tooltip>
                                     </TooltipProvider>
                                 </TableCell>
-                                <TableCell>
+                                <TableCell className="text-left">
                                     <Select onValueChange={(value) => handleSummaryChange(index, value)}>
                                         <SelectTrigger className="w-[120px]">
                                             <SelectValue placeholder="-" />

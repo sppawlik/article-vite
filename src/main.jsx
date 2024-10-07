@@ -6,6 +6,6 @@ import Dashboard from './components/Dashboard';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <Dashboard/>
+    <ArticleTable/>
   </StrictMode>,
 )

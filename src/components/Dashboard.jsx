@@ -40,7 +40,7 @@ export default function Dashboard() {
     }
 
     return (
-        <div className="flex w-full h-screen bg-gray-100">
+        <div className="flex w-full h-screen">
             {/* Sidebar */}
             <aside className="w-64 bg-white shadow-md flex-shrink-0">
                 <div className="p-4">
