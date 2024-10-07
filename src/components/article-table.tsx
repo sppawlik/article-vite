@@ -2,13 +2,14 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
-import { Article, getArticles } from '@/services/articleService'
+import { Article, getArticles } from '../api/articleService'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Label } from './ui/label'
 import { Slider } from './ui/slider'
 
+// Rest of the file remains unchanged
 export default function ArticleTable() {
     const [articles, setArticles] = useState<Article[]>([])
     const [ageFilter, setAgeFilter] = useState<number | ''>('')
