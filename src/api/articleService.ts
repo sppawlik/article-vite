@@ -44,6 +44,7 @@ const API_URL = 'https://sg0gsvxdji.execute-api.eu-central-1.amazonaws.com/prod/
 
 export async function getArticles(): Promise<Article[]> {
   try {
+    console.log('Fetching articles...');
     const response = await fetch(API_URL);
 
     if (!response.ok) {
@@ -51,7 +52,7 @@ export async function getArticles(): Promise<Article[]> {
       return [];
     }
     const data: APIArticle[] = await response.json();
-    console.log('Article size:',data.length);
+    console.log('Size:',data.length);
     const dataEnhanced: APIArticleEnhanced[] = data.map((item: APIArticle) => ({
       ...item, publishedDate: new Date(item.PublishedDate)
     })).sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime())

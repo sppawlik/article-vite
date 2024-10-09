@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
-import { Article, getArticles } from '../api/articleService'
+import { Article, getArticles } from '@/api/articleService'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
@@ -24,6 +24,7 @@ export default function ArticleTable() {
             setLoading(true)
             setError(null)
             try {
+                console.log('Fetching articles from Article Table...')
                 const fetchedArticles = await getArticles()
                 setArticles(fetchedArticles)
             } catch (err) {
