@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, {useState, useEffect, useMemo, useRef} from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip"
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
@@ -18,8 +18,10 @@ export default function ArticleTable() {
     const [error, setError] = useState<string | null>(null)
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
     const [summaryValues, setSummaryValues] = useState<{ [key: number]: string }>({})
-
+    const didFetch = useRef(false);
     useEffect(() => {
+        if (didFetch.current) return;
+        didFetch.current = true;
         const fetchArticles = async () => {
             setLoading(true)
             setError(null)

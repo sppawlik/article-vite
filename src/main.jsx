@@ -7,6 +7,6 @@ import SideDashboard from "./components/dashboard-06-v01";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ArticleTable/>
+    <SideDashboard/>
   </StrictMode>,
 )
