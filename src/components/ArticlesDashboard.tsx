@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   File,
   Home,
@@ -58,7 +58,7 @@ import { useCreateBlockNote } from "@blocknote/react";
 
 import ArticleTable from "./ArticleTable";
 import NewsletterEditor from "./NewsletterEditor";
-import { Article } from "@/api/articleService";
+import { Article, getArticles } from "@/api/articleService";
 
 export const description =
   "An articles dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of articles in a table with actions.";
@@ -71,6 +71,27 @@ export default function ArticlesDashboard() {
     avg: [],
     big: []
   });
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        console.log('Fetching articles from ArticlesDashboard...');
+        const fetchedArticles = await getArticles();
+        setArticles(fetchedArticles);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching articles.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
 
   const handleGenerateNewsletter = (articles: { [key: string]: Article[] }) => {
     setSelectedArticles(articles);
@@ -299,7 +320,12 @@ export default function ArticlesDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ArticleTable onGenerateNewsletter={handleGenerateNewsletter} />
+                  <ArticleTable 
+                    articles={articles}
+                    loading={loading}
+                    error={error}
+                    onGenerateNewsletter={handleGenerateNewsletter} 
+                  />
                 </CardContent>
               </Card>
             </TabsContent>

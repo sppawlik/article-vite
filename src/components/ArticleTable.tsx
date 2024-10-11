@@ -1,8 +1,8 @@
-import React, {useState, useEffect, useMemo, useRef} from 'react'
+import React, {useState, useMemo} from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
-import { Article, getArticles } from '@/api/articleService'
+import { Article } from '@/api/articleService'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -12,15 +12,15 @@ import { Slider } from '@/components/ui/slider'
 type SummaryValue = 'small' | 'avg' | 'big' | '-';
 
 interface ArticleTableProps {
+    articles: Article[];
+    loading: boolean;
+    error: string | null;
     onGenerateNewsletter: (selectedArticles: { [key: string]: Article[] }) => void;
 }
 
-export default function ArticleTable({ onGenerateNewsletter }: ArticleTableProps) {
-    const [articles, setArticles] = useState<Article[]>([])
+export default function ArticleTable({ articles, loading, error, onGenerateNewsletter }: ArticleTableProps) {
     const [ageFilter, setAgeFilter] = useState<number | ''>('')
     const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
     const [summaryValues, setSummaryValues] = useState<{ [key: number]: SummaryValue }>({})
     const [selectedArticles, setSelectedArticles] = useState<{ [key: string]: Article[] }>({
@@ -28,27 +28,6 @@ export default function ArticleTable({ onGenerateNewsletter }: ArticleTableProps
         avg: [],
         big: []
     })
-    const didFetch = useRef(false);
-
-    useEffect(() => {
-        if (didFetch.current) return;
-        didFetch.current = true;
-        const fetchArticles = async () => {
-            setLoading(true)
-            setError(null)
-            try {
-                console.log('Fetching articles from Article Table...')
-                const fetchedArticles = await getArticles()
-                setArticles(fetchedArticles)
-            } catch (err) {
-                setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching articles.')
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        fetchArticles()
-    }, [])
 
     const filteredArticles = useMemo(() => {
         return articles.filter(article => {
