@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   File,
   Home,
@@ -58,12 +58,25 @@ import { useCreateBlockNote } from "@blocknote/react";
 
 import ArticleTable from "./ArticleTable";
 import NewsletterEditor from "./NewsletterEditor";
+import { Article } from "@/api/articleService";
 
 export const description =
   "An articles dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of articles in a table with actions.";
 
 export default function ArticlesDashboard() {
-    const editor = useCreateBlockNote();
+  const editor = useCreateBlockNote();
+  const [activeTab, setActiveTab] = useState("all");
+  const [selectedArticles, setSelectedArticles] = useState<{ [key: string]: Article[] }>({
+    small: [],
+    avg: [],
+    big: []
+  });
+
+  const handleGenerateNewsletter = (articles: { [key: string]: Article[] }) => {
+    setSelectedArticles(articles);
+    setActiveTab("newsletter");
+  };
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -258,7 +271,7 @@ export default function ArticlesDashboard() {
           </DropdownMenu>
         </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-          <Tabs defaultValue="all">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="flex items-center">
               <TabsList>
                 <TabsTrigger value="all">All</TabsTrigger>
@@ -286,7 +299,7 @@ export default function ArticlesDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ArticleTable />
+                  <ArticleTable onGenerateNewsletter={handleGenerateNewsletter} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -299,22 +312,22 @@ export default function ArticlesDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <NewsletterEditor />
+                  <NewsletterEditor selectedArticles={selectedArticles} />
                 </CardContent>
               </Card>
             </TabsContent>
             <TabsContent value="editor">
-                <Card>
-                    <CardHeader>
-                    <CardTitle>Newsletter Editor</CardTitle>
-                    <CardDescription>
-                        Create and edit your newsletter content.
-                    </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <BlockNoteView editor={editor} />
-                    </CardContent>
-                </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Newsletter Editor</CardTitle>
+                  <CardDescription>
+                    Create and edit your newsletter content.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <BlockNoteView editor={editor} />
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </main>

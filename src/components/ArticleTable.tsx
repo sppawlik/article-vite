@@ -9,15 +9,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 
-export default function ArticleTable() {
+type SummaryValue = 'small' | 'avg' | 'big' | '-';
+
+interface ArticleTableProps {
+    onGenerateNewsletter: (selectedArticles: { [key: string]: Article[] }) => void;
+}
+
+export default function ArticleTable({ onGenerateNewsletter }: ArticleTableProps) {
     const [articles, setArticles] = useState<Article[]>([])
     const [ageFilter, setAgeFilter] = useState<number | ''>('')
     const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-    const [summaryValues, setSummaryValues] = useState<{ [key: number]: string }>({})
+    const [summaryValues, setSummaryValues] = useState<{ [key: number]: SummaryValue }>({})
+    const [selectedArticles, setSelectedArticles] = useState<{ [key: string]: Article[] }>({
+        small: [],
+        avg: [],
+        big: []
+    })
     const didFetch = useRef(false);
+
     useEffect(() => {
         if (didFetch.current) return;
         didFetch.current = true;
@@ -52,8 +64,6 @@ export default function ArticleTable() {
             
             // Rating filter
             return !(article.rating < ratingFilter[0] || article.rating > ratingFilter[1]);
-            
-
         });
     }, [articles, ageFilter, ratingFilter]);
 
@@ -72,7 +82,8 @@ export default function ArticleTable() {
     }
 
     const handleGenerateNewsletter = () => {
-        console.log("Generating newsletter with articles:", filteredArticles)
+        console.log("Generating newsletter with selected articles:", selectedArticles);
+        onGenerateNewsletter(selectedArticles);
     }
 
     const handleAgeFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,8 +98,25 @@ export default function ArticleTable() {
         }
     }
 
-    const handleSummaryChange = (index: number, value: string) => {
+    const handleSummaryChange = (index: number, value: SummaryValue) => {
         setSummaryValues(prev => ({ ...prev, [index]: value }))
+        
+        const article = sortedArticles[index];
+        setSelectedArticles(prev => {
+            const newSelectedArticles = { ...prev };
+            
+            // Remove the article from all categories
+            Object.keys(newSelectedArticles).forEach(key => {
+                newSelectedArticles[key] = newSelectedArticles[key].filter(a => a !== article);
+            });
+            
+            // Add the article to the new category if it's not '-'
+            if (value !== '-') {
+                newSelectedArticles[value] = [...newSelectedArticles[value], article];
+            }
+            
+            return newSelectedArticles;
+        });
     }
 
     if (loading) {
@@ -161,7 +189,7 @@ export default function ArticleTable() {
                         {sortedArticles.map((article, index) => (
                             <TableRow 
                                 key={index}
-                                className={['dark', 'light', 'system'].includes(summaryValues[index]) ? 'bg-gray-200' : ''}
+                                className={['small', 'avg', 'big'].includes(summaryValues[index]) ? 'bg-gray-200' : ''}
                             >
                                 <TableCell className="text-left">{article.source}</TableCell>
                                 <TableCell className="text-left">
@@ -192,15 +220,15 @@ export default function ArticleTable() {
                                     </TooltipProvider>
                                 </TableCell>
                                 <TableCell className="text-left">
-                                    <Select onValueChange={(value) => handleSummaryChange(index, value)}>
+                                    <Select onValueChange={(value) => handleSummaryChange(index, value as SummaryValue)}>
                                         <SelectTrigger className="w-[120px]">
                                             <SelectValue placeholder="-" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="-">-</SelectItem>
-                                            <SelectItem value="light">Small</SelectItem>
-                                            <SelectItem value="dark">Avg</SelectItem>
-                                            <SelectItem value="system">Big</SelectItem>
+                                            <SelectItem value="small">Small</SelectItem>
+                                            <SelectItem value="avg">Avg</SelectItem>
+                                            <SelectItem value="big">Big</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </TableCell>
