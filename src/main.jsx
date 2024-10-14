@@ -5,6 +5,8 @@ import ArticlesDashboard from "./components/ArticlesDashboard";
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <ArticlesDashboard/>
+    <div>
+      <ArticlesDashboard/>
+    </div>
   </StrictMode>,
 )

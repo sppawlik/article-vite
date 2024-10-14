@@ -59,6 +59,7 @@ import { useCreateBlockNote } from "@blocknote/react";
 import ArticleTable from "./ArticleTable";
 import NewsletterEditor from "./NewsletterEditor";
 import { Article, getArticles } from "@/api/articleService";
+import RichTextExample from "./RichTextExample";
 
 export const description =
   "An articles dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of articles in a table with actions.";
@@ -351,7 +352,20 @@ export default function ArticlesDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <BlockNoteView editor={editor} />
+                  <BlockNoteView editor={editor}  theme="light"/>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="archived">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Newsletter Editor</CardTitle>
+                  <CardDescription>
+                    Create and edit your newsletter content.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RichTextExample/>
                 </CardContent>
               </Card>
             </TabsContent>
