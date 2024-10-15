@@ -60,6 +60,7 @@ import ArticleTable from "./ArticleTable";
 import NewsletterEditor from "./NewsletterEditor";
 import { Article, getArticles } from "@/api/articleService";
 import RichTextExample from "./RichTextExample";
+import RichTextEditor from "./RichTextEditor";
 
 export const description =
   "An articles dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of articles in a table with actions.";
@@ -299,9 +300,10 @@ export default function ArticlesDashboard() {
                 <TabsTrigger value="all">All</TabsTrigger>
                 <TabsTrigger value="newsletter">Newsletter</TabsTrigger>
                 <TabsTrigger value="editor">Editor</TabsTrigger>
-                <TabsTrigger value="archived" className="hidden sm:flex">
+                <TabsTrigger value="slatejs" className="hidden sm:flex">
                   Archived
                 </TabsTrigger>
+                <TabsTrigger value="tiptap">Tiptap</TabsTrigger>
               </TabsList>
               <div className="ml-auto flex items-center gap-2">
                 <Button size="sm" className="h-7 gap-1">
@@ -356,7 +358,7 @@ export default function ArticlesDashboard() {
                 </CardContent>
               </Card>
             </TabsContent>
-            <TabsContent value="archived">
+            <TabsContent value="slatejs">
               <Card>
                 <CardHeader>
                   <CardTitle>Newsletter Editor</CardTitle>
@@ -366,6 +368,19 @@ export default function ArticlesDashboard() {
                 </CardHeader>
                 <CardContent>
                   <RichTextExample/>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="tiptap">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Newsletter Editor</CardTitle>
+                  <CardDescription>
+                    Create and edit your newsletter content.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <RichTextEditor/>
                 </CardContent>
               </Card>
             </TabsContent>
