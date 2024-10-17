@@ -44,7 +44,6 @@ const API_URL = 'https://sg0gsvxdji.execute-api.eu-central-1.amazonaws.com/prod/
 
 export async function getArticles(): Promise<Article[]> {
   try {
-    console.log('Fetching articles...');
     const response = await fetch(API_URL);
 
     if (!response.ok) {

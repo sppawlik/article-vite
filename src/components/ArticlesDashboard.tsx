@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   File,
   Home,
@@ -66,6 +66,7 @@ export const description =
   "An articles dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of articles in a table with actions.";
 
 export default function ArticlesDashboard() {
+  console.log('ArticlesDashboard rendering');
   const editor = useCreateBlockNote();
   const [activeTab, setActiveTab] = useState("all");
   const [selectedArticles, setSelectedArticles] = useState<{ [key: string]: Article[] }>({
@@ -74,26 +75,34 @@ export default function ArticlesDashboard() {
     big: []
   });
   const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasFetched, setHasFetched] = useState(false);
+  const fetchingRef = useRef(false);
+
+  const fetchArticles = useCallback(async () => {
+    if (fetchingRef.current || hasFetched) return;
+    fetchingRef.current = true;
+    setLoading(true);
+    setError(null);
+    try {
+      const fetchedArticles = await getArticles();
+      setArticles(fetchedArticles);
+      setHasFetched(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching articles.');
+    } finally {
+      setLoading(false);
+      fetchingRef.current = false;
+    }
+  }, [hasFetched]);
 
   useEffect(() => {
-    const fetchArticles = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        console.log('Fetching articles from ArticlesDashboard...');
-        const fetchedArticles = await getArticles();
-        setArticles(fetchedArticles);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching articles.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArticles();
-  }, []);
+    console.log('useEffect running, hasFetched:', hasFetched);
+    if (!hasFetched) {
+      fetchArticles();
+    }
+  }, [fetchArticles, hasFetched]);
 
   const handleGenerateNewsletter = (articles: { [key: string]: Article[] }) => {
     setSelectedArticles(articles);
@@ -101,7 +110,7 @@ export default function ArticlesDashboard() {
   };
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/40">
+    <div className="flex min-h-screen flex-col bg-muted/40">
       <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
         <nav className="flex flex-col items-center gap-4 px-2 py-4">
           <a
