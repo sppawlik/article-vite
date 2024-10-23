@@ -56,14 +56,11 @@ import { BlockNoteView } from "@blocknote/mantine";
 import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 
-import ArticleTable from "./ArticleTable";
+import ArticleTable from "./articles/ArticleTable";
 import NewsletterEditor from "./NewsletterEditor";
 import { Article, getArticles } from "@/api/articleService";
 import RichTextExample from "./RichTextExample";
 import RichTextEditor from "./RichTextEditor";
-
-export const description =
-  "An articles dashboard with a sidebar navigation. The sidebar has icon navigation. The content area has a breadcrumb and search in the header. It displays a list of articles in a table with actions.";
 
 export default function ArticlesDashboard() {
   console.log('ArticlesDashboard rendering');

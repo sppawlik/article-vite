@@ -7,10 +7,6 @@ export interface Article {
   publishedDate?: Date
   score: Score
   rating: number
-  score1: number
-  score2: number
-  score3: number
-  score4: number
 }
 
 interface Score {
@@ -40,7 +36,7 @@ interface APIArticleEnhanced {
   Score: Score
 }
 
-const API_URL = 'https://sg0gsvxdji.execute-api.eu-central-1.amazonaws.com/prod/articles';
+const API_URL = 'https://k7f0d24lyb.execute-api.eu-central-1.amazonaws.com/prod/articles';
 
 export async function getArticles(): Promise<Article[]> {
   try {
@@ -66,10 +62,6 @@ export async function getArticles(): Promise<Article[]> {
       publishedDate: item.publishedDate,
       score:item.Score,
       rating: item.Score.rating/10,
-      score1: 2, // Default value, adjust as needed
-      score2: 2, // Default value, adjust as needed
-      score3: 2, // Default value, adjust as needed
-      score4: 2  // Default value, adjust as needed
     }));
   } catch (error) {
     console.error('Error fetching articles:', error);

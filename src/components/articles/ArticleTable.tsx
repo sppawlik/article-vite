@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
+import { SummarySize } from '@/types/types'
 
-type SummaryValue = 'small' | 'avg' | 'big' | '-';
+const SUMMARY_OPTIONS: SummarySize[] = ['short', 'medium', 'long'];
 
 interface ArticleTableProps {
     articles: Article[];
@@ -22,12 +23,7 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
     const [ageFilter, setAgeFilter] = useState<number | ''>('')
     const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5])
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-    const [summaryValues, setSummaryValues] = useState<{ [key: number]: SummaryValue }>({})
-    const [selectedArticles, setSelectedArticles] = useState<{ [key: string]: Article[] }>({
-        small: [],
-        avg: [],
-        big: []
-    })
+    const [summaryValues, setSummaryValues] = useState<{ [key: number]: SummarySize | '-' }>({})
 
     const filteredArticles = useMemo(() => {
         return articles.filter(article => {
@@ -56,6 +52,25 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
         })
     }, [filteredArticles, sortOrder])
 
+    const selectedArticles = useMemo(() => {
+        const result: { [K in SummarySize]: Article[] } = {
+            short: [],
+            medium: [],
+            long: []
+        };
+
+        Object.entries(summaryValues).forEach(([index, value]) => {
+            if (value !== '-') {
+                const article = sortedArticles[parseInt(index)];
+                if (article) {
+                    result[value].push(article);
+                }
+            }
+        });
+
+        return result;
+    }, [summaryValues, sortedArticles]);
+
     const toggleSortOrder = () => {
         setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc')
     }
@@ -77,25 +92,8 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
         }
     }
 
-    const handleSummaryChange = (index: number, value: SummaryValue) => {
-        setSummaryValues(prev => ({ ...prev, [index]: value }))
-        
-        const article = sortedArticles[index];
-        setSelectedArticles(prev => {
-            const newSelectedArticles = { ...prev };
-            
-            // Remove the article from all categories
-            Object.keys(newSelectedArticles).forEach(key => {
-                newSelectedArticles[key] = newSelectedArticles[key].filter(a => a !== article);
-            });
-            
-            // Add the article to the new category if it's not '-'
-            if (value !== '-') {
-                newSelectedArticles[value] = [...newSelectedArticles[value], article];
-            }
-            
-            return newSelectedArticles;
-        });
+    const handleSummaryChange = (index: number, value: SummarySize | '-') => {
+        setSummaryValues(prev => ({ ...prev, [index]: value }));
     }
 
     if (loading) {
@@ -168,7 +166,7 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
                         {sortedArticles.map((article, index) => (
                             <TableRow 
                                 key={index}
-                                className={['small', 'avg', 'big'].includes(summaryValues[index]) ? 'bg-gray-200' : ''}
+                                className={summaryValues[index] && summaryValues[index] !== '-' ? 'bg-gray-200' : ''}
                             >
                                 <TableCell className="text-left">{article.source}</TableCell>
                                 <TableCell className="text-left">
@@ -199,15 +197,20 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
                                     </TooltipProvider>
                                 </TableCell>
                                 <TableCell className="text-left">
-                                    <Select onValueChange={(value) => handleSummaryChange(index, value as SummaryValue)}>
+                                    <Select 
+                                        value={summaryValues[index] || '-'}
+                                        onValueChange={(value) => handleSummaryChange(index, value as SummarySize | '-')}
+                                    >
                                         <SelectTrigger className="w-[120px]">
                                             <SelectValue placeholder="-" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="-">-</SelectItem>
-                                            <SelectItem value="small">Small</SelectItem>
-                                            <SelectItem value="avg">Avg</SelectItem>
-                                            <SelectItem value="big">Big</SelectItem>
+                                            {SUMMARY_OPTIONS.map((size) => (
+                                                <SelectItem key={size} value={size}>
+                                                    {size.charAt(0).toUpperCase() + size.slice(1)}
+                                                </SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </TableCell>
