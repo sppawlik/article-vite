@@ -16,7 +16,7 @@ interface ArticleTableProps {
     articles: Article[];
     loading: boolean;
     error: string | null;
-    onGenerateNewsletter: (selectedArticles: { [key: string]: Article[] }) => void;
+    onGenerateNewsletter: (articles: Record<SummarySize, string[]>) => void;
 }
 
 export default function ArticleTable({ articles, loading, error, onGenerateNewsletter }: ArticleTableProps) {
@@ -52,30 +52,12 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
         })
     }, [filteredArticles, sortOrder])
 
-    const selectedArticles = useMemo(() => {
-        const result: { [K in SummarySize]: Article[] } = {
-            short: [],
-            medium: [],
-            long: []
-        };
-
-        Object.entries(summaryValues).forEach(([index, value]) => {
-            const article = sortedArticles[parseInt(index)];
-            if (article) {
-                result[value].push(article);
-            }
-        });
-
-        return result;
-    }, [summaryValues, sortedArticles]);
-
     const toggleSortOrder = () => {
         setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc')
     }
 
     const handleGenerateNewsletter = () => {
-        console.log("Generating newsletter with selected articles:", selectedArticles);
-        onGenerateNewsletter(selectedArticles);
+        console.log("Generating newsletter with selected articles:");
     }
 
     const handleAgeFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -61,16 +61,13 @@ import NewsletterEditor from "./NewsletterEditor";
 import { Article, getArticles } from "@/api/articleService";
 import RichTextExample from "./RichTextExample";
 import RichTextEditor from "./RichTextEditor";
+import { SummarySize } from "@/types/types";
 
 export default function ArticlesDashboard() {
   console.log('ArticlesDashboard rendering');
   const editor = useCreateBlockNote();
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedArticles, setSelectedArticles] = useState<{ [key: string]: Article[] }>({
-    small: [],
-    avg: [],
-    big: []
-  });
+
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,9 +98,9 @@ export default function ArticlesDashboard() {
     }
   }, [fetchArticles, hasFetched]);
 
-  const handleGenerateNewsletter = (articles: { [key: string]: Article[] }) => {
-    setSelectedArticles(articles);
+  const handleGenerateNewsletter = (articles: Record<SummarySize, string[]>) => {
     setActiveTab("newsletter");
+    console.log('Generating newsletter with selected articles:', articles);
   };
 
   return (
@@ -347,7 +344,7 @@ export default function ArticlesDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <NewsletterEditor selectedArticles={selectedArticles} />
+                  <NewsletterEditor/>
                 </CardContent>
               </Card>
             </TabsContent>
