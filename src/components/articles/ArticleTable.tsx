@@ -172,7 +172,7 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
                             >
                                 <TableCell className="text-left">{article.source}</TableCell>
                                 <TableCell className="text-left">
-                                <div className="max-h-[3em] overflow-hidden">
+                                <div className="max-h-[3em] overflow-hidden w-[900px]">
                                     <a href={article.url} className="text-primary hover:underline" target="_blank">
                                         {article.title}
                                     </a>
