@@ -57,7 +57,21 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
     }
 
     const handleGenerateNewsletter = () => {
-        console.log("Generating newsletter with selected articles:");
+        const result: Record<SummarySize, string[]> = {
+            short: [],
+            medium: [],
+            long: []
+        };
+
+        // Transform summaryValues into the required format
+        Object.entries(summaryValues).forEach(([index, size]) => {
+            const article = sortedArticles[parseInt(index)];
+            if (article?.url) {
+                result[size].push(article.url);
+            }
+        });
+
+        onGenerateNewsletter(result);
     }
 
     const handleAgeFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
