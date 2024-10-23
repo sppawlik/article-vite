@@ -23,7 +23,7 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
     const [ageFilter, setAgeFilter] = useState<number | ''>('')
     const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5])
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-    const [summaryValues, setSummaryValues] = useState<{ [key: number]: SummarySize | '-' }>({})
+    const [summaryValues, setSummaryValues] = useState<{ [key: number]: SummarySize }>({})
 
     const filteredArticles = useMemo(() => {
         return articles.filter(article => {
@@ -60,11 +60,9 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
         };
 
         Object.entries(summaryValues).forEach(([index, value]) => {
-            if (value !== '-') {
-                const article = sortedArticles[parseInt(index)];
-                if (article) {
-                    result[value].push(article);
-                }
+            const article = sortedArticles[parseInt(index)];
+            if (article) {
+                result[value].push(article);
             }
         });
 
@@ -93,7 +91,15 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
     }
 
     const handleSummaryChange = (index: number, value: SummarySize | '-') => {
-        setSummaryValues(prev => ({ ...prev, [index]: value }));
+        setSummaryValues(prev => {
+            const newValues = { ...prev };
+            if (value === '-') {
+                delete newValues[index];
+            } else {
+                newValues[index] = value;
+            }
+            return newValues;
+        });
     }
 
     if (loading) {
@@ -166,7 +172,7 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
                         {sortedArticles.map((article, index) => (
                             <TableRow 
                                 key={index}
-                                className={summaryValues[index] && summaryValues[index] !== '-' ? 'bg-gray-200' : ''}
+                                className={summaryValues[index] ? 'bg-gray-200' : ''}
                             >
                                 <TableCell className="text-left">{article.source}</TableCell>
                                 <TableCell className="text-left">

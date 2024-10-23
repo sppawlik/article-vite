@@ -27,11 +27,7 @@ import {
 } from "lucide-react"
 import { Article } from "@/api/articleService"
 
-interface NewsletterEditorProps {
-  selectedArticles: { [key: string]: Article[] };
-}
-
-const NewsletterEditor: React.FC<NewsletterEditorProps> = ({ selectedArticles }) => {
+const NewsletterEditor: React.FC = ({  }) => {
   return (
     <main className="grid flex-1 gap-4 overflow-auto p-4 md:grid-cols-2 lg:grid-cols-3">
       <div
@@ -153,16 +149,11 @@ const NewsletterEditor: React.FC<NewsletterEditorProps> = ({ selectedArticles })
         </Badge>
         <div className="flex-1 overflow-auto">
           <h2 className="text-lg font-semibold mb-4">Selected Articles</h2>
-          {Object.entries(selectedArticles).map(([size, articles]) => (
-            <div key={size} className="mb-4">
-              <h3 className="text-md font-semibold capitalize">{size}</h3>
+            <div  className="mb-4">
+              <h3 className="text-md font-semibold capitalize"></h3>
               <ul className="list-disc pl-5">
-                {articles.map((article, index) => (
-                  <li key={index}>{article.title}</li>
-                ))}
               </ul>
             </div>
-          ))}
         </div>
         <form
           className="relative overflow-hidden rounded-lg border bg-background focus-within:ring-1 focus-within:ring-ring"
