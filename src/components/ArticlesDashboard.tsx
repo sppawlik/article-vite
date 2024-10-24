@@ -59,6 +59,7 @@ import { useCreateBlockNote } from "@blocknote/react";
 import ArticleTable from "./articles/ArticleTable";
 import NewsletterEditor from "./NewsletterEditor";
 import { Article, getArticles } from "@/api/articleService";
+import { submitNewsletter } from "@/api/newsletterService";
 import RichTextExample from "./RichTextExample";
 import RichTextEditor from "./RichTextEditor";
 import { SummarySize } from "@/types/types";
@@ -73,6 +74,8 @@ export default function ArticlesDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
   const fetchingRef = useRef(false);
+  const [newsletterLoading, setNewsletterLoading] = useState(false);
+  const [newsletterId, setNewsletterId] = useState<string | null>(null);
 
   const fetchArticles = useCallback(async () => {
     if (fetchingRef.current || hasFetched) return;
@@ -98,9 +101,22 @@ export default function ArticlesDashboard() {
     }
   }, [fetchArticles, hasFetched]);
 
-  const handleGenerateNewsletter = (articles: Record<SummarySize, string[]>) => {
+  const handleGenerateNewsletter = async (articles: Record<SummarySize, string[]>) => {
     setActiveTab("newsletter");
     console.log('Generating newsletter with selected articles:', articles);
+    
+    setNewsletterLoading(true);
+    setError(null);
+    try {
+      const id = await submitNewsletter({ articles });
+      setNewsletterId(id);
+      console.log('Newsletter submitted successfully with ID:', id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred while submitting the newsletter');
+      console.error('Failed to submit newsletter:', err);
+    } finally {
+      setNewsletterLoading(false);
+    }
   };
 
   return (
@@ -344,7 +360,11 @@ export default function ArticlesDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <NewsletterEditor/>
+                  <NewsletterEditor 
+                    loading={newsletterLoading}
+                    newsletterId={newsletterId}
+                    error={error}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
