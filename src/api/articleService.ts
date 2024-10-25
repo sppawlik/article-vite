@@ -1,5 +1,6 @@
 export interface Article {
   source: string
+  articleId: string
   title: string
   summary: string
   url: string
@@ -19,6 +20,7 @@ interface Score {
 
 interface APIArticle {
   Source: string
+  ArticleId: string
   Title: string
   Summary: string
   URL: string
@@ -28,6 +30,7 @@ interface APIArticle {
 
 interface APIArticleEnhanced {
   Source: string
+  ArticleId: string
   Title: string
   Summary: string
   URL: string
@@ -55,6 +58,7 @@ export async function getArticles(): Promise<Article[]> {
 
     return dataEnhanced.map((item: APIArticleEnhanced) => ({
       source: item.Source,
+      articleId: item.ArticleId,
       title: item.Title,
       summary: item.Summary,
       url: item.URL,

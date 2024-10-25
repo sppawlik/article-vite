@@ -8,6 +8,14 @@ interface NewsletterResponse {
     newsletterId: string;
 }
 
+interface Newsletter {
+    newsletterId: string;
+    status: string;
+    articles: Record<SummarySize, string[]>;
+    createDate: string;
+    newsletterPromptContent: string;
+}
+
 const NEWSLETTER_API_URL = 'https://fzczuzbp33.execute-api.eu-central-1.amazonaws.com/prod/newsletter';
 
 export async function submitNewsletter(articles: NewsletterArticles): Promise<string> {
@@ -29,6 +37,28 @@ export async function submitNewsletter(articles: NewsletterArticles): Promise<st
         return data.newsletterId;
     } catch (error) {
         console.error('Error submitting newsletter:', error);
+        throw error;
+    }
+}
+
+export async function getNewsletter(newsletterId: string): Promise<Newsletter> {
+    try {
+        const response = await fetch(`${NEWSLETTER_API_URL}/${newsletterId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`HTTP error! status: ${response.status}`);
+            throw new Error(`Failed to get newsletter: ${response.statusText}`);
+        }
+
+        const data: Newsletter = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error getting newsletter:', error);
         throw error;
     }
 }

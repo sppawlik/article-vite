@@ -65,9 +65,9 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
 
         // Transform summaryValues into the required format
         Object.entries(summaryValues).forEach(([index, size]) => {
-            const article = sortedArticles[parseInt(index)];
+            const article: Article = sortedArticles[parseInt(index)];
             if (article?.url) {
-                result[size].push(article.url);
+                result[size].push(article.articleId);
             }
         });
 
