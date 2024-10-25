@@ -19,6 +19,9 @@ import { Article } from "@/api/articleService"
 import { getNewsletter } from "@/api/newsletterService"
 import { SummarySize } from "@/types/types"
 import DOMPurify, {sanitize} from "dompurify";
+import Markdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
+import rehypeHighlight from "rehype-highlight";
 
 interface NewsletterEditorProps {
   loading?: boolean;
@@ -97,8 +100,9 @@ const NewsletterEditor: React.FC<NewsletterEditorProps> = ({ loading: initialLoa
             </div>
           ) : newsletter && (
               <div className="space-y-4">
-                <div className="p-4 border rounded-md">
-                      <div dangerouslySetInnerHTML={{__html: newsletter.newsletterPromptContent}}/>
+                <div className="markdown-body">
+                  <Markdown rehypePlugins={[rehypeSanitize, rehypeHighlight]}>{newsletter.newsletterPromptContent}</Markdown>
+                      {/*<div dangerouslySetInnerHTML={{__html: newsletter.newsletterPromptContent}}/>*/}
                 </div>
                 <div>
                   <h3 className="font-medium">Created: {new Date(newsletter.createDate).toLocaleString()}</h3>
