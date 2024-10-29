@@ -26,7 +26,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import NewsletterEditor from "./NewsletterEditor"
+import NewsletterEditor from "./MarkdownOutput"
 
 export default function DashboardLayout() {
   return (

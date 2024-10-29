@@ -37,7 +37,7 @@ interface Newsletter {
   newsletterPromptContent: string;
 }
 
-const NewsletterEditor: React.FC<NewsletterEditorProps> = ({ loading: initialLoading, newsletterId, error: initialError }) => {
+const MarkdownOutput: React.FC<NewsletterEditorProps> = ({ loading: initialLoading, newsletterId, error: initialError }) => {
   const [newsletter, setNewsletter] = useState<Newsletter | null>(null);
   const [loading, setLoading] = useState(initialLoading);
   const [error, setError] = useState(initialError);
@@ -100,9 +100,41 @@ const NewsletterEditor: React.FC<NewsletterEditorProps> = ({ loading: initialLoa
             </div>
           ) : newsletter && (
               <div className="space-y-4">
-                <div className="markdown-body">
+                <style>
+                  {`
+                    .markdown-content {
+                      text-align: justify;
+                    }
+                    .markdown-content ul {
+                      list-style: none;
+                      padding-left: 0;
+                      margin-top: 0.5em;
+                      margin-bottom: 0.5em;
+                      text-align: left;
+                    }
+                    .markdown-content ul li {
+                      position: relative;
+                      padding-left: 1.5em;
+                      margin: 0.2em 0;
+                      line-height: 1.6;
+                    }
+                    .markdown-content ul li::before {
+                      content: "•";
+                      position: absolute;
+                      left: 0.5em;
+                      color: #666;
+                    }
+                    .markdown-content strong {
+                      font-weight: 600;
+                    }
+                    .markdown-content p {
+                      text-align: justify;
+                      margin-bottom: 1em;
+                    }
+                  `}
+                </style>
+                <div className="markdown-content">
                   <Markdown rehypePlugins={[rehypeSanitize, rehypeHighlight]}>{newsletter.newsletterPromptContent}</Markdown>
-                      {/*<div dangerouslySetInnerHTML={{__html: newsletter.newsletterPromptContent}}/>*/}
                 </div>
                 <div>
                   <h3 className="font-medium">Created: {new Date(newsletter.createDate).toLocaleString()}</h3>
@@ -115,4 +147,4 @@ const NewsletterEditor: React.FC<NewsletterEditorProps> = ({ loading: initialLoa
   )
 }
 
-export default NewsletterEditor
+export default MarkdownOutput

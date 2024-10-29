@@ -12,7 +12,7 @@ type TextEditorProps = {
   };
 
 
-export default function RichTextEditor({
+export default function TipTapEditor({
     initialContent,
   }: TextEditorProps) {
     const extensions = [StarterKit, Underline,
