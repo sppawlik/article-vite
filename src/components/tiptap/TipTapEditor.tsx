@@ -5,38 +5,55 @@ import TextEditorMenuBar from "./TextEditorMenuBar";
 import React from "react";
 import MenuBar from "@/components/MenuBar";
 import {TextAlign} from "@tiptap/extension-text-align";
+import './styles.scss'
 
+import { Color } from '@tiptap/extension-color'
+import ListItem from '@tiptap/extension-list-item'
+import TextStyle from '@tiptap/extension-text-style'
+import Blockquote from '@tiptap/extension-blockquote'
 
 type TextEditorProps = {
-    initialContent?: string; // Add this line
-  };
-
+    initialContent?: string;
+};
 
 export default function TipTapEditor({
     initialContent,
-  }: TextEditorProps) {
-    const extensions = [StarterKit, Underline,
-        TextAlign.configure({
-            defaultAlignment: 'left',
-            types: ['heading', 'paragraph'],
-    })];
+}: TextEditorProps) {
+    const extensions = [
+        Color.configure({ types: [TextStyle.name, ListItem.name] }),
+        StarterKit.configure({
+            bulletList: {
+                keepMarks: true,
+            },
+            orderedList: {
+                keepMarks: true,
+                keepAttributes: false,
+            },
+        }), 
+        Underline,
+        Blockquote
+    ];
+    
     const editor = useEditor({
         extensions: extensions,
-        content: initialContent,
+        content: '<blockquote>\n' +
+            '        Nothing is impossible, the word itself says “I’m possible!”\n' +
+            '      </blockquote>\n' +
+            '      <p>Audrey Hepburn</p>',
+        autofocus: true,
+        injectCSS: false,
         editorProps: {
             attributes: {
-                class: "min-h-[150px] cursor-text rounded-md border p-5 ring-offset-background focus-within:outline-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 "
+                class: 'tiptap-editor'
             }
         },
         immediatelyRender: false
     })
-  return (
-    <div>
-        {/*<EditorProvider slotBefore={<MenuBar/>} extensions={extensions}  content={initialContent}>*/}
-        {/*    <BubbleMenu editor={null}><textarea content="edit...."></textarea></BubbleMenu>*/}
-        {/*</EditorProvider>*/}
-        <TextEditorMenuBar editor={editor}/>
-        <EditorContent  editor={editor} />
-    </div>
-  )
+
+    return (
+        <div>
+            <TextEditorMenuBar editor={editor}/>
+            <EditorContent editor={editor} />
+        </div>
+    )
 }

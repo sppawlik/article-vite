@@ -66,7 +66,7 @@ import { SummarySize } from "@/types/types";
 export default function ArticlesDashboard() {
   console.log('ArticlesDashboard rendering');
   const editor = useCreateBlockNote();
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("tiptap");
 
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
@@ -209,7 +209,7 @@ export default function ArticlesDashboard() {
           </TooltipProvider>
         </nav>
       </aside>
-      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+      <div className="flex flex-col sm:gap-4 sm:py-4">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
           <Sheet>
             <SheetTrigger asChild>
@@ -315,10 +315,11 @@ export default function ArticlesDashboard() {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="flex items-center">
               <TabsList>
+
                 <TabsTrigger value="all">All</TabsTrigger>
                 <TabsTrigger value="markdown">Newsletter</TabsTrigger>
-                <TabsTrigger value="blocknote">Editor</TabsTrigger>
                 <TabsTrigger value="tiptap">Tiptap</TabsTrigger>
+                <TabsTrigger value="blocknote">Editor</TabsTrigger>
               </TabsList>
               <div className="ml-auto flex items-center gap-2">
                 <Button size="sm" className="h-7 gap-1">
@@ -329,6 +330,7 @@ export default function ArticlesDashboard() {
                 </Button>
               </div>
             </div>
+
             <TabsContent value="all">
               <Card>
                 <CardHeader>

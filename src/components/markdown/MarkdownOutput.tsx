@@ -106,7 +106,6 @@ const MarkdownOutput: React.FC<NewsletterEditorProps> = ({ loading: initialLoadi
                       text-align: justify;
                     }
                     .markdown-content ul {
-                      list-style: none;
                       padding-left: 0;
                       margin-top: 0.5em;
                       margin-bottom: 0.5em;
