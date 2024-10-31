@@ -57,7 +57,6 @@ import "@blocknote/mantine/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 
 import ArticleTable from "./articles/ArticleTable";
-import MarkdownOutput from "./markdown/MarkdownOutput";
 import { Article, getArticles } from "@/api/articleService";
 import { submitNewsletter } from "@/api/newsletterService";
 import TipTapEditor from "./tiptap/TipTapEditor";
@@ -66,7 +65,7 @@ import { SummarySize } from "@/types/types";
 export default function ArticlesDashboard() {
   console.log('ArticlesDashboard rendering');
   const editor = useCreateBlockNote();
-  const [activeTab, setActiveTab] = useState("tiptap");
+  const [activeTab, setActiveTab] = useState("all");
 
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
@@ -317,18 +316,9 @@ export default function ArticlesDashboard() {
               <TabsList>
 
                 <TabsTrigger value="all">All</TabsTrigger>
-                <TabsTrigger value="markdown">Newsletter</TabsTrigger>
                 <TabsTrigger value="tiptap">Tiptap</TabsTrigger>
                 <TabsTrigger value="blocknote">Editor</TabsTrigger>
               </TabsList>
-              <div className="ml-auto flex items-center gap-2">
-                <Button size="sm" className="h-7 gap-1">
-                  <PlusCircle className="h-3.5 w-3.5" />
-                  <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                    Add Article
-                  </span>
-                </Button>
-              </div>
             </div>
 
             <TabsContent value="all">
@@ -349,23 +339,6 @@ export default function ArticlesDashboard() {
                 </CardContent>
               </Card>
             </TabsContent>
-            <TabsContent value="markdown">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Newsletter Editor</CardTitle>
-                  <CardDescription>
-                    Create and edit your newsletter content.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <MarkdownOutput
-                    loading={newsletterLoading}
-                    newsletterId={newsletterId}
-                    error={error}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
             <TabsContent value="blocknote">
               <Card>
                 <CardHeader>
@@ -381,12 +354,6 @@ export default function ArticlesDashboard() {
             </TabsContent>
             <TabsContent value="tiptap">
               <Card>
-                <CardHeader>
-                  <CardTitle>TipTap Editor</CardTitle>
-                  <CardDescription>
-                    Create and edit your newsletter content.
-                  </CardDescription>
-                </CardHeader>
                 <CardContent>
                   <TipTapEditor loading={newsletterLoading}
                                 newsletterId={newsletterId}

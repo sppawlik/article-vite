@@ -3,8 +3,6 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import TextEditorMenuBar from "./TextEditorMenuBar";
 import React, { useEffect, useState } from "react";
-import MenuBar from "@/components/MenuBar";
-import {TextAlign} from "@tiptap/extension-text-align";
 import './styles.scss'
 
 import { Color } from '@tiptap/extension-color'
