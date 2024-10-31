@@ -101,7 +101,7 @@ export default function ArticlesDashboard() {
   }, [fetchArticles, hasFetched]);
 
   const handleGenerateNewsletter = async (articles: Record<SummarySize, string[]>) => {
-    setActiveTab("markdown");
+    setActiveTab("tiptap");
     console.log('Generating newsletter with selected articles:', articles);
     
     setNewsletterLoading(true);
@@ -388,7 +388,9 @@ export default function ArticlesDashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <TipTapEditor/>
+                  <TipTapEditor loading={newsletterLoading}
+                                newsletterId={newsletterId}
+                                error={error}/>
                 </CardContent>
               </Card>
             </TabsContent>

@@ -1,4 +1,4 @@
-import React, {useState, useMemo} from 'react'
+import React, { useState, useMemo, useCallback } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
@@ -52,11 +52,11 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
         })
     }, [filteredArticles, sortOrder])
 
-    const toggleSortOrder = () => {
+    const toggleSortOrder = useCallback(() => {
         setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc')
-    }
+    }, [])
 
-    const handleGenerateNewsletter = () => {
+    const handleGenerateNewsletter = useCallback(() => {
         const result: Record<SummarySize, string[]> = {
             short: [],
             medium: [],
@@ -72,9 +72,9 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
         });
 
         onGenerateNewsletter(result);
-    }
+    }, [summaryValues, sortedArticles, onGenerateNewsletter])
 
-    const handleAgeFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleAgeFilterChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (value === '') {
             setAgeFilter('');
@@ -84,9 +84,9 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
                 setAgeFilter(numValue);
             }
         }
-    }
+    }, [])
 
-    const handleSummaryChange = (index: number, value: SummarySize | '-') => {
+    const handleSummaryChange = useCallback((index: number, value: SummarySize | '-') => {
         setSummaryValues(prev => {
             const newValues = { ...prev };
             if (value === '-') {
@@ -96,7 +96,7 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
             }
             return newValues;
         });
-    }
+    }, [])
 
     if (loading) {
         return <div>Loading articles...</div>
@@ -120,6 +120,7 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
                             min={1}
                             max={365}
                             className="h-8"
+                            aria-label="Filter articles by age in days"
                         />
                     </div>
                     <div className="w-48">
@@ -131,6 +132,7 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
                             value={ratingFilter}
                             onValueChange={setRatingFilter}
                             className="mt-2"
+                            aria-label="Filter articles by rating"
                             />
                             <div className="flex justify-between text-xs text-gray-500 mt-1">
                                 <span>{ratingFilter[0]}</span>
@@ -173,7 +175,7 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
                                 <TableCell className="text-left">{article.source}</TableCell>
                                 <TableCell className="text-left">
                                 <div className="max-h-[3em] overflow-hidden w-[900px]">
-                                    <a href={article.url} className="text-primary hover:underline" target="_blank">
+                                    <a href={article.url} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
                                         {article.title}
                                     </a>
                                     {" "}
