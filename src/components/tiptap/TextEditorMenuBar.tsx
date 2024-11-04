@@ -5,11 +5,11 @@ import {
     RiCodeSSlashLine,
     RiListOrdered2,
   } from "react-icons/ri";
-import { CiTextAlignLeft } from "react-icons/ci";
   import { Editor } from "@tiptap/react";
   import { AiOutlineRedo, AiOutlineUndo } from "react-icons/ai";
   import { BsTypeUnderline } from "react-icons/bs";
   import { IoListOutline } from "react-icons/io5";
+  import { RiH1 } from "react-icons/ri";
 import React from "react";
 
 
@@ -43,9 +43,9 @@ import React from "react";
   
     const buttons = [
       {
-        icon: <CiTextAlignLeft className="size-5" />,
-        onClick: () => editor.chain().focus().setTextAlign('left').run(),
-        isActive: editor.isActive("left"),
+        icon: <RiH1 className="size-5" />,
+        onClick: () => editor.chain().focus().toggleHeading({ level: 1 }).run(),
+        isActive: editor.isActive('heading', { level: 1 })
       },
       {
         icon: <RiBold className="size-5" />,
@@ -101,7 +101,7 @@ import React from "react";
     ];
   
     return (
-      <div className="mb-2 flex space-x-2">
+      <div className="mb-2 flex content-center space-x-2">
         {buttons.map(({ icon, onClick, isActive, disabled }, index) => (
           <Button
             key={index}

@@ -1,17 +1,16 @@
-import {useEditor, EditorContent, EditorProvider, FloatingMenu, BubbleMenu} from "@tiptap/react";
+import {EditorContent, useEditor} from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
+import Heading from '@tiptap/extension-heading'
 import TextEditorMenuBar from "./TextEditorMenuBar";
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import './styles.scss'
 
-import { Color } from '@tiptap/extension-color'
+import {Color} from '@tiptap/extension-color'
 import ListItem from '@tiptap/extension-list-item'
 import TextStyle from '@tiptap/extension-text-style'
-import Blockquote from '@tiptap/extension-blockquote'
-import { SummarySize } from "@/types/types";
-import { getNewsletter } from "@/api/newsletterService";
-import { Badge } from "../ui/badge";
+import {SummarySize} from "@/types/types";
+import {getNewsletter} from "@/api/newsletterService";
 
 type TextEditorProps = {
     loading?: boolean;
@@ -37,6 +36,9 @@ export default function TipTapEditor({
 
     const extensions = [
         Color.configure({ types: [TextStyle.name, ListItem.name] }),
+        Heading.configure({
+            levels: [1, 2, 3],
+        }),
         StarterKit.configure({
             bulletList: {
                 keepMarks: true,
@@ -46,13 +48,12 @@ export default function TipTapEditor({
                 keepAttributes: false,
             },
         }), 
-        Underline,
-        Blockquote
+        Underline
     ];
     
     const editor = useEditor({
         extensions: extensions,
-        content: newsletter?.newsletterPromptContent || '',
+        content: newsletter?.newsletterPromptContent || '<em>test</em>',
         autofocus: true,
         injectCSS: false,
         editorProps: {
@@ -105,9 +106,6 @@ export default function TipTapEditor({
 
     return (
         <>
-        <Badge variant="outline" className="absolute right-3 top-3">
-          {newsletter?.status === 'PENDING' || loading ? "Loading..." : newsletterId ? `Newsletter ID: ${newsletterId}` : "Output"}
-        </Badge>
         <div className="flex-1 overflow-auto">
           {error && (
             <div className="mb-4 p-4 text-red-500 bg-red-100 rounded">
@@ -115,7 +113,7 @@ export default function TipTapEditor({
             </div>
           )}
           {newsletter?.status === 'PENDING' ? (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center h-full top-4">
               <p>Loading...</p>
             </div>
           ) : editor && (

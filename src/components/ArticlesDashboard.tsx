@@ -62,6 +62,8 @@ import { submitNewsletter } from "@/api/newsletterService";
 import TipTapEditor from "./tiptap/TipTapEditor";
 import { SummarySize } from "@/types/types";
 
+// Add a style block at the top of the component
+
 export default function ArticlesDashboard() {
   console.log('ArticlesDashboard rendering');
   const editor = useCreateBlockNote();
@@ -312,9 +314,8 @@ export default function ArticlesDashboard() {
         </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className="flex items-center">
-              <TabsList>
-
+            <div className="flex items-center ">
+              <TabsList className="gap-2">
                 <TabsTrigger value="all">All</TabsTrigger>
                 <TabsTrigger value="tiptap">Tiptap</TabsTrigger>
                 <TabsTrigger value="blocknote">Editor</TabsTrigger>
