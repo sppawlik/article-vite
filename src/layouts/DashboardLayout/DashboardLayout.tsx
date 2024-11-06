@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 import {
   Book,
   Bot,
@@ -10,9 +10,9 @@ import {
   SquareTerminal,
   SquareUser,
   Triangle,
-} from "lucide-react"
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerContent,
@@ -20,18 +20,18 @@ import {
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer"
+} from "@/components/ui/drawer";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from "@/components/ui/tooltip"
-import NewsletterEditor from "./MarkdownOutput"
+} from "@/components/ui/tooltip";
+import { NewsletterBuilder } from "@/features/newsletter/NewsletterBuilder";
 
-export default function DashboardLayout() {
+export function DashboardLayout() {
   return (
     <div className="grid h-screen w-full pl-[53px]">
-      <aside className="inset-y fixed  left-0 z-20 flex h-full flex-col border-r">
+      <aside className="inset-y fixed left-0 z-20 flex h-full flex-col border-r">
         <div className="border-b p-2">
           <Button variant="outline" size="icon" aria-label="Home">
             <Triangle className="size-5 fill-foreground" />
@@ -176,8 +176,8 @@ export default function DashboardLayout() {
             Share
           </Button>
         </header>
-        <NewsletterEditor />
+        <NewsletterBuilder />
       </div>
     </div>
-  )
+  );
 }

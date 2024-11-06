@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Home,
   LineChart,
@@ -40,10 +40,21 @@ import {
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 
-import NewsletterBuilder from "./articles/NewsletterBuilder";
+import { NewsletterBuilder } from "@/features/newsletter/NewsletterBuilder";
+import { MarkdownOutput } from "@/features/markdown/MarkdownOutput";
 
-export default function ArticlesDashboard() {
-  console.log('ArticlesDashboard rendering');
+export function SideBarDashboard() {
+  const [activeComponent, setActiveComponent] = useState('articles');
+
+  const renderMainContent = () => {
+    switch (activeComponent) {
+      case 'markdown':
+        return <MarkdownOutput loading={false} newsletterId={null} error={null} />;
+      case 'articles':
+      default:
+        return <NewsletterBuilder />;
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-muted/40">
@@ -85,7 +96,13 @@ export default function ArticlesDashboard() {
               <TooltipTrigger asChild>
                 <a
                   href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent text-accent-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveComponent('articles');
+                  }}
+                  className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8 ${
+                    activeComponent === 'articles' ? 'bg-accent text-accent-foreground' : ''
+                  }`}
                 >
                   <Package className="h-5 w-5" />
                   <span className="sr-only">Articles</span>
@@ -109,7 +126,13 @@ export default function ArticlesDashboard() {
               <TooltipTrigger asChild>
                 <a
                   href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveComponent('markdown');
+                  }}
+                  className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8 ${
+                    activeComponent === 'markdown' ? 'bg-accent text-accent-foreground' : ''
+                  }`}
                 >
                   <LineChart className="h-5 w-5" />
                   <span className="sr-only">Markdown</span>
@@ -163,7 +186,13 @@ export default function ArticlesDashboard() {
                 </a>
                 <a
                   href="#"
-                  className="flex items-center gap-4 px-2.5 text-foreground"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveComponent('articles');
+                  }}
+                  className={`flex items-center gap-4 px-2.5 ${
+                    activeComponent === 'articles' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  }`}
                 >
                   <Package className="h-5 w-5" />
                   Articles
@@ -177,10 +206,16 @@ export default function ArticlesDashboard() {
                 </a>
                 <a
                   href="#"
-                  className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setActiveComponent('markdown');
+                  }}
+                  className={`flex items-center gap-4 px-2.5 ${
+                    activeComponent === 'markdown' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'
+                  }`}
                 >
                   <LineChart className="h-5 w-5" />
-                  Analytics
+                  Markdown
                 </a>
               </nav>
             </SheetContent>
@@ -195,12 +230,12 @@ export default function ArticlesDashboard() {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <a href="#">Articles</a>
+                  <a href="#">{activeComponent === 'markdown' ? 'Markdown' : 'Articles'}</a>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>All Articles</BreadcrumbPage>
+                <BreadcrumbPage>{activeComponent === 'markdown' ? 'Markdown Editor' : 'All Articles'}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -239,7 +274,7 @@ export default function ArticlesDashboard() {
           </DropdownMenu>
         </header>
         <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
-          <NewsletterBuilder />
+          {renderMainContent()}
         </main>
       </div>
     </div>

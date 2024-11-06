@@ -4,13 +4,13 @@ import { useCreateBlockNote } from "@blocknote/react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ArticleTable from "./ArticleTable";
-import TipTapEditor from "../tiptap/TipTapEditor";
+import { ArticleTable } from "@/features/articles/ArticleTable";
+import { TipTapEditor } from "@/features/newsletter/TipTapEditor";
 import { Article, getArticles } from "@/api/articleService";
 import { submitNewsletter } from "@/api/newsletterService";
 import { SummarySize } from "@/types/types";
 
-export default function NewsletterBuilder() {
+export function NewsletterBuilder() {
   const editor = useCreateBlockNote();
   const [activeTab, setActiveTab] = useState("all");
   

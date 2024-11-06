@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from "react"
-import {Badge} from "@/components/ui/badge"
-import {getNewsletter} from "@/api/newsletterService"
+import React, { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { getNewsletter } from "@/api/newsletterService";
 import Markdown from "react-markdown";
 import rehypeSanitize from "rehype-sanitize";
 import rehypeHighlight from "rehype-highlight";
-import {Newsletter} from "@/types/types";
+import { Newsletter } from "@/types/types";
 
 interface NewsletterEditorProps {
     loading?: boolean;
@@ -12,12 +12,11 @@ interface NewsletterEditorProps {
     error: string | null;
 }
 
-
-const MarkdownOutput: React.FC<NewsletterEditorProps> = ({
-                                                             loading: initialLoading,
-                                                             newsletterId,
-                                                             error: initialError
-                                                         }) => {
+export function MarkdownOutput({
+    loading: initialLoading,
+    newsletterId,
+    error: initialError
+}: NewsletterEditorProps) {
     const [newsletter, setNewsletter] = useState<Newsletter | null>(null);
     const [loading, setLoading] = useState(initialLoading);
     const [error, setError] = useState(initialError);
@@ -124,7 +123,5 @@ const MarkdownOutput: React.FC<NewsletterEditorProps> = ({
                 </div>
             </div>
         </main>
-    )
+    );
 }
-
-export default MarkdownOutput

@@ -1,14 +1,14 @@
-import React, { useState, useMemo, useCallback } from 'react'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
-import { Article } from '@/api/articleService'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import React, { useState, useMemo, useCallback } from 'react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
+import { Article } from "@/api/articleService";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from '@/components/ui/label'
-import { Slider } from '@/components/ui/slider'
-import { SummarySize } from '@/types/types'
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import { SummarySize } from "@/types/types";
 
 const SUMMARY_OPTIONS: SummarySize[] = ['short', 'medium', 'long'];
 
@@ -19,11 +19,11 @@ interface ArticleTableProps {
     onGenerateNewsletter: (articles: Record<SummarySize, string[]>) => void;
 }
 
-export default function ArticleTable({ articles, loading, error, onGenerateNewsletter }: ArticleTableProps) {
-    const [ageFilter, setAgeFilter] = useState<number | ''>('')
-    const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5])
-    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-    const [summaryValues, setSummaryValues] = useState<{ [key: number]: SummarySize }>({})
+export function ArticleTable({ articles, loading, error, onGenerateNewsletter }: ArticleTableProps) {
+    const [ageFilter, setAgeFilter] = useState<number | ''>('');
+    const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5]);
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [summaryValues, setSummaryValues] = useState<{ [key: number]: SummarySize }>({});
 
     const filteredArticles = useMemo(() => {
         return articles.filter(article => {
@@ -45,16 +45,16 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
     const sortedArticles = useMemo(() => {
         return [...filteredArticles].sort((a, b) => {
             if (sortOrder === 'asc') {
-                return a.rating - b.rating
+                return a.rating - b.rating;
             } else {
-                return b.rating - a.rating
+                return b.rating - a.rating;
             }
-        })
-    }, [filteredArticles, sortOrder])
+        });
+    }, [filteredArticles, sortOrder]);
 
     const toggleSortOrder = useCallback(() => {
-        setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc')
-    }, [])
+        setSortOrder(prevOrder => prevOrder === 'asc' ? 'desc' : 'asc');
+    }, []);
 
     const handleGenerateNewsletter = useCallback(() => {
         const result: Record<SummarySize, string[]> = {
@@ -72,7 +72,7 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
         });
 
         onGenerateNewsletter(result);
-    }, [summaryValues, sortedArticles, onGenerateNewsletter])
+    }, [summaryValues, sortedArticles, onGenerateNewsletter]);
 
     const handleAgeFilterChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -84,7 +84,7 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
                 setAgeFilter(numValue);
             }
         }
-    }, [])
+    }, []);
 
     const handleSummaryChange = useCallback((index: number, value: SummarySize | '-') => {
         setSummaryValues(prev => {
@@ -96,14 +96,14 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
             }
             return newValues;
         });
-    }, [])
+    }, []);
 
     if (loading) {
-        return <div>Loading articles...</div>
+        return <div>Loading articles...</div>;
     }
 
     if (error) {
-        return <div>Error: {error}</div>
+        return <div>Error: {error}</div>;
     }
 
     return (
@@ -111,7 +111,7 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
             <div className="flex justify-between items-end">
                 <div className="flex gap-4">
                     <div className="w-32">
-                    <Label htmlFor="age-filter" className="text-sm">Age (days)</Label>
+                        <Label htmlFor="age-filter" className="text-sm">Age (days)</Label>
                         <Input
                             id="age-filter"
                             type="number"
@@ -133,10 +133,10 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
                             onValueChange={setRatingFilter}
                             className="mt-2"
                             aria-label="Filter articles by rating"
-                            />
-                            <div className="flex justify-between text-xs text-gray-500 mt-1">
-                                <span>{ratingFilter[0]}</span>
-                                <span>{ratingFilter[1]}</span>
+                        />
+                        <div className="flex justify-between text-xs text-gray-500 mt-1">
+                            <span>{ratingFilter[0]}</span>
+                            <span>{ratingFilter[1]}</span>
                         </div>
                     </div>
                 </div>
@@ -174,12 +174,12 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
                             >
                                 <TableCell className="text-left">{article.source}</TableCell>
                                 <TableCell className="text-left">
-                                <div className="max-h-[3em] overflow-hidden w-[900px]">
-                                    <a href={article.url} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
-                                        {article.title}
-                                    </a>
-                                    {" "}
-                                    <span className="text-muted-foreground text-sm">{article.summary}</span>
+                                    <div className="max-h-[3em] overflow-hidden w-[900px]">
+                                        <a href={article.url} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                                            {article.title}
+                                        </a>
+                                        {" "}
+                                        <span className="text-muted-foreground text-sm">{article.summary}</span>
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-left">{article.relativeDate}</TableCell>
@@ -224,5 +224,5 @@ export default function ArticleTable({ articles, loading, error, onGenerateNewsl
                 </Table>
             )}
         </div>
-    )
+    );
 }
