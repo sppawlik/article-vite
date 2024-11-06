@@ -16,7 +16,7 @@ interface Newsletter {
     newsletterPromptContent: string;
 }
 
-const NEWSLETTER_API_URL = 'https://fzczuzbp33.execute-api.eu-central-1.amazonaws.com/prod/newsletter';
+const NEWSLETTER_API_URL = ' https://2ps0c9g84d.execute-api.eu-central-1.amazonaws.com/prod/newsletter';
 
 export async function submitNewsletter(articles: NewsletterArticles): Promise<string> {
     try {
