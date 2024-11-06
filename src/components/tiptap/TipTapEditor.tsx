@@ -9,6 +9,7 @@ import './styles.scss'
 import {Color} from '@tiptap/extension-color'
 import ListItem from '@tiptap/extension-list-item'
 import TextStyle from '@tiptap/extension-text-style'
+import Link from '@tiptap/extension-link'
 import {SummarySize} from "@/types/types";
 import {getNewsletter} from "@/api/newsletterService";
 
@@ -23,7 +24,7 @@ interface Newsletter {
     status: string;
     articles: Record<SummarySize, string[]>;
     createDate: string;
-    newsletterPromptContent: string;
+    baseNewsletter: string;
   }
 
 export default function TipTapEditor({
@@ -48,12 +49,13 @@ export default function TipTapEditor({
                 keepAttributes: false,
             },
         }), 
-        Underline
+        Underline,
+        Link
     ];
     
     const editor = useEditor({
         extensions: extensions,
-        content: newsletter?.newsletterPromptContent || '<em>test</em>',
+        content: newsletter?.baseNewsletter || '<em>test</em>',
         autofocus: true,
         injectCSS: false,
         editorProps: {
@@ -62,7 +64,7 @@ export default function TipTapEditor({
             }
         },
         immediatelyRender: false
-    }, [newsletter?.newsletterPromptContent]) // Initialize editor when content changes
+    }, [newsletter?.baseNewsletter]) // Initialize editor when content changes
   
     useEffect(() => {
       const fetchNewsletter = async () => {
