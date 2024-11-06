@@ -42,12 +42,15 @@ import "@blocknote/mantine/style.css";
 
 import { NewsletterBuilder } from "@/features/newsletter/NewsletterBuilder";
 import { MarkdownOutput } from "@/features/markdown/MarkdownOutput";
+import { ToDo } from "../todo/ToDo";
 
 export function SideBarDashboard() {
   const [activeComponent, setActiveComponent] = useState('articles');
 
   const renderMainContent = () => {
     switch (activeComponent) {
+      case 'todo':
+        return <ToDo/>
       case 'markdown':
         return <MarkdownOutput loading={false} newsletterId={null} error={null} />;
       case 'articles':
@@ -113,14 +116,20 @@ export function SideBarDashboard() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <a
-                  href="#"
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                >
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setActiveComponent('todo');
+                    }}
+                    className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors hover:text-foreground md:h-8 md:w-8 ${
+                      activeComponent === 'todo' ? 'bg-accent text-accent-foreground' : ''
+                    }`}
+                  >
                   <Users2 className="h-5 w-5" />
-                  <span className="sr-only">Customers</span>
+                  <span className="sr-only">Todo</span>
                 </a>
               </TooltipTrigger>
-              <TooltipContent side="right">Customers</TooltipContent>
+              <TooltipContent side="right">Todo</TooltipContent>
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
