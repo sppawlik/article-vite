@@ -186,10 +186,10 @@ export default function ArticlesDashboard() {
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                 >
                   <LineChart className="h-5 w-5" />
-                  <span className="sr-only">Analytics</span>
+                  <span className="sr-only">Markdown</span>
                 </a>
               </TooltipTrigger>
-              <TooltipContent side="right">Analytics</TooltipContent>
+              <TooltipContent side="right">Markdown</TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </nav>
