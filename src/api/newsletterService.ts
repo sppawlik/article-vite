@@ -1,4 +1,4 @@
-import { SummarySize } from '../types/types';
+import { SummarySize, Newsletter } from '../types/types';
 
 interface NewsletterArticles {
     articles: Record<SummarySize, string[]>;
@@ -8,15 +8,7 @@ interface NewsletterResponse {
     newsletterId: string;
 }
 
-interface Newsletter {
-    newsletterId: string;
-    status: string;
-    articles: Record<SummarySize, string[]>;
-    createDate: string;
-    newsletterPromptContent: string;
-}
-
-const NEWSLETTER_API_URL = ' https://2ps0c9g84d.execute-api.eu-central-1.amazonaws.com/prod/newsletter';
+const NEWSLETTER_API_URL = 'https://2ps0c9g84d.execute-api.eu-central-1.amazonaws.com/prod/newsletter';
 
 export async function submitNewsletter(articles: NewsletterArticles): Promise<string> {
     try {

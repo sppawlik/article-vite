@@ -10,7 +10,7 @@ import {Color} from '@tiptap/extension-color'
 import ListItem from '@tiptap/extension-list-item'
 import TextStyle from '@tiptap/extension-text-style'
 import Link from '@tiptap/extension-link'
-import {SummarySize} from "@/types/types";
+import {SummarySize, Newsletter} from "@/types/types";
 import {getNewsletter} from "@/api/newsletterService";
 
 type TextEditorProps = {
@@ -19,13 +19,6 @@ type TextEditorProps = {
     error: string | null;
 };
 
-interface Newsletter {
-    newsletterId: string;
-    status: string;
-    articles: Record<SummarySize, string[]>;
-    createDate: string;
-    baseNewsletter: string;
-  }
 
 export default function TipTapEditor({
     loading: initialLoading, newsletterId, error: initialError 
