@@ -40,7 +40,7 @@ import {
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 
-import NewsletterBuilder from "./NewsletterBuilder";
+import NewsletterBuilder from "./articles/NewsletterBuilder";
 
 export default function ArticlesDashboard() {
   console.log('ArticlesDashboard rendering');

@@ -4,8 +4,8 @@ import { useCreateBlockNote } from "@blocknote/react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import ArticleTable from "./articles/ArticleTable";
-import TipTapEditor from "./tiptap/TipTapEditor";
+import ArticleTable from "./ArticleTable";
+import TipTapEditor from "../tiptap/TipTapEditor";
 import { Article, getArticles } from "@/api/articleService";
 import { submitNewsletter } from "@/api/newsletterService";
 import { SummarySize } from "@/types/types";
