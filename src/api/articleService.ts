@@ -64,7 +64,7 @@ export async function getUserArticles(): Promise<Article[]> {
         relativeDate: getRelativeTime(new Date(item.publishedDate ?? ''), new Date()),
         publishedDate: new Date(item.publishedDate ?? ''),
         score: JSON.parse(item.score as string ?? '') as Score ?? { depth_and_originality: 0, quality: 0, relevance: 0, rating: 0, simplified: 0 },
-        rating: 4
+        rating: (JSON.parse(item.score as string ?? '') as Score)?.rating/10
     }));
 }
 
