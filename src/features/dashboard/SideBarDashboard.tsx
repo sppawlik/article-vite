@@ -49,13 +49,13 @@ export function SideBarDashboard() {
 
   const renderMainContent = () => {
     switch (activeComponent) {
-      case 'todo':
-        return <ToDo/>
+      case 'articles':
+        return <NewsletterBuilder />;
       case 'markdown':
         return <MarkdownOutput loading={false} newsletterId={null} error={null} />;
-      case 'articles':
+      case 'todo':
       default:
-        return <NewsletterBuilder />;
+        return <ToDo />;
     }
   };
 

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArticleTable } from "@/features/articles/ArticleTable";
 import { TipTapEditor } from "@/features/newsletter/TipTapEditor";
-import { Article, getArticles } from "@/api/articleService";
+import {Article, getArticles, getUserArticles} from "@/api/articleService";
 import { submitNewsletter } from "@/api/newsletterService";
 import { SummarySize } from "@/types/types";
 
@@ -28,7 +28,7 @@ export function NewsletterBuilder() {
     setLoading(true);
     setError(null);
     try {
-      const fetchedArticles = await getArticles();
+      const fetchedArticles = await getUserArticles();
       setArticles(fetchedArticles);
       setHasFetched(true);
     } catch (err) {

@@ -5,7 +5,20 @@ const schema = a.schema({
     content: a.string(),
     isDone: a.boolean()
   })
-      .authorization(allow => [allow.publicApiKey()])
+      .authorization(allow => [allow.owner()]),
+
+  UserArticle: a.model({
+    owner: a.string().required(),
+    link: a.string().required(),
+    source: a.string(),
+    title: a.string(),
+    summary: a.string(),
+    url: a.string(),
+    publishedDate: a.string(),
+    score: a.json()
+  })
+      .authorization(allow => [allow.owner()])
+      .identifier(['owner', 'link']),
 });
 
 // Used for code completion / highlighting when making requests from frontend
@@ -15,7 +28,7 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'apiKey',
+    defaultAuthorizationMode: 'userPool',
     apiKeyAuthorizationMode: { expiresInDays: 30 }
   }
 });

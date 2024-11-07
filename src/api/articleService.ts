@@ -1,3 +1,8 @@
+import type { Schema } from '../../amplify/data/resource'
+import { generateClient } from 'aws-amplify/data'
+
+const client = generateClient<Schema>()
+
 export interface Article {
   source: string
   articleId: string
@@ -40,6 +45,28 @@ interface APIArticleEnhanced {
 }
 
 const API_URL = 'https://k7f0d24lyb.execute-api.eu-central-1.amazonaws.com/prod/articles';
+
+export async function getUserArticles(): Promise<Article[]> {
+
+  const { data: items, errors } = await client.models.UserArticle.list();
+
+    if (errors) {
+        console.error('Error fetching user articles:', errors);
+        return [];
+    }
+
+    return items.map((item) => ({
+        source: item.source ?? '',
+        articleId: item.link ?? '',
+        title: item.title ??  '',
+        summary: item.summary ?? '',
+        url: item.url ??  '',
+        relativeDate: getRelativeTime(new Date(item.publishedDate ?? ''), new Date()),
+        publishedDate: new Date(item.publishedDate ?? ''),
+        score: JSON.parse(item.score as string ?? '') as Score ?? { depth_and_originality: 0, quality: 0, relevance: 0, rating: 0, simplified: 0 },
+        rating: 4
+    }));
+}
 
 export async function getArticles(): Promise<Article[]> {
   try {
