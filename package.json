@@ -12,6 +12,7 @@
   "dependencies": {
     "@aws-amplify/auth": "^6.5.0",
     "@aws-amplify/ui-react": "^6.5.5",
+    "@aws-sdk/client-dynamodb": "^3.687.0",
     "@blocknote/core": "^0.16.0",
     "@blocknote/mantine": "^0.16.0",
     "@blocknote/react": "^0.16.0",
