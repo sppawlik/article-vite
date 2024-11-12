@@ -1,15 +1,22 @@
-import * as ddb from '@aws-appsync/utils/dynamodb';
+import { util } from '@aws-appsync/utils';
 
 export function request(ctx) {
-    console.log('request################################');
-    const { limit = 20, nextToken } = ctx.arguments;
-    return { operation: 'Scan' };
+    console.log('request2################################:',ctx);
+    const { username } = ctx.identity.claims;
+    // const { limit = 20, nextToken } = ctx.arguments;
+    console.log('request2################################:',username);
+    return {
+        operation: 'Query',
+        query: {
+            expression: '#owner = :owner',
+            expressionNames: {'#owner': 'owner'},
+            expressionValues: util.dynamodb.toMapValues( {':owner': username} ),
+        }
+    }
 }
 
 export function response(ctx) {
     console.log('response################################');
-    const { items: userArticles = [] } = ctx.result;
-    console.log('userArticles size:', Object.keys(ctx.result));
-    return  userArticles ;
+    return  ctx.result;
 }
 

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArticleTable } from "@/features/articles/ArticleTable";
 import { TipTapEditor } from "@/features/newsletter/TipTapEditor";
-import {Article, getArticles, getUserArticles} from "@/api/articleService";
+import {UserArticle, getArticles, getUserArticles} from "@/api/articleService";
 import { submitNewsletter } from "@/api/newsletterService";
 import { SummarySize } from "@/types/types";
 
@@ -14,7 +14,7 @@ export function NewsletterBuilder() {
   const editor = useCreateBlockNote();
   const [activeTab, setActiveTab] = useState("all");
   
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [articles, setArticles] = useState<UserArticle[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
@@ -49,7 +49,6 @@ export function NewsletterBuilder() {
   const handleGenerateNewsletter = async (articles: Record<SummarySize, string[]>) => {
     console.log('Generating newsletter with selected articles:', articles);
     setActiveTab("tiptap");
-    
     setNewsletterLoading(true);
     setError(null);
     try {

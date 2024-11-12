@@ -1,9 +1,5 @@
 import {a, defineData, type ClientSchema, defineFunction} from '@aws-amplify/backend';
 
-// Define the function with IAM permissions using CDK constructs
-export const listArticle = defineFunction({
-    entry: './listarticles/handler.ts'
-});
 
 const schema = a.schema({
     Todo: a.model({
@@ -12,34 +8,7 @@ const schema = a.schema({
     })
         .authorization(allow => [allow.owner()]),
 
-    UserArticle: a.model({
-        owner: a.string().required(),
-        link: a.string().required(),
-        source: a.string(),
-        title: a.string(),
-        summary: a.string(),
-        url: a.string(),
-        publishedDate: a.string(),
-        score: a.json()
-    })
-        .authorization(allow => [
-            allow.owner(),
-        ])
-        .identifier(['owner', 'link'])
-        .secondaryIndexes((index) => [
-            index('owner')
-                .sortKeys(['publishedDate'])
-                .name('owner-publishdate-index')
-        ]),
 
-
-    listArticles: a.query()
-        .arguments({
-            limit: a.integer()
-        })
-        .returns(a.ref('UserArticle').array())
-        .authorization(allow => [allow.authenticated()])
-        .handler(a.handler.function(listArticle)),
 
     UserArticles: a.customType({
         owner: a.string().required(),
@@ -52,10 +21,15 @@ const schema = a.schema({
         score: a.json()
     }),
 
-    scanUserArticles: a.query().arguments({
+    UserArticlesConnection: a.customType({
+        items: a.ref('UserArticles').array().required(),
+        nextToken: a.string()
+    }),
+
+    listNewestUserArticles: a.query().arguments({
             limit: a.integer()
          })
-        .returns(a.ref('UserArticles').array())
+        .returns(a.ref('UserArticlesConnection').required())
         .authorization(allow => [allow.authenticated()])
         .handler(a.handler.custom(
             {
@@ -64,13 +38,35 @@ const schema = a.schema({
             })
         ),
 
+    Newsletter: a.customType({
+        newsletterId: a.string().required(),
+        articles: a.json(),
+        baseNewsletter: a.string(),
+        createdAt: a.string(),
+        updatedAt: a.string(),
+        status: a.enum(['PENDING', 'GENERATED'])
+    }),
+
+    // addNewsletter: a.mutation()
+    //     .arguments({
+    //         articles: a.json().required(),
+    //         status: a.enum(['PENDING', 'GENERATED'])
+    //         })
+    //     .returns(a.ref('Newsletter').required())
+    //     .authorization(allow => [allow.authenticated()])
+    //     .handler(
+    //         a.handler.custom({
+    //             dataSource:'NewsletterTableDataSource',
+    //             entry: './addnewsletter/addnewsletter.js'
+    //         })
+    //     ),
+
 });
 
 export type Schema = ClientSchema<typeof schema>;
 
 export const data = defineData({
     schema,
-    functions: {listArticle},
     authorizationModes: {
         defaultAuthorizationMode: 'userPool',
         apiKeyAuthorizationMode: {expiresInDays: 30}

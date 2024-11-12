@@ -3,12 +3,11 @@ import {generateClient} from 'aws-amplify/data'
 
 const client = generateClient<Schema>()
 
-export interface Article {
+export interface UserArticle {
     source: string
-    articleId: string
+    link: string
     title: string
     summary: string
-    url: string
     relativeDate: string
     publishedDate?: Date
     score: Score
@@ -46,12 +45,17 @@ interface APIArticleEnhanced {
 
 const API_URL = 'https://k7f0d24lyb.execute-api.eu-central-1.amazonaws.com/prod/articles';
 
-export async function getUserArticles(): Promise<Article[]> {
+export async function getUserArticles(): Promise<UserArticle[]> {
 
-    const {data: items2, errors} = await client.queries.scanUserArticles({
+
+    const {data: articles, errors} = await client.queries.listNewestUserArticles({
         limit: 1000
-    });
+    })
 
+
+
+    if (!articles) return []
+    console.log(articles)
     // const {data: items, nextToken} = await client.models.UserArticle.listUserArticleByOwnerAndPublishedDate({
     //         owner: '539488a2-6051-7088-2b51-c88be93dfcb9',
     //         publishedDate: {
@@ -66,12 +70,12 @@ export async function getUserArticles(): Promise<Article[]> {
     // );
 
 
-    return items2.map((item) => ({
+
+    return articles.items.map((item) => ({
         source: item?.source ?? '',
-        articleId: item?.link ?? '',
+        link: item?.link ?? '',
         title: item?.title ?? '',
         summary: item?.summary ?? '',
-        url: item?.url ?? '',
         relativeDate: getRelativeTime(new Date(item?.publishedDate ?? ''), new Date()),
         publishedDate: new Date(item?.publishedDate ?? ''),
         score: JSON.parse(item?.score as string ?? '') as Score ?? {
@@ -85,7 +89,7 @@ export async function getUserArticles(): Promise<Article[]> {
     }));
 }
 
-export async function getArticles(): Promise<Article[]> {
+export async function getArticles(): Promise<UserArticle[]> {
     try {
         const response = await fetch(API_URL);
 
@@ -102,10 +106,9 @@ export async function getArticles(): Promise<Article[]> {
 
         return dataEnhanced.map((item: APIArticleEnhanced) => ({
             source: item.Source,
-            articleId: item.ArticleId,
+            link: item.ArticleId,
             title: item.Title,
             summary: item.Summary,
-            url: item.URL,
             relativeDate: getRelativeTime(new Date(item.PublishedDate), new Date()),
             publishedDate: item.publishedDate,
             score: item.Score,
