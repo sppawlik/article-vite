@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
-import { Article } from "@/api/articleService";
+import { UserArticle } from "@/api/articleService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -13,7 +13,7 @@ import { SummarySize } from "@/types/types";
 const SUMMARY_OPTIONS: SummarySize[] = ['short', 'medium', 'long'];
 
 interface ArticleTableProps {
-    articles: Article[];
+    articles: UserArticle[];
     loading: boolean;
     error: string | null;
     onGenerateNewsletter: (articles: Record<SummarySize, string[]>) => void;
@@ -65,12 +65,12 @@ export function ArticleTable({ articles, loading, error, onGenerateNewsletter }:
 
         // Transform summaryValues into the required format
         Object.entries(summaryValues).forEach(([index, size]) => {
-            const article: Article = sortedArticles[parseInt(index)];
-            if (article?.url) {
-                result[size].push(article.articleId);
+            const article: UserArticle = sortedArticles[parseInt(index)];
+            if (article?.link) {
+                result[size].push(article.link);
             }
         });
-
+        console.log('summaryValues2:', summaryValues);
         onGenerateNewsletter(result);
     }, [summaryValues, sortedArticles, onGenerateNewsletter]);
 
@@ -126,7 +126,7 @@ export function ArticleTable({ articles, loading, error, onGenerateNewsletter }:
                     <div className="w-48">
                         <Label className="text-sm">Rating</Label>
                         <Slider
-                            min={1}
+                            min={0}
                             max={5}
                             step={1}
                             value={ratingFilter}
@@ -175,7 +175,8 @@ export function ArticleTable({ articles, loading, error, onGenerateNewsletter }:
                                 <TableCell className="text-left">{article.source}</TableCell>
                                 <TableCell className="text-left">
                                     <div className="max-h-[3em] overflow-hidden w-[900px]">
-                                        <a href={article.url} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                                        <a href={article.link
+                                        } className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
                                             {article.title}
                                         </a>
                                         {" "}
