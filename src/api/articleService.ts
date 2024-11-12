@@ -48,10 +48,15 @@ const API_URL = 'https://k7f0d24lyb.execute-api.eu-central-1.amazonaws.com/prod/
 
 export async function getUserArticles(): Promise<Article[]> {
 
-    const {data: items2, errors} = await client.queries.scanUserArticles({
-        limit: 1000
-    });
 
+    const {data: articles, errors} = await client.queries.listNewestUserArticles({
+        limit: 1000
+    })
+
+
+
+    if (!articles) return []
+    console.log(articles)
     // const {data: items, nextToken} = await client.models.UserArticle.listUserArticleByOwnerAndPublishedDate({
     //         owner: '539488a2-6051-7088-2b51-c88be93dfcb9',
     //         publishedDate: {
@@ -66,7 +71,8 @@ export async function getUserArticles(): Promise<Article[]> {
     // );
 
 
-    return items2.map((item) => ({
+
+    return articles.items.map((item) => ({
         source: item?.source ?? '',
         articleId: item?.link ?? '',
         title: item?.title ?? '',

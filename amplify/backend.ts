@@ -1,6 +1,6 @@
 import { defineBackend } from '@aws-amplify/backend';
 import { auth } from './auth/resource';
-import {data, listArticle} from "./data/resource";
+import {data} from "./data/resource";
 import {aws_dynamodb} from "aws-cdk-lib";
 
 const backend = defineBackend({
@@ -8,13 +8,7 @@ const backend = defineBackend({
   data
 });
 
-const t = backend.data.resources.tables['UserArticle'];
-
-console.log('test2')
-
-
 const externalDataSourcesStack = backend.createStack("DynamoDataSources");
-
 
 const externalTable = aws_dynamodb.Table.fromTableName(
     externalDataSourcesStack,
@@ -22,11 +16,25 @@ const externalTable = aws_dynamodb.Table.fromTableName(
     "UserArticles"
 );
 
-
 backend.data.addDynamoDbDataSource(
     "UserArticlesTableDataSource",
     externalTable
 );
+
+
+const newsletterDataSourcesStack = backend.createStack("NewsletterDynamoDataSources");
+
+const newsletterTable = aws_dynamodb.Table.fromTableName(
+    newsletterDataSourcesStack,
+    "NewsletterDynamoDataSources",
+    "Newsletter"
+);
+
+backend.data.addDynamoDbDataSource(
+    "NewsletterTableDataSource",
+    newsletterTable
+);
+
 
 //
 // const queryPolicyStatement = new PolicyStatement({
