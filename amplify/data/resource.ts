@@ -9,7 +9,6 @@ const schema = a.schema({
         .authorization(allow => [allow.owner()]),
 
 
-
     UserArticles: a.customType({
         owner: a.string().required(),
         link: a.string().required(),
@@ -47,19 +46,19 @@ const schema = a.schema({
         status: a.enum(['PENDING', 'GENERATED'])
     }),
 
-    // addNewsletter: a.mutation()
-    //     .arguments({
-    //         articles: a.json().required(),
-    //         status: a.enum(['PENDING', 'GENERATED'])
-    //         })
-    //     .returns(a.ref('Newsletter').required())
-    //     .authorization(allow => [allow.authenticated()])
-    //     .handler(
-    //         a.handler.custom({
-    //             dataSource:'NewsletterTableDataSource',
-    //             entry: './addnewsletter/addnewsletter.js'
-    //         })
-    //     ),
+    addNewsletter: a.mutation()
+        .arguments({
+            articles: a.json().required(),
+            status: a.enum(['PENDING', 'GENERATED'])
+            })
+        .returns(a.ref('Newsletter').required())
+        .authorization(allow => [allow.authenticated()])
+        .handler(
+            a.handler.custom({
+                dataSource:'NewsletterTableDataSource',
+                entry: './addnewsletter/addnewsletter.js'
+            })
+        ),
 
 });
 
