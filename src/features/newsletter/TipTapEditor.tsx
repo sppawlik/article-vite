@@ -106,7 +106,7 @@ export function TipTapEditor({
                         {error}
                     </div>
                 )}
-                {newsletter?.status === 'PENDING' ? (
+                {(!newsletter || newsletter?.status  === 'PENDING') ? (
                     <div className="flex items-center justify-center h-full top-4">
                         <p>Loading...</p>
                     </div>
