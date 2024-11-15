@@ -15,6 +15,7 @@ import {gql, useMutation} from "@apollo/client";
 const CREATE_USER_NEWSLETTER = gql`
   mutation CreateUserNewsletter($input: CreateNewsletterInput!) {
     createNewsletter(input: $input) {
+      id
       createdAt
       owner
       status
@@ -33,7 +34,7 @@ export function NewsletterBuilder() {
   const [activeTab, setActiveTab] = useState("all");
   
   const [articles, setArticles] = useState<UserArticle[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingArticles, setLoadingArticles] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
   const fetchingRef = useRef(false);
@@ -41,12 +42,14 @@ export function NewsletterBuilder() {
   const [newsletterId, setNewsletterId] = useState<string | null>(null);
 
   // Move useMutation hook to component level
-  const [addUserNewsletter] = useMutation(CREATE_USER_NEWSLETTER);
+  const [addUserNewsletter, {data, loading: loadingCreation }] = useMutation(CREATE_USER_NEWSLETTER);
+
+  console.log('NewsletterBuilder rendering, articles:', data);
 
   const fetchArticles = useCallback(async () => {
     if (fetchingRef.current || hasFetched) return;
     fetchingRef.current = true;
-    setLoading(true);
+    setLoadingArticles(true);
     setError(null);
     try {
       const fetchedArticles = await getUserArticles();
@@ -55,7 +58,7 @@ export function NewsletterBuilder() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching articles.');
     } finally {
-      setLoading(false);
+      setLoadingArticles(false);
       fetchingRef.current = false;
     }
   }, [hasFetched]);
@@ -83,13 +86,12 @@ export function NewsletterBuilder() {
         }
       };
 
-      const response = await addUserNewsletter({
+      addUserNewsletter({
         variables: {
           input
         }
       });
 
-      console.log('response:', response);
       const id = await submitNewsletter({ articles });
       setNewsletterId(id);
       console.log('Newsletter submitted successfully with ID:', id);
@@ -122,7 +124,7 @@ export function NewsletterBuilder() {
           <CardContent>
             <ArticleTable 
               articles={articles}
-              loading={loading}
+              loading={loadingArticles}
               error={error}
               onGenerateNewsletter={handleGenerateNewsletter} 
             />
