@@ -37,25 +37,31 @@ const schema = a.schema({
             })
         ),
 
-    Newsletter: a.customType({
-        newsletterId: a.string().required(),
-        articles: a.json(),
+    Article: a.customType({
+        short: a.string().array(),
+        medium: a.string().array(),
+        long: a.string().array()
+    }),
+
+    Newsletters: a.customType({
+        owner: a.string().required(),
+        updatedAt: a.string().required(),
+        status: a.enum(['PENDING', 'GENERATED']),
+        articles: a.ref('Article'),
         baseNewsletter: a.string(),
         createdAt: a.string(),
-        updatedAt: a.string(),
-        status: a.enum(['PENDING', 'GENERATED'])
     }),
 
     addNewsletter: a.mutation()
         .arguments({
-            articles: a.json().required(),
+            articles: a.json(),
             status: a.enum(['PENDING', 'GENERATED'])
             })
-        .returns(a.ref('Newsletter').required())
+        .returns(a.ref('Newsletters').required())
         .authorization(allow => [allow.authenticated()])
         .handler(
             a.handler.custom({
-                dataSource:'NewsletterTableDataSource',
+                dataSource:'NewslettersTableDataSource',
                 entry: './addnewsletter/addnewsletter.js'
             })
         ),

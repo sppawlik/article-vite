@@ -21,19 +21,29 @@ backend.data.addDynamoDbDataSource(
     externalTable
 );
 
-
-const newsletterDataSourcesStack = backend.createStack("NewsletterDynamoDataSources");
-
-const newsletterTable = aws_dynamodb.Table.fromTableName(
-    newsletterDataSourcesStack,
-    "NewsletterDynamoDataSources",
-    "Newsletter"
+const newsletters = aws_dynamodb.Table.fromTableName(
+    externalDataSourcesStack,
+    "NewslettersTableDataSource",
+    "NewslettersTable"
 );
 
 backend.data.addDynamoDbDataSource(
-    "NewsletterTableDataSource",
-    newsletterTable
-);
+    "NewslettersTableDataSource",
+    newsletters
+)
+
+// const newsletterDataSourcesStack = backend.createStack("NewsletterDynamoDataSources");
+//
+// const newsletterTable = aws_dynamodb.Table.fromTableName(
+//     externalDataSourcesStack,
+//     "DynamoDataSources",
+//     "Newsletters"
+// );
+//
+// backend.data.addDynamoDbDataSource(
+//     "NewsletterTableDataSource",
+//     newsletterTable
+// );
 
 
 //

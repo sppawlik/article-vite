@@ -1,0 +1,53 @@
+type ArticleUrls {
+  short: [String]
+  medium: [String]
+  long: [String]
+}
+
+type Newsletter {
+  owner: String!
+  updatedAt: String!
+  createdAt: String!
+  articles: ArticleUrls
+  status: NewsletterStatus!
+}
+
+enum NewsletterStatus {
+  PENDING
+  GENERATED
+}
+
+type Query {
+  getNewsletter(owner: String!, updatedAt: String!): Newsletter
+  listNewsletters: [Newsletter]
+  listOwnerNewsletters(owner: String!): [Newsletter]
+}
+
+input ArticleUrlsInput {
+  short: [String]
+  medium: [String]
+  long: [String]
+}
+
+input CreateNewsletterInput {
+  owner: String!
+  articles: ArticleUrlsInput
+  status: NewsletterStatus!
+}
+
+input UpdateNewsletterInput {
+  owner: String!
+  updatedAt: String!
+  articles: ArticleUrlsInput
+  status: NewsletterStatus
+}
+
+type Mutation {
+  createNewsletter(input: CreateNewsletterInput!): Newsletter
+  updateNewsletter(input: UpdateNewsletterInput!): Newsletter
+}
+
+schema {
+  query: Query
+  mutation: Mutation
+}

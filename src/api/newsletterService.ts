@@ -1,4 +1,8 @@
 import { SummarySize, Newsletter } from '../types/types';
+import { generateClient } from "aws-amplify/api";
+import type { Schema } from "../../amplify/data/resource";
+import { gql, useMutation } from '@apollo/client';
+import { GraphQLResult } from '@aws-amplify/api-graphql';
 
 interface NewsletterArticles {
     articles: Record<SummarySize, string[]>;
@@ -8,7 +12,23 @@ interface NewsletterResponse {
     newsletterId: string;
 }
 
+interface CreateNewsletterResponse {
+    createNewsletter: {
+        createdAt: string;
+        owner: string;
+        status: string;
+        updatedAt: string;
+        articles: {
+            long: string[];
+            medium: string[];
+            short: string[];
+        };
+    };
+}
+
 const NEWSLETTER_API_URL = 'https://2ps0c9g84d.execute-api.eu-central-1.amazonaws.com/prod/newsletter';
+
+
 
 export async function submitNewsletter(articles: NewsletterArticles): Promise<string> {
     try {

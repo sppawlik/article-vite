@@ -7,8 +7,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArticleTable } from "@/features/articles/ArticleTable";
 import { TipTapEditor } from "@/features/newsletter/TipTapEditor";
 import {UserArticle, getArticles, getUserArticles} from "@/api/articleService";
-import { submitNewsletter } from "@/api/newsletterService";
+import {submitNewsletter} from "@/api/newsletterService";
 import { SummarySize } from "@/types/types";
+import {gql, useMutation} from "@apollo/client";
+
+
+const CREATE_USER_NEWSLETTER = gql`
+  mutation CreateUserNewsletter($input: CreateNewsletterInput!) {
+    createNewsletter(input: $input) {
+      createdAt
+      owner
+      status
+      updatedAt
+      articles {
+        long
+        medium
+        short
+      }
+    }
+  }
+`;
 
 export function NewsletterBuilder() {
   const editor = useCreateBlockNote();
@@ -21,6 +39,9 @@ export function NewsletterBuilder() {
   const fetchingRef = useRef(false);
   const [newsletterLoading, setNewsletterLoading] = useState(false);
   const [newsletterId, setNewsletterId] = useState<string | null>(null);
+
+  // Move useMutation hook to component level
+  const [addUserNewsletter] = useMutation(CREATE_USER_NEWSLETTER);
 
   const fetchArticles = useCallback(async () => {
     if (fetchingRef.current || hasFetched) return;
@@ -52,6 +73,23 @@ export function NewsletterBuilder() {
     setNewsletterLoading(true);
     setError(null);
     try {
+      const input = {
+        owner: "asdfa", // This should probably come from actual user context
+        status: "PENDING",
+        articles: {
+          short: articles.short,
+          medium: articles.medium,
+          long: articles.long
+        }
+      };
+
+      const response = await addUserNewsletter({
+        variables: {
+          input
+        }
+      });
+
+      console.log('response:', response);
       const id = await submitNewsletter({ articles });
       setNewsletterId(id);
       console.log('Newsletter submitted successfully with ID:', id);
