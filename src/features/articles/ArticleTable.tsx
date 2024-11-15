@@ -16,15 +16,12 @@ const client = generateClient<Schema>()
 
 const SUMMARY_OPTIONS: SummarySize[] = ['short', 'medium', 'long'];
 
-
 interface ArticleTableProps {
     articles: UserArticle[];
-    loading: boolean;
-    error: string | null;
     onGenerateNewsletter: (articles: Record<SummarySize, string[]>) => void;
 }
 
-export function ArticleTable({ articles, loading, error, onGenerateNewsletter }: ArticleTableProps) {
+export function ArticleTable({ articles, onGenerateNewsletter }: ArticleTableProps) {
     const [ageFilter, setAgeFilter] = useState<number | ''>('');
     const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5]);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -102,14 +99,6 @@ export function ArticleTable({ articles, loading, error, onGenerateNewsletter }:
             return newValues;
         });
     }, []);
-
-    if (loading) {
-        return <div>Loading articles...</div>;
-    }
-
-    if (error) {
-        return <div>Error: {error}</div>;
-    }
 
     return (
         <div className="space-y-4">

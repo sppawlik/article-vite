@@ -13,19 +13,13 @@ import { getNewsletter } from "@/api/newsletterService";
 import './styles.scss';
 
 type TextEditorProps = {
-    loading?: boolean;
     newsletterId: string | null;
-    error: string | null;
 };
 
-export function TipTapEditor({
-    loading: initialLoading, 
-    newsletterId, 
-    error: initialError 
-}: TextEditorProps) {
+export function TipTapEditor({ newsletterId }: TextEditorProps) {
     const [newsletter, setNewsletter] = useState<Newsletter | null>(null);
-    const [loading, setLoading] = useState(initialLoading);
-    const [error, setError] = useState(initialError);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const extensions = [
         Color.configure({ types: [TextStyle.name, ListItem.name] }),
@@ -76,10 +70,8 @@ export function TipTapEditor({
                 }
             }
         };
-    
         // Initial fetch
         fetchNewsletter();
-    
         // Set up polling interval if newsletterId exists
         let intervalId: NodeJS.Timeout | null = null;
         if (newsletterId) {

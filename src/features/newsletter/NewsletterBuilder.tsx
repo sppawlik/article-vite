@@ -41,7 +41,6 @@ export function NewsletterBuilder() {
   const [newsletterLoading, setNewsletterLoading] = useState(false);
   const [newsletterId, setNewsletterId] = useState<string | null>(null);
 
-  // Move useMutation hook to component level
   const [addUserNewsletter, {data, loading: loadingCreation }] = useMutation(CREATE_USER_NEWSLETTER);
 
   console.log('NewsletterBuilder rendering, articles:', data);
@@ -77,7 +76,6 @@ export function NewsletterBuilder() {
     setError(null);
     try {
       const input = {
-        owner: "asdfa", // This should probably come from actual user context
         status: "PENDING",
         articles: {
           short: articles.short,
@@ -103,6 +101,23 @@ export function NewsletterBuilder() {
     }
   };
 
+  const renderArticleContent = () => {
+    if (loadingArticles) {
+      return <div>Loading articles...</div>;
+    }
+
+    if (error) {
+      return <div>Error: {error}</div>;
+    }
+
+    return (
+      <ArticleTable 
+        articles={articles}
+        onGenerateNewsletter={handleGenerateNewsletter} 
+      />
+    );
+  };
+
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
       <div className="flex items-center ">
@@ -122,12 +137,7 @@ export function NewsletterBuilder() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ArticleTable 
-              articles={articles}
-              loading={loadingArticles}
-              error={error}
-              onGenerateNewsletter={handleGenerateNewsletter} 
-            />
+            {renderArticleContent()}
           </CardContent>
         </Card>
       </TabsContent>
@@ -147,11 +157,7 @@ export function NewsletterBuilder() {
       <TabsContent value="tiptap">
         <Card>
           <CardContent>
-            <TipTapEditor 
-              loading={newsletterLoading}
-              newsletterId={newsletterId}
-              error={error}
-            />
+            <TipTapEditor newsletterId={newsletterId} />
           </CardContent>
         </Card>
       </TabsContent>
