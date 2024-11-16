@@ -1,5 +1,6 @@
 import type {Schema} from '../../amplify/data/resource'
 import {generateClient} from 'aws-amplify/data'
+import { GraphQLResult } from '@aws-amplify/api-graphql'
 
 const client = generateClient<Schema>()
 
@@ -22,103 +23,89 @@ interface Score {
     simplified: number
 }
 
-interface APIArticle {
-    Source: string
-    ArticleId: string
-    Title: string
-    Summary: string
-    URL: string
-    PublishedDate: string
-    Score: Score
+interface ListUserArticlesResponse {
+    listUserArticles: {
+        link: string
+        owner: string
+        publishedDate: string
+        source: string
+        summary: string
+        title: string
+        url: string
+        score: Score
+    }[]
 }
-
-interface APIArticleEnhanced {
-    Source: string
-    ArticleId: string
-    Title: string
-    Summary: string
-    URL: string
-    PublishedDate: string,
-    publishedDate: Date,
-    Score: Score
-}
-
-const API_URL = 'https://k7f0d24lyb.execute-api.eu-central-1.amazonaws.com/prod/articles';
 
 export async function getUserArticles(): Promise<UserArticle[]> {
+    const result = await client.graphql({
+        query: `
+            query ListUserArticles {
+                listUserArticles {
+                    link
+                    owner
+                    publishedDate
+                    source
+                    summary
+                    title
+                    url
+                    score {
+                        depth_and_originality
+                        quality
+                        rating
+                        relevance
+                        simplified
+                    }
+                }
+            }
+        `
+    }) as GraphQLResult<ListUserArticlesResponse>
 
-
-    const {data: articles, errors} = await client.queries.listNewestUserArticles({
-        limit: 1000
-    })
-
-
-
-    if (!articles) return []
+    const articles = result.data
+    if (!articles?.listUserArticles) return []
     console.log(articles)
-    // const {data: items, nextToken} = await client.models.UserArticle.listUserArticleByOwnerAndPublishedDate({
-    //         owner: '539488a2-6051-7088-2b51-c88be93dfcb9',
-    //         publishedDate: {
-    //             gt: '2024-11-04T01:37:54+00:00',
-    //         }
-    //     },
-    //     {
-    //         limit: 1000,
-    //         sortDirection: 'DESC',
-    //         selectionSet: ['source', 'link', 'title', 'summary', 'url', 'publishedDate', 'score']
-    //     }
-    // );
 
-
-
-    return articles.items.map((item) => ({
+    return articles.listUserArticles.map((item) => ({
         source: item?.source ?? '',
         link: item?.link ?? '',
         title: item?.title ?? '',
         summary: item?.summary ?? '',
         relativeDate: getRelativeTime(new Date(item?.publishedDate ?? ''), new Date()),
         publishedDate: new Date(item?.publishedDate ?? ''),
-        score: JSON.parse(item?.score as string ?? '') as Score ?? {
-            depth_and_originality: 0,
-            quality: 0,
-            relevance: 0,
-            rating: 0,
-            simplified: 0
-        },
-        rating: (JSON.parse(item?.score as string ?? '') as Score)?.rating / 10
+        score: item?.score,
+        rating: item?.score?.rating / 10
     }));
 }
 
-export async function getArticles(): Promise<UserArticle[]> {
-    try {
-        const response = await fetch(API_URL);
-
-        if (!response.ok) {
-            console.error(`HTTP error! status: ${response.status}`);
-            return [];
-        }
-        const data: APIArticle[] = await response.json();
-        console.log('Size:', data.length);
-        const dataEnhanced: APIArticleEnhanced[] = data.map((item: APIArticle) => ({
-            ...item, publishedDate: new Date(item.PublishedDate)
-        })).sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime())
-
-
-        return dataEnhanced.map((item: APIArticleEnhanced) => ({
-            source: item.Source,
-            link: item.ArticleId,
-            title: item.Title,
-            summary: item.Summary,
-            relativeDate: getRelativeTime(new Date(item.PublishedDate), new Date()),
-            publishedDate: item.publishedDate,
-            score: item.Score,
-            rating: item.Score.rating / 10,
-        }));
-    } catch (error) {
-        console.error('Error fetching articles:', error);
-        return [];
-    }
-}
+// export async function getArticles(): Promise<UserArticle[]> {
+//     try {
+//         const response = await fetch(API_URL);
+//
+//         if (!response.ok) {
+//             console.error(`HTTP error! status: ${response.status}`);
+//             return [];
+//         }
+//         const data: APIArticle[] = await response.json();
+//         console.log('Size:', data.length);
+//         const dataEnhanced: APIArticleEnhanced[] = data.map((item: APIArticle) => ({
+//             ...item, publishedDate: new Date(item.PublishedDate)
+//         })).sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime())
+//
+//
+//         return dataEnhanced.map((item: APIArticleEnhanced) => ({
+//             source: item.Source,
+//             link: item.ArticleId,
+//             title: item.Title,
+//             summary: item.Summary,
+//             relativeDate: getRelativeTime(new Date(item.PublishedDate), new Date()),
+//             publishedDate: item.publishedDate,
+//             score: item.Score,
+//             rating: item.Score.rating / 10,
+//         }));
+//     } catch (error) {
+//         console.error('Error fetching articles:', error);
+//         return [];
+//     }
+// }
 
 function getRelativeTime(pastDate: Date, currentDate: Date): string {
     const diffInSeconds = Math.floor((currentDate.getTime() - pastDate.getTime()) / 1000);

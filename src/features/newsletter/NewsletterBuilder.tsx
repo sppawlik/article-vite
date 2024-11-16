@@ -6,28 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArticleTable } from "@/features/articles/ArticleTable";
 import { TipTapEditor } from "@/features/newsletter/TipTapEditor";
-import {UserArticle, getArticles, getUserArticles} from "@/api/articleService";
+import {UserArticle,  getUserArticles} from "@/api/articleService";
 import {submitNewsletter} from "@/api/newsletterService";
 import { SummarySize } from "@/types/types";
-import {gql, useMutation} from "@apollo/client";
-
-
-const CREATE_USER_NEWSLETTER = gql`
-  mutation CreateUserNewsletter($input: CreateNewsletterInput!) {
-    createNewsletter(input: $input) {
-      id
-      createdAt
-      owner
-      status
-      updatedAt
-      articles {
-        long
-        medium
-        short
-      }
-    }
-  }
-`;
+import {generateClient} from "aws-amplify/api";
+import type {Schema} from "../../../amplify/data/resource";
+const client = generateClient<Schema>()
 
 export function NewsletterBuilder() {
   const editor = useCreateBlockNote();
@@ -41,9 +25,6 @@ export function NewsletterBuilder() {
   const [newsletterLoading, setNewsletterLoading] = useState(false);
   const [newsletterId, setNewsletterId] = useState<string | null>(null);
 
-  const [addUserNewsletter, {data, loading: loadingCreation }] = useMutation(CREATE_USER_NEWSLETTER);
-
-  console.log('NewsletterBuilder rendering, articles:', data);
 
   const fetchArticles = useCallback(async () => {
     if (fetchingRef.current || hasFetched) return;
@@ -84,7 +65,21 @@ export function NewsletterBuilder() {
         }
       };
 
-      addUserNewsletter({
+      const newsletter = await client.graphql({
+        query:  `mutation CreateUserNewsletter($input: CreateNewsletterInput!) {
+        createNewsletter(input: $input) {
+          id
+          createdAt
+          owner
+          status
+          updatedAt
+          articles {
+            long
+            medium
+            short
+          }
+        }
+      }`,
         variables: {
           input
         }

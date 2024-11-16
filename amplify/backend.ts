@@ -4,33 +4,32 @@ import {data} from "./data/resource";
 import {aws_dynamodb} from "aws-cdk-lib";
 
 const backend = defineBackend({
-  auth,
-  data
+  // data
 });
 
-const externalDataSourcesStack = backend.createStack("DynamoDataSources");
-
-const externalTable = aws_dynamodb.Table.fromTableName(
-    externalDataSourcesStack,
-    "DynamoDataSources",
-    "UserArticles"
-);
-
-backend.data.addDynamoDbDataSource(
-    "UserArticlesTableDataSource",
-    externalTable
-);
-
-const newsletters = aws_dynamodb.Table.fromTableName(
-    externalDataSourcesStack,
-    "NewslettersTableDataSource",
-    "NewslettersTable"
-);
-
-backend.data.addDynamoDbDataSource(
-    "NewslettersTableDataSource",
-    newsletters
-)
+// const externalDataSourcesStack = backend.createStack("DynamoDataSources");
+//
+// const externalTable = aws_dynamodb.Table.fromTableName(
+//     externalDataSourcesStack,
+//     "DynamoDataSources",
+//     "UserArticles"
+// );
+//
+// backend.data.addDynamoDbDataSource(
+//     "UserArticlesTableDataSource",
+//     externalTable
+// );
+//
+// const newsletters = aws_dynamodb.Table.fromTableName(
+//     externalDataSourcesStack,
+//     "NewslettersTableDataSource",
+//     "NewslettersTable"
+// );
+//
+// backend.data.addDynamoDbDataSource(
+//     "NewslettersTableDataSource",
+//     newsletters
+// )
 
 // const newsletterDataSourcesStack = backend.createStack("NewsletterDynamoDataSources");
 //
