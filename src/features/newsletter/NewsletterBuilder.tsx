@@ -1,17 +1,32 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArticleTable } from "@/features/articles/ArticleTable";
 import { TipTapEditor } from "@/features/newsletter/TipTapEditor";
-import {UserArticle,  getUserArticles} from "@/api/articleService";
-import {submitNewsletter} from "@/api/newsletterService";
+import { UserArticle, getUserArticles } from "@/api/articleService";
 import { SummarySize } from "@/types/types";
-import {generateClient} from "aws-amplify/api";
-import type {Schema} from "../../../amplify/data/resource";
-const client = generateClient<Schema>()
+import { generateClient } from "aws-amplify/api";
+import { GraphQLResult } from "@aws-amplify/api-graphql";
+import type { Schema } from "../../../amplify/data/resource";
+
+const client = generateClient<Schema>();
+
+interface CreateNewsletterResponse {
+  createNewsletter: {
+    id: string;
+    createdAt: string;
+    owner: string;
+    status: string;
+    updatedAt: string;
+    articles: {
+      long: string[];
+      medium: string[];
+      short: string[];
+    };
+  };
+}
 
 export function NewsletterBuilder() {
   const editor = useCreateBlockNote();
@@ -24,7 +39,6 @@ export function NewsletterBuilder() {
   const fetchingRef = useRef(false);
   const [newsletterLoading, setNewsletterLoading] = useState(false);
   const [newsletterId, setNewsletterId] = useState<string | null>(null);
-
 
   const fetchArticles = useCallback(async () => {
     if (fetchingRef.current || hasFetched) return;
@@ -65,29 +79,32 @@ export function NewsletterBuilder() {
         }
       };
 
-      const newsletter = await client.graphql({
-        query:  `mutation CreateUserNewsletter($input: CreateNewsletterInput!) {
-        createNewsletter(input: $input) {
-          id
-          createdAt
-          owner
-          status
-          updatedAt
-          articles {
-            long
-            medium
-            short
+      const result = await client.graphql<CreateNewsletterResponse>({
+        query: `mutation CreateUserNewsletter($input: CreateNewsletterInput!) {
+          createNewsletter(input: $input) {
+            id
+            createdAt
+            owner
+            status
+            updatedAt
+            articles {
+              long
+              medium
+              short
+            }
           }
-        }
-      }`,
+        }`,
         variables: {
           input
         }
-      });
+      }) as GraphQLResult<CreateNewsletterResponse>;
 
-      const id = await submitNewsletter({ articles });
-      setNewsletterId(id);
-      console.log('Newsletter submitted successfully with ID:', id);
+      if (result.data?.createNewsletter?.id) {
+        setNewsletterId(result.data.createNewsletter.id);
+        console.log('Newsletter submitted successfully with ID:', result.data.createNewsletter.id);
+      } else {
+        throw new Error('Failed to get newsletter ID from response');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while submitting the newsletter');
       console.error('Failed to submit newsletter:', err);

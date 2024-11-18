@@ -9,7 +9,7 @@ import Link from '@tiptap/extension-link';
 import React, { useEffect, useState } from "react";
 import { TextEditorMenuBar } from "./TextEditorMenuBar";
 import { SummarySize, Newsletter } from "@/types/types";
-import { getNewsletter } from "@/api/newsletterService";
+import {getNewsletter, getUserNewsletter, UserNewsletter} from "@/api/newsletterService";
 import './styles.scss';
 
 type TextEditorProps = {
@@ -17,7 +17,7 @@ type TextEditorProps = {
 };
 
 export function TipTapEditor({ newsletterId }: TextEditorProps) {
-    const [newsletter, setNewsletter] = useState<Newsletter | null>(null);
+    const [newsletter, setNewsletter] = useState<UserNewsletter | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -58,10 +58,11 @@ export function TipTapEditor({ newsletterId }: TextEditorProps) {
     
             try {
                 setLoading(true);
-                const data = await getNewsletter(newsletterId);
-                setNewsletter(data);
+                // const data = await getNewsletter(newsletterId);
+                const data2 = await getUserNewsletter(newsletterId);
+                setNewsletter(data2);
                 setError(null);
-                return data;
+                return data2;
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Failed to fetch newsletter');
             } finally {
