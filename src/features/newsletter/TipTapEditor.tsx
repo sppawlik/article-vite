@@ -8,8 +8,7 @@ import TextStyle from '@tiptap/extension-text-style';
 import Link from '@tiptap/extension-link';
 import React, { useEffect, useState } from "react";
 import { TextEditorMenuBar } from "./TextEditorMenuBar";
-import { SummarySize, Newsletter } from "@/types/types";
-import {getNewsletter, getUserNewsletter, UserNewsletter} from "@/api/newsletterService";
+import { getUserNewsletter, UserNewsletter} from "@/api/newsletterService";
 import './styles.scss';
 
 type TextEditorProps = {

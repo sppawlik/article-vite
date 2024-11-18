@@ -37,7 +37,6 @@ export function NewsletterBuilder() {
   const [error, setError] = useState<string | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
   const fetchingRef = useRef(false);
-  const [newsletterLoading, setNewsletterLoading] = useState(false);
   const [newsletterId, setNewsletterId] = useState<string | null>(null);
 
   const fetchArticles = useCallback(async () => {
@@ -67,7 +66,6 @@ export function NewsletterBuilder() {
   const handleGenerateNewsletter = async (articles: Record<SummarySize, string[]>) => {
     console.log('Generating newsletter with selected articles:', articles);
     setActiveTab("tiptap");
-    setNewsletterLoading(true);
     setError(null);
     try {
       const input = {
@@ -109,7 +107,6 @@ export function NewsletterBuilder() {
       setError(err instanceof Error ? err.message : 'An error occurred while submitting the newsletter');
       console.error('Failed to submit newsletter:', err);
     } finally {
-      setNewsletterLoading(false);
     }
   };
 
