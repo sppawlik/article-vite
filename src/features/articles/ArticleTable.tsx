@@ -9,23 +9,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { SummarySize } from "@/types/types";
-import {generateClient} from "aws-amplify/api";
-import type {Schema} from "../../../amplify/data/resource";
+import { generateClient } from "aws-amplify/api";
+import type { Schema } from "../../../amplify/data/resource";
 
-const client = generateClient<Schema>()
+const client = generateClient<Schema>();
 
 const SUMMARY_OPTIONS: SummarySize[] = ['short', 'medium', 'long'];
+
+type SelectedArticlesMap = { [key: number]: SummarySize };
 
 interface ArticleTableProps {
     articles: UserArticle[];
     onGenerateNewsletter: (articles: Record<SummarySize, string[]>) => void;
+    selectedArticles: SelectedArticlesMap;
+    onSelectedArticlesChange: (selected: SelectedArticlesMap | ((prev: SelectedArticlesMap) => SelectedArticlesMap)) => void;
 }
 
-export function ArticleTable({ articles, onGenerateNewsletter }: ArticleTableProps) {
+export function ArticleTable({ 
+    articles, 
+    onGenerateNewsletter,
+    selectedArticles,
+    onSelectedArticlesChange
+}: ArticleTableProps) {
     const [ageFilter, setAgeFilter] = useState<number | ''>('');
     const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5]);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-    const [summaryValues, setSummaryValues] = useState<{ [key: number]: SummarySize }>({});
 
     const filteredArticles = useMemo(() => {
         return articles.filter(article => {
@@ -65,16 +73,15 @@ export function ArticleTable({ articles, onGenerateNewsletter }: ArticleTablePro
             long: []
         };
 
-        // Transform summaryValues into the required format
-        Object.entries(summaryValues).forEach(([index, size]) => {
+        // Transform selectedArticles into the required format
+        Object.entries(selectedArticles).forEach(([index, size]) => {
             const article: UserArticle = sortedArticles[parseInt(index)];
             if (article?.link) {
                 result[size].push(article.link);
             }
         });
-        console.log('summaryValues2:', summaryValues);
         onGenerateNewsletter(result);
-    }, [summaryValues, sortedArticles, onGenerateNewsletter]);
+    }, [selectedArticles, sortedArticles, onGenerateNewsletter]);
 
     const handleAgeFilterChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -89,16 +96,16 @@ export function ArticleTable({ articles, onGenerateNewsletter }: ArticleTablePro
     }, []);
 
     const handleSummaryChange = useCallback((index: number, value: SummarySize | '-') => {
-        setSummaryValues(prev => {
+        onSelectedArticlesChange((prev: SelectedArticlesMap) => {
             const newValues = { ...prev };
             if (value === '-') {
                 delete newValues[index];
             } else {
-                newValues[index] = value;
+                newValues[index] = value as SummarySize;
             }
             return newValues;
         });
-    }, []);
+    }, [onSelectedArticlesChange]);
 
     return (
         <div className="space-y-4">
@@ -164,13 +171,12 @@ export function ArticleTable({ articles, onGenerateNewsletter }: ArticleTablePro
                         {sortedArticles.map((article, index) => (
                             <TableRow 
                                 key={index}
-                                className={summaryValues[index] ? 'bg-gray-200' : ''}
+                                className={selectedArticles[index] ? 'bg-gray-200' : ''}
                             >
                                 <TableCell className="text-left">{article.source}</TableCell>
                                 <TableCell className="text-left">
                                     <div className="max-h-[3em] overflow-hidden w-[900px]">
-                                        <a href={article.link
-                                        } className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                                        <a href={article.link} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
                                             {article.title}
                                         </a>
                                         {" "}
@@ -197,7 +203,7 @@ export function ArticleTable({ articles, onGenerateNewsletter }: ArticleTablePro
                                 </TableCell>
                                 <TableCell className="text-left">
                                     <Select 
-                                        value={summaryValues[index] || '-'}
+                                        value={selectedArticles[index] || '-'}
                                         onValueChange={(value) => handleSummaryChange(index, value as SummarySize | '-')}
                                     >
                                         <SelectTrigger className="w-[120px]">

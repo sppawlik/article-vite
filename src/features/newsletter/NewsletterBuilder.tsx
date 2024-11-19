@@ -1,34 +1,51 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArticleTable } from "@/features/articles/ArticleTable";
 import { TipTapEditor } from "@/features/newsletter/TipTapEditor";
-import { UserArticle, getArticles, getUserArticles } from "@/api/articleService";
-import { submitNewsletter } from "@/api/newsletterService";
+import { UserArticle, getUserArticles } from "@/api/articleService";
 import { SummarySize } from "@/types/types";
+import { generateClient } from "aws-amplify/api";
+import { GraphQLResult } from "@aws-amplify/api-graphql";
+import type { Schema } from "../../../amplify/data/resource";
 
-type SelectedArticles = { [key: number]: SummarySize };
+const client = generateClient<Schema>();
+
+interface CreateNewsletterResponse {
+  createNewsletter: {
+    id: string;
+    createdAt: string;
+    owner: string;
+    status: string;
+    updatedAt: string;
+    articles: {
+      long: string[];
+      medium: string[];
+      short: string[];
+    };
+  };
+}
+
+type SelectedArticlesMap = { [key: number]: SummarySize };
 
 export function NewsletterBuilder() {
   const editor = useCreateBlockNote();
   const [activeTab, setActiveTab] = useState("all");
-  const [selectedArticles, setSelectedArticles] = useState<SelectedArticles>({});
+  const [selectedArticles, setSelectedArticles] = useState<SelectedArticlesMap>({});
   
   const [articles, setArticles] = useState<UserArticle[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingArticles, setLoadingArticles] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasFetched, setHasFetched] = useState(false);
   const fetchingRef = useRef(false);
-  const [newsletterLoading, setNewsletterLoading] = useState(false);
   const [newsletterId, setNewsletterId] = useState<string | null>(null);
 
   const fetchArticles = useCallback(async () => {
     if (fetchingRef.current || hasFetched) return;
     fetchingRef.current = true;
-    setLoading(true);
+    setLoadingArticles(true);
     setError(null);
     try {
       const fetchedArticles = await getUserArticles();
@@ -37,7 +54,7 @@ export function NewsletterBuilder() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching articles.');
     } finally {
-      setLoading(false);
+      setLoadingArticles(false);
       fetchingRef.current = false;
     }
   }, [hasFetched]);
@@ -48,19 +65,67 @@ export function NewsletterBuilder() {
     }
   }, [fetchArticles, hasFetched]);
 
-  const handleGenerateNewsletter = async (selectedArticlesMap: Record<SummarySize, string[]>) => {
+  const handleGenerateNewsletter = async (articles: Record<SummarySize, string[]>) => {
     setActiveTab("tiptap");
-    setNewsletterLoading(true);
     setError(null);
     try {
-      const id = await submitNewsletter({ articles: selectedArticlesMap });
-      setNewsletterId(id);
+      const input = {
+        status: "PENDING",
+        articles: {
+          short: articles.short,
+          medium: articles.medium,
+          long: articles.long
+        }
+      };
+
+      const result = await client.graphql<CreateNewsletterResponse>({
+        query: `mutation CreateUserNewsletter($input: CreateNewsletterInput!) {
+          createNewsletter(input: $input) {
+            id
+            createdAt
+            owner
+            status
+            updatedAt
+            articles {
+              long
+              medium
+              short
+            }
+          }
+        }`,
+        variables: {
+          input
+        }
+      }) as GraphQLResult<CreateNewsletterResponse>;
+
+      if (result.data?.createNewsletter?.id) {
+        setNewsletterId(result.data.createNewsletter.id);
+      } else {
+        throw new Error('Failed to get newsletter ID from response');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while submitting the newsletter');
       console.error('Failed to submit newsletter:', err);
-    } finally {
-      setNewsletterLoading(false);
     }
+  };
+
+  const renderArticleContent = () => {
+    if (loadingArticles) {
+      return <div>Loading articles...</div>;
+    }
+
+    if (error) {
+      return <div>Error: {error}</div>;
+    }
+
+    return (
+      <ArticleTable 
+        articles={articles}
+        onGenerateNewsletter={handleGenerateNewsletter}
+        selectedArticles={selectedArticles}
+        onSelectedArticlesChange={setSelectedArticles}
+      />
+    );
   };
 
   return (
@@ -82,14 +147,7 @@ export function NewsletterBuilder() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ArticleTable 
-              articles={articles}
-              loading={loading}
-              error={error}
-              onGenerateNewsletter={handleGenerateNewsletter}
-              selectedArticles={selectedArticles}
-              onSelectedArticlesChange={setSelectedArticles}
-            />
+            {renderArticleContent()}
           </CardContent>
         </Card>
       </TabsContent>
@@ -109,11 +167,7 @@ export function NewsletterBuilder() {
       <TabsContent value="tiptap">
         <Card>
           <CardContent>
-            <TipTapEditor 
-              loading={newsletterLoading}
-              newsletterId={newsletterId}
-              error={error}
-            />
+            <TipTapEditor newsletterId={newsletterId} />
           </CardContent>
         </Card>
       </TabsContent>
