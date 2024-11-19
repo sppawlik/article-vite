@@ -41,7 +41,6 @@ import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
 
 import { NewsletterBuilder } from "@/features/newsletter/NewsletterBuilder";
-import { MarkdownOutput } from "@/features/markdown/MarkdownOutput";
 import { ToDo } from "../todo/ToDo";
 
 export function SideBarDashboard() {
@@ -51,8 +50,6 @@ export function SideBarDashboard() {
     switch (activeComponent) {
       case 'articles':
         return <NewsletterBuilder />;
-      case 'markdown':
-        return <MarkdownOutput loading={false} newsletterId={null} error={null} />;
       case 'todo':
       default:
         return <ToDo />;

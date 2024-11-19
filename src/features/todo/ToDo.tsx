@@ -14,6 +14,7 @@ export function ToDo() {
     }, []);
 
     function deleteTodo(id: string) {
+        client.graphql
         client.models.Todo.delete({id})
     }
 

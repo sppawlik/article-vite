@@ -6,13 +6,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArticleTable } from "@/features/articles/ArticleTable";
 import { TipTapEditor } from "@/features/newsletter/TipTapEditor";
-import {UserArticle, getArticles, getUserArticles} from "@/api/articleService";
+import { UserArticle, getArticles, getUserArticles } from "@/api/articleService";
 import { submitNewsletter } from "@/api/newsletterService";
 import { SummarySize } from "@/types/types";
+
+type SelectedArticles = { [key: number]: SummarySize };
 
 export function NewsletterBuilder() {
   const editor = useCreateBlockNote();
   const [activeTab, setActiveTab] = useState("all");
+  const [selectedArticles, setSelectedArticles] = useState<SelectedArticles>({});
   
   const [articles, setArticles] = useState<UserArticle[]>([]);
   const [loading, setLoading] = useState(false);
@@ -40,21 +43,18 @@ export function NewsletterBuilder() {
   }, [hasFetched]);
 
   useEffect(() => {
-    console.log('useEffect running, hasFetched:', hasFetched);
     if (!hasFetched) {
       fetchArticles();
     }
   }, [fetchArticles, hasFetched]);
 
-  const handleGenerateNewsletter = async (articles: Record<SummarySize, string[]>) => {
-    console.log('Generating newsletter with selected articles:', articles);
+  const handleGenerateNewsletter = async (selectedArticlesMap: Record<SummarySize, string[]>) => {
     setActiveTab("tiptap");
     setNewsletterLoading(true);
     setError(null);
     try {
-      const id = await submitNewsletter({ articles });
+      const id = await submitNewsletter({ articles: selectedArticlesMap });
       setNewsletterId(id);
-      console.log('Newsletter submitted successfully with ID:', id);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while submitting the newsletter');
       console.error('Failed to submit newsletter:', err);
@@ -65,7 +65,7 @@ export function NewsletterBuilder() {
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <div className="flex items-center ">
+      <div className="flex items-center">
         <TabsList className="gap-2">
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="tiptap">Tiptap</TabsTrigger>
@@ -86,7 +86,9 @@ export function NewsletterBuilder() {
               articles={articles}
               loading={loading}
               error={error}
-              onGenerateNewsletter={handleGenerateNewsletter} 
+              onGenerateNewsletter={handleGenerateNewsletter}
+              selectedArticles={selectedArticles}
+              onSelectedArticlesChange={setSelectedArticles}
             />
           </CardContent>
         </Card>

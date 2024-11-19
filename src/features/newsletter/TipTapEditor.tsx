@@ -8,24 +8,17 @@ import TextStyle from '@tiptap/extension-text-style';
 import Link from '@tiptap/extension-link';
 import React, { useEffect, useState } from "react";
 import { TextEditorMenuBar } from "./TextEditorMenuBar";
-import { SummarySize, Newsletter } from "@/types/types";
-import { getNewsletter } from "@/api/newsletterService";
+import { getUserNewsletter, UserNewsletter} from "@/api/newsletterService";
 import './styles.scss';
 
 type TextEditorProps = {
-    loading?: boolean;
     newsletterId: string | null;
-    error: string | null;
 };
 
-export function TipTapEditor({
-    loading: initialLoading, 
-    newsletterId, 
-    error: initialError 
-}: TextEditorProps) {
-    const [newsletter, setNewsletter] = useState<Newsletter | null>(null);
-    const [loading, setLoading] = useState(initialLoading);
-    const [error, setError] = useState(initialError);
+export function TipTapEditor({ newsletterId }: TextEditorProps) {
+    const [newsletter, setNewsletter] = useState<UserNewsletter | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const extensions = [
         Color.configure({ types: [TextStyle.name, ListItem.name] }),
@@ -64,10 +57,11 @@ export function TipTapEditor({
     
             try {
                 setLoading(true);
-                const data = await getNewsletter(newsletterId);
-                setNewsletter(data);
+                // const data = await getNewsletter(newsletterId);
+                const data2 = await getUserNewsletter(newsletterId);
+                setNewsletter(data2);
                 setError(null);
-                return data;
+                return data2;
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Failed to fetch newsletter');
             } finally {
@@ -76,10 +70,8 @@ export function TipTapEditor({
                 }
             }
         };
-    
         // Initial fetch
         fetchNewsletter();
-    
         // Set up polling interval if newsletterId exists
         let intervalId: NodeJS.Timeout | null = null;
         if (newsletterId) {
