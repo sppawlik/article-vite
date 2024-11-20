@@ -1,8 +1,7 @@
-import type {Schema} from '../../amplify/data/resource'
 import {generateClient} from 'aws-amplify/data'
 import { GraphQLResult } from '@aws-amplify/api-graphql'
 
-const client = generateClient<Schema>()
+const client = generateClient()
 
 export interface UserArticle {
     source: string

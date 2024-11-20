@@ -9,9 +9,8 @@ import { UserArticle, getUserArticles } from "@/api/articleService";
 import { SummarySize } from "@/types/types";
 import { generateClient } from "aws-amplify/api";
 import { GraphQLResult } from "@aws-amplify/api-graphql";
-import type { Schema } from "../../../amplify/data/resource";
 
-const client = generateClient<Schema>();
+const client = generateClient();
 
 interface CreateNewsletterResponse {
   createNewsletter: {

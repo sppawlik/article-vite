@@ -9,10 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { SummarySize } from "@/types/types";
-import { generateClient } from "aws-amplify/api";
-import type { Schema } from "../../../amplify/data/resource";
-
-const client = generateClient<Schema>();
 
 const SUMMARY_OPTIONS: SummarySize[] = ['short', 'medium', 'long'];
 
