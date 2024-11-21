@@ -160,6 +160,7 @@ export function ArticleTable({
                                     )}
                                 </div>
                             </TableHead>
+                            <TableHead className="w-[100px] text-left">Simplified</TableHead>
                             <TableHead className="w-[120px] text-left">Summary</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -197,6 +198,7 @@ export function ArticleTable({
                                         </Tooltip>
                                     </TooltipProvider>
                                 </TableCell>
+                                <TableCell className="text-left">{article.score.simplified}</TableCell>
                                 <TableCell className="text-left">
                                     <Select 
                                         value={selectedArticles[index] || '-'}
