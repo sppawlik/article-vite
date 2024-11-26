@@ -170,9 +170,14 @@ export function ArticleTable({
                                 key={index}
                                 className={selectedArticles[index] ? 'bg-gray-200' : ''}
                             >
-                                <TableCell className="text-left">{article.source}</TableCell>
                                 <TableCell className="text-left">
-                                    <div className="max-h-[3em] overflow-hidden w-[900px]">
+                                    <div className="flex flex-col">
+                                        <span>{article?.hostDomain}</span>
+                                        <span className="text-sm text-muted-foreground">{(article?.source ?? '').split(' ').slice(0, 2).join(' ')}</span>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-left">
+                                    <div className="max-h-[3em] overflow-hidden w-[800px]">
                                         <a href={article.link} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
                                             {article.title}
                                         </a>

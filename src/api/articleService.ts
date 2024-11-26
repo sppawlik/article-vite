@@ -8,6 +8,7 @@ export interface UserArticle {
     link: string
     title: string
     summary: string
+    hostDomain:string
     relativeDate: string
     publishedDate?: Date
     score: Score
@@ -28,6 +29,7 @@ interface ListUserArticlesResponse {
         owner: string
         publishedDate: string
         source: string
+        hostDomain: string
         summary: string
         title: string
         url: string
@@ -44,6 +46,7 @@ export async function getUserArticles(): Promise<UserArticle[]> {
                     owner
                     publishedDate
                     source
+                    hostDomain
                     summary
                     title
                     url
@@ -65,6 +68,7 @@ export async function getUserArticles(): Promise<UserArticle[]> {
 
     return articles.listUserArticles.map((item) => ({
         source: item?.source ?? '',
+        hostDomain: item?.hostDomain ?? '',
         link: item?.link ?? '',
         title: item?.title ?? '',
         summary: item?.summary ?? '',
