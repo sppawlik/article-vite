@@ -1,6 +1,7 @@
 import React, {useState} from "react";
-import {Home, LineChart, Package, Settings, Users2,} from "lucide-react";
+import {Home, LineChart, Package, LogOut, Users2,} from "lucide-react";
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,} from "@/components/ui/tooltip";
+import { useAuthenticator } from '@aws-amplify/ui-react';
 
 import "@blocknote/core/fonts/inter.css";
 import "@blocknote/mantine/style.css";
@@ -11,6 +12,7 @@ import {ToDo} from "../todo/ToDo";
 export function SideBarDashboard() {
     const [activeComponent, setActiveComponent] = useState('articles');
 
+    const { signOut } = useAuthenticator();
     const renderMainContent = () => {
         switch (activeComponent) {
             case 'articles':
@@ -100,13 +102,17 @@ export function SideBarDashboard() {
                             <TooltipTrigger asChild>
                                 <a
                                     href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        signOut();
+                                    }}
                                     className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
                                 >
-                                    <Settings className="h-5 w-5"/>
-                                    <span className="sr-only">Settings</span>
+                                    <LogOut className="h-5 w-5"/>
+                                    <span className="sr-only">Logout</span>
                                 </a>
                             </TooltipTrigger>
-                            <TooltipContent side="right">Settings</TooltipContent>
+                            <TooltipContent side="right">Logout</TooltipContent>
                         </Tooltip>
                     </TooltipProvider>
                 </nav>
