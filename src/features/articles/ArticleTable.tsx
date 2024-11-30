@@ -165,10 +165,10 @@ export function ArticleTable({
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {sortedArticles.map((article, index) => (
+                        {sortedArticles.map((article) => (
                             <TableRow 
-                                key={index}
-                                className={selectedArticles[index] ? 'bg-gray-200' : ''}
+                                key={article.link}
+                                className={selectedArticles[article.link] ? 'bg-gray-200' : ''}
                             >
                                 <TableCell className="text-left">
                                     <div className="flex flex-col">
@@ -206,8 +206,8 @@ export function ArticleTable({
                                 <TableCell className="text-left">{article.score.simplified}</TableCell>
                                 <TableCell className="text-left">
                                     <Select 
-                                        value={selectedArticles[index] || '-'}
-                                        onValueChange={(value) => handleSummaryChange(index, value as SummarySize | '-')}
+                                        value={selectedArticles[article.link] || '-'}
+                                        onValueChange={(value) => handleSummaryChange(article.link, value as SummarySize | '-')}
                                     >
                                         <SelectTrigger className="w-[120px]">
                                             <SelectValue placeholder="-" />
