@@ -12,7 +12,7 @@ import { SummarySize } from "@/types/types";
 
 const SUMMARY_OPTIONS: SummarySize[] = ['short', 'medium', 'long'];
 
-type SelectedArticlesMap = { [key: number]: SummarySize };
+type SelectedArticlesMap = { [key: string]: SummarySize };
 
 interface ArticleTableProps {
     articles: UserArticle[];
@@ -68,16 +68,13 @@ export function ArticleTable({
             medium: [],
             long: []
         };
-
-        // Transform selectedArticles into the required format
-        Object.entries(selectedArticles).forEach(([index, size]) => {
-            const article: UserArticle = sortedArticles[parseInt(index)];
-            if (article?.link) {
-                result[size].push(article.link);
-            }
+        
+        Object.entries(selectedArticles).forEach(([link, size]) => {
+            result[size].push(link);
         });
+        
         onGenerateNewsletter(result);
-    }, [selectedArticles, sortedArticles, onGenerateNewsletter]);
+    }, [selectedArticles, onGenerateNewsletter]);
 
     const handleAgeFilterChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
@@ -91,13 +88,13 @@ export function ArticleTable({
         }
     }, []);
 
-    const handleSummaryChange = useCallback((index: number, value: SummarySize | '-') => {
+    const handleSummaryChange = useCallback((link: string, value: SummarySize | '-') => {
         onSelectedArticlesChange((prev: SelectedArticlesMap) => {
             const newValues = { ...prev };
             if (value === '-') {
-                delete newValues[index];
+                delete newValues[link];
             } else {
-                newValues[index] = value as SummarySize;
+                newValues[link] = value as SummarySize;
             }
             return newValues;
         });
