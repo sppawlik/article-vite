@@ -131,9 +131,8 @@ export function NewsletterBuilder() {
     <Tabs value={activeTab} onValueChange={setActiveTab}>
       <div className="flex items-center">
         <TabsList className="gap-2">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="tiptap">Tiptap</TabsTrigger>
-          <TabsTrigger value="blocknote">Editor</TabsTrigger>
+          <TabsTrigger value="all">Article List</TabsTrigger>
+          <TabsTrigger value="tiptap">Newsletter</TabsTrigger>
         </TabsList>
       </div>
 
