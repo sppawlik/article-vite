@@ -144,7 +144,7 @@ export async function listArticle(startDate: Date): Promise<UserArticle[]> {
 
     return articles.items.map((article) => ({
         source: article.Source ?? '',
-        hostDomain: article.FeedSourceName ?? '',
+        hostDomain: article.FeedSourceName ? article.FeedSourceName.split(' ').slice(0, 2).join(' ') : '',
         link: article.ArticleId,
         title: article.Title ?? '',
         summary: article.Summary ?? '',
