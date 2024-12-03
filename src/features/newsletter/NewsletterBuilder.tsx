@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArticleTable } from "@/features/articles/ArticleTable";
 import { TipTapEditor } from "@/features/newsletter/TipTapEditor";
-import { UserArticle, getUserArticles } from "@/api/articleService";
+import { UserArticle, getUserArticles, listArticle } from "@/api/articleService";
 import { SummarySize } from "@/types/types";
 import { generateClient } from "aws-amplify/api";
 import { GraphQLResult } from "@aws-amplify/api-graphql";
@@ -47,7 +47,10 @@ export function NewsletterBuilder() {
     setLoadingArticles(true);
     setError(null);
     try {
-      const fetchedArticles = await getUserArticles();
+      const twoWeeksAgo = new Date();
+      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 7);
+      const fetchedArticles = await listArticle(twoWeeksAgo);
+      //const fetchedArticles = await getUserArticles();
       setArticles(fetchedArticles);
       setHasFetched(true);
     } catch (err) {

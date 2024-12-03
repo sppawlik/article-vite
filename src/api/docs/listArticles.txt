@@ -1,0 +1,69 @@
+
+
+query ListArticle {
+  listArticles(input: {owner: "23c4e8a2-7021-7009-229a-f7ed16b67b4a", startDate: "2024-11-29T22:19:22+00:00"}) {
+    nextToken
+    items {
+      ArticleId
+      Owner
+      PublishedDate
+      Source
+      SourceFeedType
+      Summary
+      Title
+      Url
+      Score {
+        depth_and_originality
+        quality
+        rating
+        relevance
+        simplified
+      }
+    }
+  }
+}
+
+
+Results:
+
+{
+  "data": {
+    "listArticles": {
+      "nextToken": "eyJ2ZXJzaW9uIjozLCJ0b2tlbiI6IkFnVjRHRWJCKzdzemNFcHdhUzZxVmYzS2gwb0FlTnUva0hvMGN4UG1DdzROaS9FQWV3QUNBQWRCY0hCVGVXNWpBQkZGYm1OeWVYQjBhVzl1UTI5dWRHVjRkQUFWWVhkekxXTnllWEIwYnkxd2RXSnNhV010YTJWNUFFUkJiVFZEZFUxM1lVUkdSalJhTkhVM01UVkpSREZFVGxsSFJXMWhNVlo1ZWpCb2QxbGxXRk0yZVVObU5XTlhVRzlyV2k5c1MyVm5ibWRwVVhod05sZHljMUU5UFFBQkFBZGhkM010YTIxekFFNWhjbTQ2WVhkek9tdHRjenBsZFMxalpXNTBjbUZzTFRFNk1UUXhOemczTmpNME9USTRPbXRsZVM4d01ESXpPV0l5TVMxaE5qRmpMVFE0WVRjdE9UTTRaQzAyWXpWa09UUmhaV1l4TURNQXVBRUNBUUI0R25pVldXRTVBeC9XSk9TVzRCRGpZY0duc3pxZ2xZdEU2R2t5VzFKZGVORUJORkJtR1NwY0FUbnNGRUFBdDVrY0xBQUFBSDR3ZkFZSktvWklodmNOQVFjR29HOHdiUUlCQURCb0Jna3Foa2lHOXcwQkJ3RXdIZ1lKWUlaSUFXVURCQUV1TUJFRURMYmJKOGlBa2dPOTRyNVc0UUlCRUlBN1hWWmFkOE5YdkVlWGZ2ZUNTSElSaHJlZzZkTmxRY2VQclNWM3VCajZLYWJ6UzF5S3NQanh2MmJiTkYvczlHOFdZZ2VZaU55NVFka1VIL1lDQUFBUUFQLzJxTStnbVFPeWNJTTFpVEpVbmcvNlM3RzVBM2VVQWNHOWpXd0ZQR0dTTSs1MXBzNkR2Sk1pU2x2ejNBSXBTdi8vLy84QUFBQUJBQUFBQUFBQUFBQUFBQUFCQUFBRHBwOXhKcm0rbGJPRlNxb3JQVUF5RmZLVHdNWTg2dVN0Rk0ydmVzbmE5c0VCM2lldndHUVZhRU9xdXRYVk00WkRMTk9ubCtlY0ZYclJ1MlVCZEwwbnlFa3k1U0VkMmVTWFlqU1lIS2pmWGR3eXBuTUVnc2RYamJaUDBNVVJmdVZ5aU9mSVpIemw0L2xodTZnL1d0NFJhVElWcGZHUVh4WUhQVU5YZTUyTGJGQ2ZPVmx0am5iRUFvVVcyZDZ0S0VoWE91Q25MMzdRYXZXQnlaYjNUYkhSckU3b2QvQlRTMTNVbnJoYXo3dkZubzVwMGxGZEFrRWVXU3pnaHNPWEdnd0J5bEdFTmcxTUExaWpKK1pJQ2dFcEo3UXBIcnFxem1JcUxpaHhaaUJhNkRuN0pSdVZBVnJ6L2pydmpVNkZxRHh2OGNPSzE4OXlJeWhmSHEwcWxiM0Q4Q1ZBdm5NbTZNNWppMU5KVDZpazc5YTIxN1lxalRHNUFJN3k2YlRwbXlkQStYOFJPTGg0RE52Z1Nxc2ozM0xlRWRUb0VzcFJBNHJrSlZTN0RQS2s4NkN4ZVRHdUhqTmdlWjdtcjdsZTYzZE5jZmVKSWFTR3ZQTmF2YmNGOE5ENmJaWEx5VkllSmN0d05HTGdNWUdGb2d5algva1Z1RVB1S1JxazNNSmxZd1k4OVVIVW1rRFphMWNlNzZXUGtPckxMek9XK3NWeHBNNVpiWFROK1RMV2NoWlpNS2dqSWpuWUxGeTl0a0x1ckpvSmF1SDdaeGt6N2lzOG8xekJZeFo3RHhiUFREUiswcjUxZXFnTWRMaGh1cjdWb0hyeGNmTjZqc2NxOTZDbnNKSmJyU3Z3UWtGbldMWmFrYnFUanpTeVEyL1E3VVlseHBOWjBnZU5Ib3lER1lXdjVabVNlTmUvK21na2ZVTUpCYkR2WUdjRVVrbElMVi80N3NVRXZMOUdRbVpjTmVRK0t5TmtDZ21zckIwcjVNRWE3M25HKzhJVkswUEZNbVdMMFZJQXdtdGVqWTZNQ1dmRTViVnRlRnpxT1pOOFR4NS9ZdHd3M3R6Tm5oUGJ6VEkxNUpEQ2R5MVB3bnBLQkFwTS84Zjk0aFZqejBmTWRFUWxBaWxteWZyNDZwVVltMWV3Vm1kcjBSeVpEVm4zSUszRHArNVM3OFlQU0NHaEs2MzJ3NVcvOXU3dGlpbUVlNmRPTms0VURrRVlKYXMyMzdYYVNFb1Z6Y3l6U3hmeGV5ZStEYzJpSEJOODc5dGszbVNuMC9MdUpwOVpETWJQRENua3NrNTZTT0w2WlV5akFVTzhqd0xBbUd6OCtiUnkvNnFWQng4RmZqSU9xTXRaSy9wQ0F3WUZBaGtxUHFBQVhRMXRSU1I3YThoR0djdlpkSWJqTll6aTk5d3RqQ1dRd3FPRUtZM0JUVDdWUGlyOEVYM2lRK3BjQVViRmFFeExFNXhwbWE1SXIvaTByMGJvSXY5QWQ5Y1RXUHlFN0Q0R045TWJxL2g3RER5TnV1bmNWRDdEdmFleDh1ajlmOFBzZGpSVmo1THJ4Tm9ZQis5QWQrcG9YR1lLVXFVVjVxMTM5em5iYkwvTm5iMElRQVNMK1JoMVJ0QnFDbjNmTjJPa2pjRWpzbHpUMzM2Vjd3b2ZJM0RwQTNMc0tSWTgyUFZiK1puczUrVFZNMlhYQUdjd1pRSXdab2dwc2xCRFVQT3pocXd5ejhQdXdqNlBhNGNGVUpnWEJpQWdUOU1XNyt5WlBJbVdNenB5cmhrQ2krNkF3dzZTQWpFQW9KVTM0bFFDZFFNTmpCWnFlVjdpSUNXTldoeU9kT2ZqYjVvbUFOMmZ1NUx0RU9TWUNXc2VlTkFuWElsV2pyZ0EifQ==",
+      "items": [
+                {
+          "ArticleId": "https://energetyka24.com/elektroenergetyka/wiadomosci/jaka-przyszlosc-blokow-elektrowni-laziska-szef-energetycznej-spolki-zabiera-glos",
+          "Owner": "23c4e8a2-7021-7009-229a-f7ed16b67b4a",
+          "PublishedDate": "2024-11-29T23:06:10+00:00",
+          "Source": "energetyka24.com",
+          "FeedSourceName": "Google News FiveFilters Bundle",
+          "Summary": "Jaka przyszłość bloków Elektrowni Łaziska? Szef energetycznej spółki zabiera głos   Energetyka24.com",
+          "Title": "Jaka przyszłość bloków Elektrowni Łaziska? Szef energetycznej spółki zabiera głos - Energetyka24.com",
+          "Score": {
+            "depth_and_originality": 4,
+            "quality": 4,
+            "rating": 40,
+            "relevance": 4,
+            "simplified": 7
+          }
+        },
+        {
+          "ArticleId": "https://energetyka24.com/ropa/wiadomosci/black-friday-ale-dzien-pozniej-analitycy-od-soboty-spadek-cen-na-stacjach",
+          "Owner": "23c4e8a2-7021-7009-229a-f7ed16b67b4a",
+          "PublishedDate": "2024-11-29T23:23:07+00:00",
+          "Source": "energetyka24.com",
+          "FeedSourceName": "Google News FiveFilters Bundle",
+          "Summary": "Black Friday, ale dzień później. Analitycy: od soboty spadek cen paliw   Energetyka24.com",
+          "Title": "Black Friday, ale dzień później. Analitycy: od soboty spadek cen paliw - Energetyka24.com",
+          "Score": {
+            "depth_and_originality": 3,
+            "quality": 4,
+            "rating": 26,
+            "relevance": 2,
+            "simplified": 3
+          }
+        }
+      ]
+    }
+  }
+}

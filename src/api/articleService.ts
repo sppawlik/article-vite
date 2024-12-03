@@ -37,6 +37,36 @@ interface ListUserArticlesResponse {
     }[]
 }
 
+interface ListArticleResponse {
+    getArticle: {
+        link: string
+        owner: string
+        publishedDate: string
+        source: string
+        hostDomain: string
+        summary: string
+        title: string
+        url: string
+        score: Score
+    }
+}
+
+interface ListArticlesResponse {
+    listArticles: {
+        nextToken?: string
+        items: {
+            ArticleId: string
+            Owner: string
+            PublishedDate: string
+            Source: string
+            FeedSourceName: string
+            Summary: string
+            Title: string
+            Score: Score
+        }[]
+    }
+}
+
 export async function getUserArticles(): Promise<UserArticle[]> {
     const result = await client.graphql({
         query: `
@@ -79,36 +109,63 @@ export async function getUserArticles(): Promise<UserArticle[]> {
     }));
 }
 
-// export async function getArticles(): Promise<UserArticle[]> {
-//     try {
-//         const response = await fetch(API_URL);
-//
-//         if (!response.ok) {
-//             console.error(`HTTP error! status: ${response.status}`);
-//             return [];
-//         }
-//         const data: APIArticle[] = await response.json();
-//         console.log('Size:', data.length);
-//         const dataEnhanced: APIArticleEnhanced[] = data.map((item: APIArticle) => ({
-//             ...item, publishedDate: new Date(item.PublishedDate)
-//         })).sort((a, b) => new Date(b.publishedDate).getTime() - new Date(a.publishedDate).getTime())
-//
-//
-//         return dataEnhanced.map((item: APIArticleEnhanced) => ({
-//             source: item.Source,
-//             link: item.ArticleId,
-//             title: item.Title,
-//             summary: item.Summary,
-//             relativeDate: getRelativeTime(new Date(item.PublishedDate), new Date()),
-//             publishedDate: item.publishedDate,
-//             score: item.Score,
-//             rating: item.Score.rating / 10,
-//         }));
-//     } catch (error) {
-//         console.error('Error fetching articles:', error);
-//         return [];
-//     }
-// }
+export async function listArticle(startDate: Date): Promise<UserArticle[]> {
+    const result = await client.graphql({
+        query: `
+            query ListArticles($startDate: String!) {
+                listArticles(input: { startDate: $startDate}) {
+                    nextToken
+                    items {
+                        ArticleId
+                        Owner
+                        PublishedDate
+                        Source
+                        FeedSourceName
+                        Summary
+                        Title
+                        Score {
+                            depth_and_originality
+                            quality
+                            rating
+                            relevance
+                            simplified
+                        }
+                    }
+                }
+            }
+        `,
+        variables: {
+            startDate: startDate.toISOString()
+        }
+    }) as GraphQLResult<ListArticlesResponse>
+
+    const articles = result.data?.listArticles
+    if (!articles) return []
+
+    return articles.items.map((article) => ({
+        source: article.Source ?? '',
+        hostDomain: article.FeedSourceName ?? '',
+        link: article.ArticleId,
+        title: article.Title ?? '',
+        summary: article.Summary ?? '',
+        relativeDate: getRelativeTime(new Date(article.PublishedDate ?? ''), new Date()),
+        publishedDate: new Date(article.PublishedDate ?? ''),
+        score: article.Score,
+        rating: article.Score?.rating / 10
+    }));
+
+    // return articles.items.map((item) => ({
+    //     source: item?.source ?? '',
+    //     hostDomain: item?.hostDomain ?? '',
+    //     link: item?.link ?? '',
+    //     title: item?.title ?? '',
+    //     summary: item?.summary ?? '',
+    //     relativeDate: getRelativeTime(new Date(item?.publishedDate ?? ''), new Date()),
+    //     publishedDate: new Date(item?.publishedDate ?? ''),
+    //     score: item?.score,
+    //     rating: item?.score?.rating / 10
+    // }));
+}
 
 function getRelativeTime(pastDate: Date, currentDate: Date): string {
     const diffInSeconds = Math.floor((currentDate.getTime() - pastDate.getTime()) / 1000);
