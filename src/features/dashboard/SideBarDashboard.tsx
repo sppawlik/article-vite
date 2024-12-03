@@ -25,8 +25,8 @@ export function SideBarDashboard() {
 
     return (
         <div className="flex min-h-screen flex-col bg-muted/40">
-            <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
-                <nav className="flex flex-col items-center gap-4 px-2 py-14">
+            <aside className="fixed inset-y-0 left-0 hidden flex-col border-r bg-background sm:flex">
+                <nav className="flex flex-col items-center ">
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
@@ -69,8 +69,8 @@ export function SideBarDashboard() {
                     </TooltipProvider>
                 </nav>
             </aside>
-            <div className="flex flex-col sm:gap-4 sm:py-4">
-                <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 w-full min-w-[900px]">
+            <div className="flex flex-col">
+                <main className="grid flex-1 items-start">
                     {renderMainContent()}
                 </main>
             </div>

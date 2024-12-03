@@ -144,10 +144,10 @@ export function ArticleTable({
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead className="w-[200px] text-left">Source</TableHead>
+                            <TableHead className="text-left">Source</TableHead>
                             <TableHead className="whitespace-nowrap overflow-hidden text-ellipsis text-left">Title</TableHead>
-                            <TableHead className="w-[100px] text-left">Age</TableHead>
-                            <TableHead className="w-[100px] cursor-pointer text-left" onClick={toggleSortOrder}>
+                            <TableHead className="text-left">Age</TableHead>
+                            <TableHead className="cursor-pointer text-left" onClick={toggleSortOrder}>
                                 <div className="flex items-center">
                                     Rating
                                     {sortOrder === 'asc' ? (
@@ -157,7 +157,7 @@ export function ArticleTable({
                                     )}
                                 </div>
                             </TableHead>
-                            <TableHead className="w-[100px] text-left">Simplified</TableHead>
+                            <TableHead className="text-left">Sim</TableHead>
                             <TableHead className="w-[120px] text-left">Summary</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -167,22 +167,22 @@ export function ArticleTable({
                                 key={article.link}
                                 className={selectedArticles[article.link] ? 'bg-gray-200' : ''}
                             >
-                                <TableCell className="text-left">
+                                <TableCell className="text-left max-w-[150px]">
                                     <div className="flex flex-col">
-                                        <span>{article?.hostDomain}</span>
-                                        <span className="text-sm text-muted-foreground">{(article?.source ?? '').split(' ').slice(0, 2).join(' ')}</span>
+                                        <span className='truncate text-ellipsis overflow-hidden'>{article?.hostDomain}</span>
+                                        <span className="text-sm text-muted-foreground truncate text-ellipsis overflow-hidden">{article?.source}</span>
                                     </div>
                                 </TableCell>
                                 <TableCell className="text-left">
-                                    <div className="max-h-[3em] overflow-hidden w-[800px]">
+                                    <div className="max-h-[3em] overflow-hidden max-w-[600px]">
                                         <a href={article.link} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
                                             {article.title}
                                         </a>
                                         {" "}
-                                        <span className="text-muted-foreground text-sm">{article.summary}</span>
+                                        <span className="text-muted-foreground text-sm ">{article.summary}</span>
                                     </div>
                                 </TableCell>
-                                <TableCell className="text-left">{article.relativeDate}</TableCell>
+                                <TableCell className="text-left min-w-100">{article.relativeDate}</TableCell>
                                 <TableCell className="text-left">
                                     <TooltipProvider>
                                         <Tooltip>

@@ -6,7 +6,7 @@ import {Authenticator} from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import outputs from '../amplify_outputs.json';
 import {Amplify} from "aws-amplify";
-
+import {NewsletterBuilder} from "@/features/newsletter/NewsletterBuilder";
 
 Amplify.configure(outputs);
 const currentConfig = Amplify.getConfig();
@@ -88,7 +88,7 @@ Amplify.configure({
 createRoot(document.getElementById('root')).render(
         <StrictMode>
             <Authenticator>
-                <SideBarDashboard/>
+                <div className='flex justify-center'><NewsletterBuilder/></div>
             </Authenticator>
         </StrictMode>
 );

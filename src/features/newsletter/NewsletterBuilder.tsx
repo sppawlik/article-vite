@@ -9,6 +9,8 @@ import { UserArticle, getUserArticles, listArticle } from "@/api/articleService"
 import { SummarySize } from "@/types/types";
 import { generateClient } from "aws-amplify/api";
 import { GraphQLResult } from "@aws-amplify/api-graphql";
+import { useAuthenticator } from '@aws-amplify/ui-react';
+import { LogOut } from "lucide-react";
 
 const client = generateClient();
 
@@ -130,17 +132,32 @@ export function NewsletterBuilder() {
     );
   };
 
+
+    const { signOut } = useAuthenticator();
+
   return (
-    <Tabs value={activeTab} onValueChange={setActiveTab}>
-      <div className="flex items-center">
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1">
+      <div className="flex items-center justify-between w-full">
         <TabsList className="gap-2">
           <TabsTrigger value="all">Article List</TabsTrigger>
           <TabsTrigger value="tiptap">Newsletter</TabsTrigger>
         </TabsList>
+        <a
+                                    href="#"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        signOut();
+                                    }}
+                                    className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                                >
+                                    <LogOut className="h-5 w-5"/>
+                                    <span className="sr-only">Logout</span>
+                                </a>
       </div>
+      
 
-      <TabsContent value="all">
-        <Card>
+      <TabsContent value="all" className="p-0 w-full">
+        <Card className="w-full">
           <CardHeader>
             <CardTitle>Articles</CardTitle>
             <CardDescription>
@@ -152,7 +169,7 @@ export function NewsletterBuilder() {
           </CardContent>
         </Card>
       </TabsContent>
-      <TabsContent value="blocknote">
+      <TabsContent value="blocknote" className="p-0">
         <Card>
           <CardHeader>
             <CardTitle>Newsletter Editor</CardTitle>
@@ -165,8 +182,8 @@ export function NewsletterBuilder() {
           </CardContent>
         </Card>
       </TabsContent>
-      <TabsContent value="tiptap">
-        <Card>
+      <TabsContent value="tiptap" className="p-0">
+        <Card className="w-full">
           <CardContent>
             <TipTapEditor newsletterId={newsletterId} />
           </CardContent>
