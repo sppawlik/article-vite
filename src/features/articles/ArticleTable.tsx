@@ -1,14 +1,17 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
-import { UserArticle } from "@/api/articleService";
+import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lucide-react';
+import { UserArticle, createCustomUrl } from "@/api/articleService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { SummarySize } from "@/types/types";
+
+// Lazy load the Dialog component and its related components
+const AddArticleDialog = lazy(() => import('./AddArticleDialog'));
 
 const SUMMARY_OPTIONS: SummarySize[] = ['short', 'medium', 'long'];
 
@@ -21,6 +24,76 @@ interface ArticleTableProps {
     onSelectedArticlesChange: (selected: SelectedArticlesMap | ((prev: SelectedArticlesMap) => SelectedArticlesMap)) => void;
 }
 
+// Extracted ArticleRow component to prevent unnecessary re-renders
+const ArticleRow = React.memo(({ 
+    article, 
+    isSelected, 
+    selectedSize,
+    onSummaryChange 
+}: { 
+    article: UserArticle;
+    isSelected: boolean;
+    selectedSize: SummarySize | undefined;
+    onSummaryChange: (link: string, value: SummarySize | '-') => void;
+}) => (
+    <TableRow className={isSelected ? 'bg-gray-200' : ''}>
+        <TableCell className="text-left max-w-[150px]">
+            <div className="flex flex-col">
+                <span className='truncate text-ellipsis overflow-hidden'>{article?.hostDomain}</span>
+                <span className="text-sm text-muted-foreground truncate text-ellipsis overflow-hidden">{article?.source}</span>
+            </div>
+        </TableCell>
+        <TableCell className="text-left min-w-0">
+            <div className="max-h-[3em] overflow-hidden max-w-[1000px]">
+                <a href={article.link} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
+                    {article.title}
+                </a>
+                {" "}
+                <span className="text-muted-foreground text-sm ">{article.summary}</span>
+            </div>
+        </TableCell>
+        <TableCell className="text-left min-w-100">{article.relativeDate}</TableCell>
+        <TableCell className="text-left">
+            <TooltipProvider>
+                <Tooltip>
+                    <TooltipTrigger>
+                        <div className="flex items-center">
+                            {article.rating}
+                        </div>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Relevance: {article.score.relevance}</p>
+                        <p>Quality: {article.score.quality}</p>
+                        <p>Depth and originality: {article.score.depth_and_originality}</p>
+                        <p>Simplified: {article.score.simplified}</p>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+        </TableCell>
+        <TableCell className="text-left">{article.score.simplified}</TableCell>
+        <TableCell className="text-left">
+            <Select 
+                value={selectedSize || '-'}
+                onValueChange={(value) => onSummaryChange(article.link, value as SummarySize | '-')}
+            >
+                <SelectTrigger className="w-[120px]">
+                    <SelectValue placeholder="-" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="-">-</SelectItem>
+                    {SUMMARY_OPTIONS.map((size) => (
+                        <SelectItem key={size} value={size}>
+                            {size.charAt(0).toUpperCase() + size.slice(1)}
+                        </SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </TableCell>
+    </TableRow>
+));
+
+ArticleRow.displayName = 'ArticleRow';
+
 export function ArticleTable({ 
     articles, 
     onGenerateNewsletter,
@@ -30,6 +103,7 @@ export function ArticleTable({
     const [ageFilter, setAgeFilter] = useState<number | ''>('');
     const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5]);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const filteredArticles = useMemo(() => {
         return articles.filter(article => {
@@ -134,9 +208,15 @@ export function ArticleTable({
                         </div>
                     </div>
                 </div>
-                <Button onClick={handleGenerateNewsletter}>
-                    Generate Newsletter
-                </Button>
+                <div className="flex gap-2">
+                    <Button onClick={handleGenerateNewsletter}>
+                        Generate Newsletter
+                    </Button>
+                    <Button onClick={() => setIsModalOpen(true)}>
+                        <PlusIcon className="h-4 w-4 mr-2" />
+                        Add Article
+                    </Button>
+                </div>
             </div>
             {sortedArticles.length === 0 ? (
                 <div>No articles found matching the current filter.</div>
@@ -163,66 +243,26 @@ export function ArticleTable({
                     </TableHeader>
                     <TableBody>
                         {sortedArticles.map((article) => (
-                            <TableRow 
+                            <ArticleRow
                                 key={article.link}
-                                className={selectedArticles[article.link] ? 'bg-gray-200' : ''}
-                            >
-                                <TableCell className="text-left max-w-[150px]">
-                                    <div className="flex flex-col">
-                                        <span className='truncate text-ellipsis overflow-hidden'>{article?.hostDomain}</span>
-                                        <span className="text-sm text-muted-foreground truncate text-ellipsis overflow-hidden">{article?.source}</span>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="text-left">
-                                    <div className="max-h-[3em] overflow-hidden max-w-[600px]">
-                                        <a href={article.link} className="text-primary hover:underline" target="_blank" rel="noopener noreferrer">
-                                            {article.title}
-                                        </a>
-                                        {" "}
-                                        <span className="text-muted-foreground text-sm ">{article.summary}</span>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="text-left min-w-100">{article.relativeDate}</TableCell>
-                                <TableCell className="text-left">
-                                    <TooltipProvider>
-                                        <Tooltip>
-                                            <TooltipTrigger>
-                                                <div className="flex items-center">
-                                                    {article.rating}
-                                                </div>
-                                            </TooltipTrigger>
-                                            <TooltipContent>
-                                                <p>Relevance: {article.score.relevance}</p>
-                                                <p>Quality: {article.score.quality}</p>
-                                                <p>Depth and originality: {article.score.depth_and_originality}</p>
-                                                <p>Simplified: {article.score.simplified}</p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </TooltipProvider>
-                                </TableCell>
-                                <TableCell className="text-left">{article.score.simplified}</TableCell>
-                                <TableCell className="text-left">
-                                    <Select 
-                                        value={selectedArticles[article.link] || '-'}
-                                        onValueChange={(value) => handleSummaryChange(article.link, value as SummarySize | '-')}
-                                    >
-                                        <SelectTrigger className="w-[120px]">
-                                            <SelectValue placeholder="-" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="-">-</SelectItem>
-                                            {SUMMARY_OPTIONS.map((size) => (
-                                                <SelectItem key={size} value={size}>
-                                                    {size.charAt(0).toUpperCase() + size.slice(1)}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </TableCell>
-                            </TableRow>
+                                article={article}
+                                isSelected={!!selectedArticles[article.link]}
+                                selectedSize={selectedArticles[article.link]}
+                                onSummaryChange={handleSummaryChange}
+                            />
                         ))}
                     </TableBody>
                 </Table>
+            )}
+            
+            {/* Lazy loaded dialog */}
+            {isModalOpen && (
+                <Suspense fallback={<div>Loading...</div>}>
+                    <AddArticleDialog
+                        isOpen={isModalOpen}
+                        onClose={() => setIsModalOpen(false)}
+                    />
+                </Suspense>
             )}
         </div>
     );

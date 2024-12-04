@@ -67,6 +67,22 @@ interface ListArticlesResponse {
     }
 }
 
+interface CreateCustomUrlResponse {
+    createCustomUrl: {
+        url: string
+    }
+}
+
+interface GetCustomUrlResponse {
+    getCustomUrl: {
+        createdAt: string
+        status: string
+        owner: string
+        updatedAt: string
+        url: string
+    }
+}
+
 export async function getUserArticles(): Promise<UserArticle[]> {
     const result = await client.graphql({
         query: `
@@ -154,17 +170,52 @@ export async function listArticle(startDate: Date): Promise<UserArticle[]> {
         rating: article.Score?.rating / 10
     }));
 
-    // return articles.items.map((item) => ({
-    //     source: item?.source ?? '',
-    //     hostDomain: item?.hostDomain ?? '',
-    //     link: item?.link ?? '',
-    //     title: item?.title ?? '',
-    //     summary: item?.summary ?? '',
-    //     relativeDate: getRelativeTime(new Date(item?.publishedDate ?? ''), new Date()),
-    //     publishedDate: new Date(item?.publishedDate ?? ''),
-    //     score: item?.score,
-    //     rating: item?.score?.rating / 10
-    // }));
+}
+
+export async function createCustomUrl(url: string): Promise<string> {
+    try {
+        const response = await client.graphql<CreateCustomUrlResponse>({
+            query: `
+                mutation CreateCustomUrl($url: String!) {
+                    createCustomUrl(input: {url: $url}) {
+                        url
+                    }
+                }
+            `,
+            variables: {
+                url
+            }
+        }) as GraphQLResult<CreateCustomUrlResponse>
+        
+        return response.data.createCustomUrl.url
+    } catch (error) {
+        console.error('Error creating custom URL:', error)
+        throw error
+    }
+}
+
+export async function getCustomUrl(url: string) {
+    try {
+        const response = await client.graphql({
+            query: `
+                query GetCustomUrl($url: String!) {
+                    getCustomUrl(url: $url) {
+                        createdAt
+                        status
+                        owner
+                        updatedAt
+                        url
+                    }
+                }
+            `,
+            variables: { url }
+        }) as GraphQLResult<GetCustomUrlResponse>
+
+        return response.data?.getCustomUrl
+    } catch (error) {
+        console.error('Error fetching custom URL:', error)
+        throw error
+    }
 }
 
 function getRelativeTime(pastDate: Date, currentDate: Date): string {
