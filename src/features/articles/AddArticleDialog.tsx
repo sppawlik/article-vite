@@ -25,7 +25,9 @@ export default function AddArticleDialog({ isOpen, onClose }: AddArticleDialogPr
             
             // Poll for status until it's not NEW
             let status = 'NEW';
-            while (status === 'NEW') {
+            let attempts = 0;
+            while (status === 'NEW' && attempts < 10) {
+                attempts++;
                 const response = await getCustomUrl(newArticleUrl);
                 if (!response) continue;
                 status = response.status;
@@ -34,7 +36,7 @@ export default function AddArticleDialog({ isOpen, onClose }: AddArticleDialogPr
                 }
             }
             
-            if (status === 'FAILED') {
+            if (status === 'NEW' || status === 'FAILED') {
                 setErrorMessage('Failed to process the article. Please try again or use a different URL.');
                 return;
             }
