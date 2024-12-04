@@ -129,6 +129,10 @@ export function ArticleTable({
         }
     }, [fetchArticles, hasFetched]);
 
+    const refreshArticles = useCallback(() => {
+        setHasFetched(false);
+    }, []);
+
     const [ageFilter, setAgeFilter] = useState<number | ''>('');
     const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5]);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -205,7 +209,7 @@ export function ArticleTable({
 
     return (
         <div className="space-y-4">
-            <div className="flex justify-between items-end">
+            <div className="min-w-[1000px] flex justify-between items-end">
                 <div className="flex gap-4">
                     <div className="w-32">
                         <Label htmlFor="age-filter" className="text-sm">Age (days)</Label>
@@ -291,9 +295,12 @@ export function ArticleTable({
             {/* Lazy loaded dialog */}
             {isModalOpen && (
                 <Suspense fallback={<div>Loading...</div>}>
-                    <AddArticleDialog
-                        isOpen={isModalOpen}
-                        onClose={() => setIsModalOpen(false)}
+                    <AddArticleDialog 
+                        isOpen={isModalOpen} 
+                        onClose={() => {
+                            setIsModalOpen(false);
+                            refreshArticles();
+                        }} 
                     />
                 </Suspense>
             )}

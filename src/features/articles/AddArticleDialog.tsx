@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createCustomUrl, getCustomUrl } from "@/api/articleService";
+import { Loader2 } from "lucide-react";
 
 interface AddArticleDialogProps {
     isOpen: boolean;
@@ -56,13 +57,19 @@ export default function AddArticleDialog({ isOpen, onClose }: AddArticleDialogPr
                 </DialogHeader>
                 <div className="py-4">
                     <Label htmlFor="article-url">URL</Label>
-                    <Input
-                        id="article-url"
-                        value={newArticleUrl}
-                        onChange={(e) => setNewArticleUrl(e.target.value)}
-                        placeholder="Enter article URL"
-                        className="mt-2"
-                    />
+                    {isSaving ? (
+                        <div className="flex items-center justify-center h-10 mt-2">
+                            <Loader2 className="h-6 w-6 animate-spin text-gray-500" />
+                        </div>
+                    ) : (
+                        <Input
+                            id="article-url"
+                            value={newArticleUrl}
+                            onChange={(e) => setNewArticleUrl(e.target.value)}
+                            placeholder="Enter article URL"
+                            className="mt-2"
+                        />
+                    )}
                     {errorMessage && (
                         <div className="mt-2 text-sm text-red-600">
                             {errorMessage}
