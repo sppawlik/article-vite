@@ -111,7 +111,7 @@ export function ArticleTable({
         setError(null);
         try {
             const twoWeeksAgo = new Date();
-            twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 7);
+            twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 5);
             const fetchedArticles = await listArticle(twoWeeksAgo);
             setArticles(fetchedArticles);
             setHasFetched(true);
@@ -151,7 +151,7 @@ export function ArticleTable({
             }
             
             // Rating filter
-            return !(article.rating < ratingFilter[0] || article.rating > ratingFilter[1]);
+            return article.rating >= ratingFilter[0] && article.rating <= ratingFilter[1];
         });
     }, [articles, ageFilter, ratingFilter]);
 
