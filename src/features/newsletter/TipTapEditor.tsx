@@ -99,7 +99,7 @@ export function TipTapEditor({ newsletterId }: TextEditorProps) {
                     </div>
                 )}
                 {(!newsletter || newsletter?.status  === 'PENDING') ? (
-                    <div className="flex items-center justify-center h-full top-4">
+                    <div className="flex items-center min-w-[800px] justify-center h-full top-4">
                         <p>Loading...</p>
                     </div>
                 ) : editor && (

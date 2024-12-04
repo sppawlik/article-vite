@@ -1,11 +1,10 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { BlockNoteView } from "@blocknote/mantine";
 import { useCreateBlockNote } from "@blocknote/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArticleTable } from "@/features/articles/ArticleTable";
 import { TipTapEditor } from "@/features/newsletter/TipTapEditor";
-import { UserArticle, getUserArticles, listArticle } from "@/api/articleService";
 import { SummarySize } from "@/types/types";
 import { generateClient } from "aws-amplify/api";
 import { GraphQLResult } from "@aws-amplify/api-graphql";
@@ -35,39 +34,8 @@ export function NewsletterBuilder() {
   const editor = useCreateBlockNote();
   const [activeTab, setActiveTab] = useState("all");
   const [selectedArticles, setSelectedArticles] = useState<SelectedArticlesMap>({});
-  
-  const [articles, setArticles] = useState<UserArticle[]>([]);
-  const [loadingArticles, setLoadingArticles] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [hasFetched, setHasFetched] = useState(false);
-  const fetchingRef = useRef(false);
   const [newsletterId, setNewsletterId] = useState<string | null>(null);
-
-  const fetchArticles = useCallback(async () => {
-    if (fetchingRef.current || hasFetched) return;
-    fetchingRef.current = true;
-    setLoadingArticles(true);
-    setError(null);
-    try {
-      const twoWeeksAgo = new Date();
-      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 7);
-      const fetchedArticles = await listArticle(twoWeeksAgo);
-      //const fetchedArticles = await getUserArticles();
-      setArticles(fetchedArticles);
-      setHasFetched(true);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching articles.');
-    } finally {
-      setLoadingArticles(false);
-      fetchingRef.current = false;
-    }
-  }, [hasFetched]);
-
-  useEffect(() => {
-    if (!hasFetched) {
-      fetchArticles();
-    }
-  }, [fetchArticles, hasFetched]);
+  const [error, setError] = useState<string | null>(null);
 
   const handleGenerateNewsletter = async (articles: Record<SummarySize, string[]>) => {
     setActiveTab("tiptap");
@@ -113,27 +81,7 @@ export function NewsletterBuilder() {
     }
   };
 
-  const renderArticleContent = () => {
-    if (loadingArticles) {
-      return <div>Loading articles...</div>;
-    }
-
-    if (error) {
-      return <div>Error: {error}</div>;
-    }
-
-    return (
-      <ArticleTable 
-        articles={articles}
-        onGenerateNewsletter={handleGenerateNewsletter}
-        selectedArticles={selectedArticles}
-        onSelectedArticlesChange={setSelectedArticles}
-      />
-    );
-  };
-
-
-    const { signOut } = useAuthenticator();
+  const { signOut } = useAuthenticator();
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex-1">
@@ -165,7 +113,11 @@ export function NewsletterBuilder() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {renderArticleContent()}
+            <ArticleTable 
+              onGenerateNewsletter={handleGenerateNewsletter}
+              selectedArticles={selectedArticles}
+              onSelectedArticlesChange={setSelectedArticles}
+            />
           </CardContent>
         </Card>
       </TabsContent>

@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useCallback, lazy, Suspense } from 'react';
+import React, { useState, useMemo, useCallback, lazy, Suspense, useRef, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lucide-react';
-import { UserArticle, createCustomUrl } from "@/api/articleService";
+import { UserArticle, createCustomUrl, listArticle } from "@/api/articleService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,7 +18,6 @@ const SUMMARY_OPTIONS: SummarySize[] = ['short', 'medium', 'long'];
 type SelectedArticlesMap = { [key: string]: SummarySize };
 
 interface ArticleTableProps {
-    articles: UserArticle[];
     onGenerateNewsletter: (articles: Record<SummarySize, string[]>) => void;
     selectedArticles: SelectedArticlesMap;
     onSelectedArticlesChange: (selected: SelectedArticlesMap | ((prev: SelectedArticlesMap) => SelectedArticlesMap)) => void;
@@ -95,11 +94,41 @@ const ArticleRow = React.memo(({
 ArticleRow.displayName = 'ArticleRow';
 
 export function ArticleTable({ 
-    articles, 
     onGenerateNewsletter,
     selectedArticles,
     onSelectedArticlesChange
 }: ArticleTableProps) {
+    const [articles, setArticles] = useState<UserArticle[]>([]);
+    const [loadingArticles, setLoadingArticles] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [hasFetched, setHasFetched] = useState(false);
+    const fetchingRef = useRef(false);
+
+    const fetchArticles = useCallback(async () => {
+        if (fetchingRef.current || hasFetched) return;
+        fetchingRef.current = true;
+        setLoadingArticles(true);
+        setError(null);
+        try {
+            const twoWeeksAgo = new Date();
+            twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 7);
+            const fetchedArticles = await listArticle(twoWeeksAgo);
+            setArticles(fetchedArticles);
+            setHasFetched(true);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching articles.');
+        } finally {
+            setLoadingArticles(false);
+            fetchingRef.current = false;
+        }
+    }, [hasFetched]);
+
+    useEffect(() => {
+        if (!hasFetched) {
+            fetchArticles();
+        }
+    }, [fetchArticles, hasFetched]);
+
     const [ageFilter, setAgeFilter] = useState<number | ''>('');
     const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5]);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -218,7 +247,11 @@ export function ArticleTable({
                     </Button>
                 </div>
             </div>
-            {sortedArticles.length === 0 ? (
+            {loadingArticles ? (
+                <div>Loading articles...</div>
+            ) : error ? (
+                <div>Error: {error}</div>
+            ) : sortedArticles.length === 0 ? (
                 <div>No articles found matching the current filter.</div>
             ) : (
                 <Table>
