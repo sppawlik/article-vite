@@ -222,19 +222,18 @@ function getRelativeTime(pastDate: Date, currentDate: Date): string {
     const diffInSeconds = Math.floor((currentDate.getTime() - pastDate.getTime()) / 1000);
 
     const intervals = [
-        {label: 'year', seconds: 365 * 24 * 60 * 60},
-        {label: 'month', seconds: 30 * 24 * 60 * 60},
-        {label: 'day', seconds: 24 * 60 * 60},
-        {label: 'hour', seconds: 60 * 60},
-        {label: 'minute', seconds: 60},
-        {label: 'second', seconds: 1},
+        {label: 'y', seconds: 365 * 24 * 60 * 60},
+        {label: 'm', seconds: 30 * 24 * 60 * 60},
+        {label: 'd', seconds: 24 * 60 * 60},
+        {label: 'h', seconds: 60 * 60},
+        {label: 'm', seconds: 60},
+        {label: 's', seconds: 1},
     ];
 
     for (const interval of intervals) {
         const count = Math.floor(diffInSeconds / interval.seconds);
-        if (count >= 1) {
-            return `${count} ${interval.label}${count > 1 ? 's' : ''}`;
-        }
+
+        return `${count} ${interval.label}`
+
     }
-    return 'just now';
 }
