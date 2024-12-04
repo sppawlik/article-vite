@@ -233,7 +233,7 @@ function getRelativeTime(pastDate: Date, currentDate: Date): string {
     for (const interval of intervals) {
         const count = Math.floor(diffInSeconds / interval.seconds);
         if (count >= 1) {
-            return `${count} ${interval.label}`;
+            return `${count}${interval.label}`;
         }
     }
     return 'just now';
