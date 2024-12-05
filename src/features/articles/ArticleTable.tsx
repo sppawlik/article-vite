@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, lazy, Suspense, useRef, useEffec
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lucide-react';
-import { UserArticle, createCustomUrl, listArticle } from "@/api/articleService";
+import { UserArticle, createCustomUrl, listArticle, getArticle } from "@/api/articleService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -136,7 +136,7 @@ export function ArticleTable({
     const [ageFilter, setAgeFilter] = useState<number | ''>('');
     const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5]);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
     const filteredArticles = useMemo(() => {
         return articles.filter(article => {
@@ -207,6 +207,21 @@ export function ArticleTable({
         });
     }, [onSelectedArticlesChange]);
 
+    const handleDialogClose = useCallback(async (url?: string) => {
+        setIsAddDialogOpen(false);
+        if (url) {
+            console.log('Fetching article:', url);
+            try {
+                const newArticle = await getArticle(url);
+                console.log('New article:', newArticle);
+                setArticles(prevArticles => [...prevArticles, newArticle]);
+            } catch (error) {
+                console.error('Error fetching article:', error);
+                setError(error instanceof Error ? error.message : 'Failed to fetch the article');
+            }
+        }
+    }, []);
+
     return (
         <div className="space-y-4">
             <div className="min-w-[1000px] flex justify-between items-end">
@@ -245,7 +260,7 @@ export function ArticleTable({
                     <Button onClick={handleGenerateNewsletter}>
                         Generate Newsletter
                     </Button>
-                    <Button onClick={() => setIsModalOpen(true)}>
+                    <Button onClick={() => setIsAddDialogOpen(true)}>
                         <PlusIcon className="h-4 w-4 mr-2" />
                         Add Article
                     </Button>
@@ -293,17 +308,14 @@ export function ArticleTable({
             )}
             
             {/* Lazy loaded dialog */}
-            {isModalOpen && (
-                <Suspense fallback={<div>Loading...</div>}>
-                    <AddArticleDialog 
-                        isOpen={isModalOpen} 
-                        onClose={() => {
-                            setIsModalOpen(false);
-                            refreshArticles();
-                        }} 
+            <Suspense fallback={<div>Loading...</div>}>
+                {isAddDialogOpen && (
+                    <AddArticleDialog
+                        isOpen={isAddDialogOpen}
+                        onClose={handleDialogClose}
                     />
-                </Suspense>
-            )}
+                )}
+            </Suspense>
         </div>
     );
 }

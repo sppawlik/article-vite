@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react";
 
 interface AddArticleDialogProps {
     isOpen: boolean;
-    onClose: () => void;
+    onClose: (url?: string) => void;
 }
 
 export default function AddArticleDialog({ isOpen, onClose }: AddArticleDialogProps) {
@@ -41,8 +41,9 @@ export default function AddArticleDialog({ isOpen, onClose }: AddArticleDialogPr
                 return;
             }
             
+            console.log('Article URL to be returned:', newArticleUrl);
             setNewArticleUrl('');
-            onClose();
+            onClose(newArticleUrl);
         } catch (error) {
             console.error('Error creating custom URL:', error);
             setErrorMessage('An error occurred while creating the custom URL.');
@@ -79,7 +80,7 @@ export default function AddArticleDialog({ isOpen, onClose }: AddArticleDialogPr
                     )}
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={onClose}>
+                    <Button variant="outline" onClick={() => onClose()}>
                         Cancel
                     </Button>
                     <Button 
