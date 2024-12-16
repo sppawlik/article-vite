@@ -119,11 +119,7 @@ export async function listUserArticles(startDate: Date): Promise<UserArticle[]> 
 
     return articles.listUserArticles.items.map((item) => ({
         source: item?.source ?? "",
-        hostDomain: item?.hostDomain.length < 10
-            ? item?.hostDomain
-            : item?.hostDomain.split(".")
-                .slice(0, 2)
-                .reduce((a, b) => (a.length > b.length ? a : b)) ?? "",
+        hostDomain: item?.hostDomain ?? "",
         link: item?.link ?? "",
         title: item?.title ?? "",
         summary: item?.summary ?? "",
