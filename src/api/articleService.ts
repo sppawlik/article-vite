@@ -5,7 +5,6 @@ import {create} from "domain";
 const client = generateClient();
 
 export interface UserArticle {
-    source: string;
     link: string;
     title: string;
     summary: string;
@@ -46,26 +45,10 @@ interface GetArticleResponse {
     getArticle: Article;
 }
 
-interface ListArticleResponse {
-    getArticle: {
-        link: string;
-        owner: string;
-        publishedDate: string;
-        source: string;
-        hostDomain: string;
-        summary: string;
-        title: string;
-        url: string;
-        score: Score;
-    };
+interface GetUserArticleResponse {
+    getUserArticles: UserArticle;
 }
 
-interface ListArticlesResponse {
-    listArticles: {
-        nextToken?: string;
-        items: Article[];
-    };
-}
 
 interface CreateCustomUrlResponse {
     createCustomUrl: {
@@ -80,6 +63,63 @@ interface GetCustomUrlResponse {
         owner: string;
         updatedAt: string;
         url: string;
+    };
+}
+
+/*
+getUserArticles(link: : string): Promise<UserArticle> {
+query GetUserArticles {
+  getUserArticles(link: "https://esguniversity.substack.com/p/epa-sending-oregon-millions-for-more") {
+    hostDomain
+    title
+    summary
+    url
+    link
+    publishedDate
+  }
+}
+*/
+
+export async function getUserArticles(link: string): Promise<UserArticle> {
+    const result = (await client.graphql({
+        query: `
+        query GetUserArticles($link: String!) {
+          getUserArticles(link: $link) {
+            hostDomain
+            title
+            summary
+            url
+            link
+            publishedDate
+            score {
+                        depth_and_originality
+                        quality
+                        rating
+                        relevance
+                        simplified
+                    }
+          }
+        }
+    `,
+    variables: {
+      link: link
+    }
+    })) as GraphQLResult<GetUserArticleResponse>;
+    const getUserArticle = result.data?.getUserArticles;
+    return {
+        hostDomain: getUserArticle.hostDomain
+            ? getUserArticle.hostDomain.split(" ").slice(0, 2).join(" ")
+            : "",
+        link: getUserArticle?.link,
+        title: getUserArticle?.title ?? "",
+        summary: getUserArticle?.summary ?? "",
+        relativeDate: getRelativeTime(
+            new Date(getUserArticle?.publishedDate ?? ""),
+            new Date()
+        ),
+        publishedDate: new Date(getUserArticle.publishedDate ?? ""),
+        score: getUserArticle?.score,
+        rating: getUserArticle.score?.rating / 10,
     };
 }
 
@@ -118,7 +158,6 @@ export async function listUserArticles(startDate: Date): Promise<UserArticle[]> 
     console.log(articles);
 
     return articles.listUserArticles.items.map((item) => ({
-        source: item?.source ?? "",
         hostDomain: item?.hostDomain ?? "",
         link: item?.link ?? "",
         title: item?.title ?? "",
@@ -133,52 +172,8 @@ export async function listUserArticles(startDate: Date): Promise<UserArticle[]> 
     }));
 }
 
-export async function listArticle(startDate: Date): Promise<UserArticle[]> {
-    const result = (await client.graphql({
-        query: `
-            query ListArticles($startDate: String!) {
-                listArticles(input: { startDate: $startDate}) {
-                    nextToken
-                    items {
-                        ArticleId
-                        Owner
-                        PublishedDate
-                        Source
-                        FeedSourceName
-                        Summary
-                        Title
-                        Score {
-                            depth_and_originality
-                            quality
-                            rating
-                            relevance
-                            simplified
-                        }
-                    }
-                }
-            }
-        `,
-        variables: {
-            startDate: startDate.toISOString(),
-        },
-    })) as GraphQLResult<ListArticlesResponse>;
-
-    const articles = result.data?.listArticles;
-    if (!articles) return [];
-
-    return articles.items.map((article) => (
-        createUserArticle(article)
-    ));
-}
-
 function createUserArticle(article: Article): UserArticle {
     return {
-        source:
-            article.Source?.length > 10
-                ? article.Source.split(".")
-                    .slice(0, 2)
-                    .reduce((a, b) => (a.length > b.length ? a : b))
-                : article.Source,
         hostDomain: article.FeedSourceName
             ? article.FeedSourceName.split(" ").slice(0, 2).join(" ")
             : "",

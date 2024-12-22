@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, lazy, Suspense, useRef, useEffec
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lucide-react';
-import {UserArticle, getArticle, listUserArticles} from "@/api/articleService";
+import {UserArticle, getArticle, listUserArticles, getUserArticles} from "@/api/articleService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -39,7 +39,6 @@ const ArticleRow = React.memo(({
         <TableCell className="text-left max-w-[180px]">
             <div className="flex flex-col">
                 <span className='truncate text-ellipsis overflow-hidden'>{article?.hostDomain}</span>
-                <span className="text-sm text-muted-foreground truncate text-ellipsis overflow-hidden">{article?.source}</span>
             </div>
         </TableCell>
         <TableCell className="text-left min-w-0">
@@ -212,7 +211,7 @@ export function ArticleTable({
         if (url) {
             console.log('Fetching article:', url);
             try {
-                const newArticle = await getArticle(url);
+                const newArticle = await getUserArticles(url);
                 console.log('New article:', newArticle);
                 setArticles(prevArticles => [...prevArticles, newArticle]);
             } catch (error) {
