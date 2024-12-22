@@ -30,21 +30,6 @@ interface ListUserArticlesResponse {
     };
 }
 
-interface Article {
-    ArticleId: string;
-    Owner: string;
-    PublishedDate: string;
-    Source: string;
-    FeedSourceName: string;
-    Summary: string;
-    Title: string;
-    Score: Score;
-}
-
-interface GetArticleResponse {
-    getArticle: Article;
-}
-
 interface GetUserArticleResponse {
     getUserArticles: UserArticle;
 }
@@ -66,19 +51,6 @@ interface GetCustomUrlResponse {
     };
 }
 
-/*
-getUserArticles(link: : string): Promise<UserArticle> {
-query GetUserArticles {
-  getUserArticles(link: "https://esguniversity.substack.com/p/epa-sending-oregon-millions-for-more") {
-    hostDomain
-    title
-    summary
-    url
-    link
-    publishedDate
-  }
-}
-*/
 
 export async function getUserArticles(link: string): Promise<UserArticle> {
     const result = (await client.graphql({
@@ -172,24 +144,6 @@ export async function listUserArticles(startDate: Date): Promise<UserArticle[]> 
     }));
 }
 
-function createUserArticle(article: Article): UserArticle {
-    return {
-        hostDomain: article.FeedSourceName
-            ? article.FeedSourceName.split(" ").slice(0, 2).join(" ")
-            : "",
-        link: article.ArticleId,
-        title: article.Title ?? "",
-        summary: article.Summary ?? "",
-        relativeDate: getRelativeTime(
-            new Date(article.PublishedDate ?? ""),
-            new Date()
-        ),
-        publishedDate: new Date(article.PublishedDate ?? ""),
-        score: article.Score,
-        rating: article.Score?.rating / 10,
-    };
-}
-
 export async function createCustomUrl(url: string): Promise<string> {
     try {
         const response = (await client.graphql<CreateCustomUrlResponse>({
@@ -208,40 +162,6 @@ export async function createCustomUrl(url: string): Promise<string> {
         return response.data.createCustomUrl.url;
     } catch (error) {
         console.error("Error creating custom URL:", error);
-        throw error;
-    }
-}
-
-export async function getArticle(url: string): Promise<UserArticle> {
-    try {
-        const response = (await client.graphql({
-            query: `
-                query GetArticle($url: String!) {
-                    getArticle(url: $url) {
-                        ArticleId
-                        ItemType
-                        Owner
-                        PublishedDate
-                        Score {
-                            depth_and_originality
-                            quality
-                            rating
-                            relevance
-                            simplified
-                        }
-                        Source
-                        Summary
-                        Title
-                    }
-                }
-            `,
-            variables: {url},
-        })) as GraphQLResult<GetArticleResponse>;
-        const article = response.data?.getArticle;
-        const userArticle = createUserArticle(article);
-        return userArticle;
-    } catch (error) {
-        console.error("Error fetching custom URL:", error);
         throw error;
     }
 }

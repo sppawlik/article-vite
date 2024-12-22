@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, lazy, Suspense, useRef, useEffec
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lucide-react';
-import {UserArticle, getArticle, listUserArticles, getUserArticles} from "@/api/articleService";
+import {UserArticle, listUserArticles, getUserArticles} from "@/api/articleService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
