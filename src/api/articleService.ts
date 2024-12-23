@@ -10,6 +10,7 @@ export interface UserArticle {
     summary: string;
     hostDomain: string;
     relativeDate: string;
+    createdAt: Date;
     publishedDate?: Date;
     score: Score;
     rating: number;
@@ -63,6 +64,7 @@ export async function getUserArticles(link: string): Promise<UserArticle> {
             url
             link
             publishedDate
+            createdAt
             score {
                         depth_and_originality
                         quality
@@ -90,6 +92,7 @@ export async function getUserArticles(link: string): Promise<UserArticle> {
             new Date()
         ),
         publishedDate: new Date(getUserArticle.publishedDate ?? ""),
+        createdAt: new Date(getUserArticle?.createdAt ?? ""),
         score: getUserArticle?.score,
         rating: getUserArticle.score?.rating / 10,
     };
@@ -103,12 +106,11 @@ export async function listUserArticles(startDate: Date): Promise<UserArticle[]> 
             items {
               link
                     owner
+                    createdAt
                     publishedDate
-                    source
                     hostDomain
                     summary
                     title
-                    url
                     score {
                         depth_and_originality
                         quality
@@ -135,10 +137,11 @@ export async function listUserArticles(startDate: Date): Promise<UserArticle[]> 
         title: item?.title ?? "",
         summary: item?.summary ?? "",
         relativeDate: getRelativeTime(
-            new Date(item?.publishedDate ?? ""),
+            new Date(item?.createdAt ?? ""),
             new Date()
         ),
-        publishedDate: new Date(item?.publishedDate ?? ""),
+        publishedDate: new Date(item?.createdAt ?? ""),
+        createdAt: new Date(item?.createdAt ?? ""),
         score: item?.score,
         rating: item?.score?.rating / 10,
     }));
