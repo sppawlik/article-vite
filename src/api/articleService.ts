@@ -31,6 +31,10 @@ interface ListUserArticlesResponse {
     };
 }
 
+interface ListCurrentUserArticlesResponse {
+    listCurrentUserArticles: UserArticle[];
+}
+
 interface GetUserArticleResponse {
     getUserArticles: UserArticle;
 }
@@ -97,6 +101,54 @@ export async function getUserArticles(link: string): Promise<UserArticle> {
         rating: getUserArticle.score?.rating / 10,
     };
 }
+
+export async function listCurrentUserArticles(startDate: Date): Promise<UserArticle[]> {
+    const result = (await client.graphql({
+        query: `
+        query ListCurrentUserArticles($startDate: String!) {
+          listCurrentUserArticles(input: {startDate: $startDate}) {
+              link
+                    owner
+                    createdAt
+                    publishedDate
+                    hostDomain
+                    summary
+                    title
+                    score {
+                        depth_and_originality
+                        quality
+                        rating
+                        relevance
+                        simplified
+                    }
+            }
+        }
+    `,
+        variables: {
+            startDate: startDate.toISOString().split('T')[0],
+        }
+    })) as GraphQLResult<ListCurrentUserArticlesResponse>;
+    console.log(result)
+    const articles = result.data;
+    if (!articles?.listCurrentUserArticles) return [];
+    console.log(articles);
+
+    return articles.listCurrentUserArticles.map((item) => ({
+        hostDomain: item?.hostDomain ?? "",
+        link: item?.link ?? "",
+        title: item?.title ?? "",
+        summary: item?.summary ?? "",
+        relativeDate: getRelativeTime(
+            new Date(item?.createdAt ?? ""),
+            new Date()
+        ),
+        publishedDate: new Date(item?.createdAt ?? ""),
+        createdAt: new Date(item?.createdAt ?? ""),
+        score: item?.score,
+        rating: item?.score?.rating / 10,
+    }));
+}
+
 
 export async function listUserArticles(startDate: Date): Promise<UserArticle[]> {
     const result = (await client.graphql({

@@ -2,7 +2,7 @@ import React, { useState, useMemo, useCallback, lazy, Suspense, useRef, useEffec
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ChevronDownIcon, ChevronUpIcon, PlusIcon } from 'lucide-react';
-import {UserArticle, listUserArticles, getUserArticles} from "@/api/articleService";
+import {UserArticle, listUserArticles, listCurrentUserArticles, getUserArticles} from "@/api/articleService";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -61,14 +61,11 @@ const ArticleRow = React.memo(({
                     </TooltipTrigger>
                     <TooltipContent>
                         <p>Relevance: {article.score.relevance}</p>
-                        <p>Quality: {article.score.quality}</p>
                         <p>Depth and originality: {article.score.depth_and_originality}</p>
-                        <p>Simplified: {article.score.simplified}</p>
                     </TooltipContent>
                 </Tooltip>
             </TooltipProvider>
         </TableCell>
-        <TableCell className="text-left">{article.score.simplified}</TableCell>
         <TableCell className="text-left">
             <Select 
                 value={selectedSize || '-'}
@@ -111,7 +108,7 @@ export function ArticleTable({
         try {
             const twoWeeksAgo = new Date();
             twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 10);
-            const fetchedArticles = await listUserArticles(twoWeeksAgo);
+            const fetchedArticles = await listCurrentUserArticles(twoWeeksAgo);
             setArticles(fetchedArticles);
             setHasFetched(true);
         } catch (err) {
@@ -288,7 +285,6 @@ export function ArticleTable({
                                     )}
                                 </div>
                             </TableHead>
-                            <TableHead className="text-left">Sim</TableHead>
                             <TableHead className="w-[120px] text-left">Summary</TableHead>
                         </TableRow>
                     </TableHeader>
