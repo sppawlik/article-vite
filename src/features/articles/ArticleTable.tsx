@@ -107,8 +107,8 @@ export function ArticleTable({
         setError(null);
         try {
             const twoWeeksAgo = new Date();
-            twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 10);
-            const fetchedArticles = await listCurrentUserArticles(twoWeeksAgo);
+            twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 7);
+            const fetchedArticles = await listUserArticles(twoWeeksAgo);
             setArticles(fetchedArticles);
             setHasFetched(true);
         } catch (err) {
