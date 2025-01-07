@@ -130,7 +130,6 @@ export function ArticleTable({
     }, []);
 
     const [ageFilter, setAgeFilter] = useState<number | ''>('');
-    const [ratingFilter, setRatingFilter] = useState<number[]>([1, 5]);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
@@ -145,11 +144,9 @@ export function ArticleTable({
                 const createdAt = new Date(article.createdAt);
                 if (isNaN(createdAt.getTime()) || createdAt < cutoffDate) return false;
             }
-            
-            // Rating filter
-            return article.rating >= ratingFilter[0] && article.rating <= ratingFilter[1];
+            return true;
         });
-    }, [articles, ageFilter, ratingFilter]);
+    }, [articles, ageFilter]);
 
     const sortedArticles = useMemo(() => {
         return [...filteredArticles].sort((a, b) => {
@@ -234,22 +231,6 @@ export function ArticleTable({
                             className="h-8"
                             aria-label="Filter articles by age in days"
                         />
-                    </div>
-                    <div className="w-48">
-                        <Label className="text-sm">Rating</Label>
-                        <Slider
-                            min={0}
-                            max={5}
-                            step={1}
-                            value={ratingFilter}
-                            onValueChange={setRatingFilter}
-                            className="mt-2"
-                            aria-label="Filter articles by rating"
-                        />
-                        <div className="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>{ratingFilter[0]}</span>
-                            <span>{ratingFilter[1]}</span>
-                        </div>
                     </div>
                 </div>
                 <div className="flex gap-2">
