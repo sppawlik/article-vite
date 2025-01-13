@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { SummarySize } from "@/types/types";
+import { debounce } from 'lodash-es';
 
 // Lazy load the Dialog component and its related components
 const AddArticleDialog = lazy(() => import('./AddArticleDialog'));
@@ -99,6 +100,7 @@ export function ArticleTable({
     const [error, setError] = useState<string | null>(null);
     const [hasFetched, setHasFetched] = useState(false);
     const fetchingRef = useRef(false);
+    const [ageFilter, setAgeFilter] = useState<number | ''>(7);
 
     const fetchArticles = useCallback(async () => {
         if (fetchingRef.current || hasFetched) return;
@@ -106,9 +108,9 @@ export function ArticleTable({
         setLoadingArticles(true);
         setError(null);
         try {
-            const twoWeeksAgo = new Date();
-            twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 7);
-            const fetchedArticles = await listUserArticles(twoWeeksAgo);
+            const sinceDate = new Date();
+            sinceDate.setDate(sinceDate.getDate() - (ageFilter === '' ? 7 : ageFilter) );
+            const fetchedArticles = await listCurrentUserArticles(sinceDate);
             setArticles(fetchedArticles);
             setHasFetched(true);
         } catch (err) {
@@ -117,7 +119,7 @@ export function ArticleTable({
             setLoadingArticles(false);
             fetchingRef.current = false;
         }
-    }, [hasFetched]);
+    }, [hasFetched, ageFilter]);
 
     useEffect(() => {
         if (!hasFetched) {
@@ -129,7 +131,6 @@ export function ArticleTable({
         setHasFetched(false);
     }, []);
 
-    const [ageFilter, setAgeFilter] = useState<number | ''>('');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
@@ -138,7 +139,7 @@ export function ArticleTable({
             // Age filter
             if (ageFilter !== '') {
                 const cutoffDate = new Date();
-                cutoffDate.setDate(cutoffDate.getDate() - Number(ageFilter));
+                cutoffDate.setDate(cutoffDate.getDate() -  ageFilter);
                 
                 if (!article.createdAt) return false;
                 const createdAt = new Date(article.createdAt);
@@ -150,10 +151,12 @@ export function ArticleTable({
 
     const sortedArticles = useMemo(() => {
         return [...filteredArticles].sort((a, b) => {
+            const aRating = a.rating ?? 0;
+            const bRating = b.rating ?? 0;
             if (sortOrder === 'asc') {
-                return a.rating - b.rating;
+                return aRating - bRating;
             } else {
-                return b.rating - a.rating;
+                return bRating - aRating;
             }
         });
     }, [filteredArticles, sortOrder]);
@@ -176,17 +179,27 @@ export function ArticleTable({
         onGenerateNewsletter(result);
     }, [selectedArticles, onGenerateNewsletter]);
 
+    const debouncedSetHasFetched = useCallback(
+        debounce((value: boolean) => {
+            setHasFetched(value);
+        }, 200),
+        []
+    );
+
     const handleAgeFilterChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
+
         if (value === '') {
             setAgeFilter('');
+            setHasFetched(true);
         } else {
             const numValue = parseInt(value, 10);
             if (!isNaN(numValue) && numValue >= 0) {
                 setAgeFilter(numValue);
+                debouncedSetHasFetched(false);
             }
         }
-    }, []);
+    }, [debouncedSetHasFetched]);
 
     const handleSummaryChange = useCallback((link: string, value: SummarySize | '-') => {
         onSelectedArticlesChange((prev: SelectedArticlesMap) => {

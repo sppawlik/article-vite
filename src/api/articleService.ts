@@ -128,10 +128,8 @@ export async function listCurrentUserArticles(startDate: Date): Promise<UserArti
             startDate: startDate.toISOString().split('T')[0],
         }
     })) as GraphQLResult<ListCurrentUserArticlesResponse>;
-    console.log(result)
     const articles = result.data;
     if (!articles?.listCurrentUserArticles) return [];
-    console.log(articles);
 
     return articles.listCurrentUserArticles.map((item) => ({
         hostDomain: item?.hostDomain ?? "",
