@@ -99,25 +99,45 @@ export function ArticleTable({
     const [loadingArticles, setLoadingArticles] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [hasFetched, setHasFetched] = useState(false);
-    const fetchingRef = useRef(false);
+    const abortControllerRef = useRef<AbortController | null>(null);
     const [ageFilter, setAgeFilter] = useState<number | ''>(7);
 
     const fetchArticles = useCallback(async () => {
-        if (fetchingRef.current || hasFetched) return;
-        fetchingRef.current = true;
+        if (hasFetched) return;
+
+        // Cancel any ongoing request
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+
+        // Create new abort controller for this request
+        const abortController = new AbortController();
+        abortControllerRef.current = abortController;
+
         setLoadingArticles(true);
         setError(null);
         try {
             const sinceDate = new Date();
-            sinceDate.setDate(sinceDate.getDate() - (ageFilter === '' ? 7 : ageFilter) );
+            sinceDate.setDate(sinceDate.getDate() - (ageFilter === '' ? 7 : ageFilter));
             const fetchedArticles = await listCurrentUserArticles(sinceDate);
-            setArticles(fetchedArticles);
-            setHasFetched(true);
+            
+            // Only update state if this request wasn't aborted
+            if (!abortController.signal.aborted) {
+                setArticles(fetchedArticles);
+                setHasFetched(true);
+            }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching articles.');
+            // Only set error if this request wasn't aborted
+            if (!abortController.signal.aborted && err instanceof Error && err.name !== 'AbortError') {
+                setError(err instanceof Error ? err.message : 'An unknown error occurred while fetching articles.');
+            }
         } finally {
-            setLoadingArticles(false);
-            fetchingRef.current = false;
+            if (!abortController.signal.aborted) {
+                setLoadingArticles(false);
+            }
+            if (abortControllerRef.current === abortController) {
+                abortControllerRef.current = null;
+            }
         }
     }, [hasFetched, ageFilter]);
 
@@ -125,6 +145,14 @@ export function ArticleTable({
         if (!hasFetched) {
             fetchArticles();
         }
+
+        // Cleanup function to abort any ongoing request when component unmounts
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+                abortControllerRef.current = null;
+            }
+        };
     }, [fetchArticles, hasFetched]);
 
     const refreshArticles = useCallback(() => {
@@ -182,7 +210,7 @@ export function ArticleTable({
     const debouncedSetHasFetched = useCallback(
         debounce((value: boolean) => {
             setHasFetched(value);
-        }, 200),
+        }, 400),
         []
     );
 
