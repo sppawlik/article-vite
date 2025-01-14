@@ -169,9 +169,9 @@ export function ArticleTable({
                 const cutoffDate = new Date();
                 cutoffDate.setDate(cutoffDate.getDate() -  ageFilter);
                 
-                if (!article.createdAt) return false;
-                const createdAt = new Date(article.createdAt);
-                if (isNaN(createdAt.getTime()) || createdAt < cutoffDate) return false;
+                if (!article.publishedDate) return false;
+                const publishedDate = new Date(article.publishedDate);
+                if (isNaN(publishedDate.getTime()) || publishedDate < cutoffDate) return false;
             }
             return true;
         });
