@@ -137,7 +137,7 @@ export async function listCurrentUserArticles(startDate: Date): Promise<UserArti
         title: item?.title ?? "",
         summary: item?.summary ?? "",
         relativeDate: getRelativeTime(
-            new Date(item?.createdAt ?? ""),
+            new Date(item?.publishedDate ?? ""),
             new Date()
         ),
         publishedDate: new Date(item?.createdAt ?? ""),
