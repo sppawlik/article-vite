@@ -181,10 +181,16 @@ export function ArticleTable({
         return [...filteredArticles].sort((a, b) => {
             const aRating = a.rating ?? 0;
             const bRating = b.rating ?? 0;
-            if (sortOrder === 'asc') {
-                return aRating - bRating;
+            if (aRating !== bRating) {
+                if (sortOrder === 'asc') {
+                    return aRating - bRating;
+                } else {
+                    return bRating - aRating;
+                }
             } else {
-                return bRating - aRating;
+                const aPublishedDate = a.publishedDate ? new Date(a.publishedDate) : new Date();
+                const bPublishedDate = b.publishedDate ? new Date(b.publishedDate) : new Date();
+                return bPublishedDate.getTime() - aPublishedDate.getTime();
             }
         });
     }, [filteredArticles, sortOrder]);
