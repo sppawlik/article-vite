@@ -140,7 +140,7 @@ export async function listCurrentUserArticles(startDate: Date): Promise<UserArti
             new Date(item?.publishedDate ?? ""),
             new Date()
         ),
-        publishedDate: new Date(item?.createdAt ?? ""),
+        publishedDate: new Date(item?.publishedDate ?? ""),
         createdAt: new Date(item?.createdAt ?? ""),
         score: item?.score,
         rating: item?.score?.rating / 10,

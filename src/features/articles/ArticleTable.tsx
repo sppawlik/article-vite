@@ -188,8 +188,8 @@ export function ArticleTable({
                     return bRating - aRating;
                 }
             } else {
-                const aPublishedDate = a.publishedDate ? new Date(a.publishedDate) : new Date();
-                const bPublishedDate = b.publishedDate ? new Date(b.publishedDate) : new Date();
+                const aPublishedDate = a.publishedDate ? a.publishedDate : new Date();
+                const bPublishedDate = b.publishedDate ? b.publishedDate : new Date();
                 return bPublishedDate.getTime() - aPublishedDate.getTime();
             }
         });
