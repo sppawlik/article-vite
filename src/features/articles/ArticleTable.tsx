@@ -108,8 +108,6 @@ export function ArticleTable({
     console.log(user);
     // Push page_view event when component mounts
     useEffect(() => {
-
-        console.log(window.dataLayer);
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
             event: 'page_view',

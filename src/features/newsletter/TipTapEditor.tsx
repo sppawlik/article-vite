@@ -9,6 +9,7 @@ import Link from '@tiptap/extension-link';
 import React, { useEffect, useState } from "react";
 import { TextEditorMenuBar } from "./TextEditorMenuBar";
 import { getUserNewsletter, UserNewsletter} from "@/api/newsletterService";
+import { useAuthenticator } from '@aws-amplify/ui-react';
 import './styles.scss';
 
 type TextEditorProps = {
@@ -19,7 +20,7 @@ export function TipTapEditor({ newsletterId }: TextEditorProps) {
     const [newsletter, setNewsletter] = useState<UserNewsletter | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
+    const { user } = useAuthenticator();
     const extensions = [
         Color.configure({ types: [TextStyle.name, ListItem.name] }),
         Heading.configure({
@@ -57,6 +58,14 @@ export function TipTapEditor({ newsletterId }: TextEditorProps) {
     
             try {
                 setLoading(true);
+                window.dataLayer = window.dataLayer || [];
+                window.dataLayer.push({
+                    event: 'page_view',
+                    page_location: 'wait',
+                    page_title: 'Nwsl wait',
+                    user_id: user?.userId,
+                    user: user
+                });
                 // const data = await getNewsletter(newsletterId);
                 const data2 = await getUserNewsletter(newsletterId);
                 setNewsletter(data2);
@@ -79,6 +88,16 @@ export function TipTapEditor({ newsletterId }: TextEditorProps) {
                 const data = await fetchNewsletter();
                 // Clear interval if status is no longer PENDING
                 if (data && data.status !== 'PENDING') {
+
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({
+                        event: 'page_view',
+                        page_location: 'edit',
+                        page_title: 'Nwsl edit',
+                        user_id: user?.userId,
+                        user: user
+                    });
+
                     if (intervalId) clearInterval(intervalId);
                 }
             }, 5000);
