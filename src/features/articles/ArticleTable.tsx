@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { SummarySize } from "@/types/types";
 import { debounce } from 'lodash-es';
+import { useAuthenticator } from '@aws-amplify/ui-react';
 
 // Lazy load the Dialog component and its related components
 const AddArticleDialog = lazy(() => import('./AddArticleDialog'));
@@ -90,12 +91,35 @@ const ArticleRow = React.memo(({
 
 ArticleRow.displayName = 'ArticleRow';
 
+// Push page view event to GTM data layer
+declare global {
+    interface Window {
+        dataLayer: any[];
+    }
+}
+
 export function ArticleTable({ 
     onGenerateNewsletter,
     selectedArticles,
     onSelectedArticlesChange
 }: ArticleTableProps) {
     const [articles, setArticles] = useState<UserArticle[]>([]);
+    const { user } = useAuthenticator();
+    console.log(user);
+    // Push page_view event when component mounts
+    useEffect(() => {
+
+        console.log(window.dataLayer);
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+            event: 'page_view',
+            page_location: 'list',
+            page_title: 'Article listing',
+            user_id: user?.userId,
+            user: user
+        });
+    }, []);
+
     const [loadingArticles, setLoadingArticles] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [hasFetched, setHasFetched] = useState(false);

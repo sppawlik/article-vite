@@ -102,8 +102,6 @@ export function NewsletterBuilder() {
                                     <span className="sr-only">Logout</span>
                                 </a>
       </div>
-      
-
       <TabsContent value="all" className="p-0 w-full">
         <Card className="w-full">
           <CardHeader>
