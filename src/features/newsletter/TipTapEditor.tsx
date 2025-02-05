@@ -61,7 +61,8 @@ export function TipTapEditor({ newsletterId }: TextEditorProps) {
                 window.dataLayer = window.dataLayer || [];
                 window.dataLayer.push({
                     event: 'page_view',
-                    page_location: 'wait',
+                    page_location: 'https://newsletter.creoscope.com',
+                    page_path: '/wait',
                     page_title: 'Nwsl wait',
                     user_id: user?.userId,
                     user: user
@@ -92,7 +93,8 @@ export function TipTapEditor({ newsletterId }: TextEditorProps) {
                     window.dataLayer = window.dataLayer || [];
                     window.dataLayer.push({
                         event: 'page_view',
-                        page_location: 'edit',
+                        page_path: '/edit',
+                        page_location: 'https://newsletter.creoscope.com/newsletter/edit',
                         page_title: 'Nwsl edit',
                         user_id: user?.userId,
                         user: user

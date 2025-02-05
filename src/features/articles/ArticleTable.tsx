@@ -111,7 +111,8 @@ export function ArticleTable({
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
             event: 'page_view',
-            page_location: 'list',
+            page_location: 'https://newsletter.creoscope.com',
+            page_path: '/list',
             page_title: 'Article listing',
             user_id: user?.userId,
             user: user
