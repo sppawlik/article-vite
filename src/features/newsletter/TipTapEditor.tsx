@@ -94,7 +94,7 @@ export function TipTapEditor({ newsletterId }: TextEditorProps) {
                     window.dataLayer.push({
                         event: 'page_view',
                         page_path: '/edit',
-                        page_location: 'https://newsletter.creoscope.com/newsletter/edit',
+                        page_location: 'https://newsletter.creoscope.com',
                         page_title: 'Nwsl edit',
                         user_id: user?.userId,
                         user: user
