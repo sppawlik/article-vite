@@ -110,8 +110,7 @@ export function ArticleTable({
     useEffect(() => {
         window.dataLayer = window.dataLayer || [];
         window.dataLayer.push({
-            event: 'page_view',
-            page_location: 'https://newsletter.creoscope.com',
+            event: 'virtual_page_view',
             page_path: '/list',
             page_title: 'Article listing',
             user_id: user?.userId,
