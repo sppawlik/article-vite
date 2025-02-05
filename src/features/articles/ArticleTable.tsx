@@ -112,6 +112,8 @@ export function ArticleTable({
         window.dataLayer.push({
             event: 'virtual_page_view',
             page_path: '/list',
+            page_url: 'https://newsletter.creoscope.com/list',
+            previous_page_url: 'https://newsletter.creoscope.com/login',
             page_title: 'Article listing',
             user_id: user?.userId,
             user: user
