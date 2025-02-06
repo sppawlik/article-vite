@@ -58,16 +58,7 @@ export function TipTapEditor({ newsletterId }: TextEditorProps) {
     
             try {
                 setLoading(true);
-                window.dataLayer = window.dataLayer || [];
-                window.dataLayer.push({
-                    event: 'virtual_page_view',
-                    page_path: '/wait',
-                    page_url: 'https://newsletter.creoscope.com/wait',
-                    previous_page_url: 'https://newsletter.creoscope.com/list',
-                    page_title: 'Nwsl wait',
-                    user_id: user?.userId,
-                    user: user
-                });
+
                 // const data = await getNewsletter(newsletterId);
                 const data2 = await getUserNewsletter(newsletterId);
                 setNewsletter(data2);
@@ -86,6 +77,18 @@ export function TipTapEditor({ newsletterId }: TextEditorProps) {
         // Set up polling interval if newsletterId exists
         let intervalId: NodeJS.Timeout | null = null;
         if (newsletterId) {
+
+            window.dataLayer = window.dataLayer || [];
+            window.dataLayer.push({
+                event: 'virtual_page_view',
+                page_path: '/wait',
+                page_url: 'https://newsletter.creoscope.com/wait',
+                previous_page_url: 'https://newsletter.creoscope.com/list',
+                page_title: 'Nwsl wait',
+                user_id: user?.userId,
+                user: user
+            });
+
             intervalId = setInterval(async () => {
                 const data = await fetchNewsletter();
                 // Clear interval if status is no longer PENDING
