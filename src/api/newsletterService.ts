@@ -23,7 +23,7 @@ interface GetNewsletterResponse {
 export async function getUserNewsletter(newsletterId: string): Promise<GetNewsletterResponse['getNewsletter']> {
     const client = generateClient();
     const query = /* GraphQL */ `
-        query ListUserArticles {
+        query GetNewsletter {
             getNewsletter(id: "${newsletterId}") {
                 articles {
                     long

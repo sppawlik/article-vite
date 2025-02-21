@@ -16,6 +16,21 @@ type TextEditorProps = {
     newsletterId: string | null;
 };
 
+const pushVirtualPageView = (pagePath: string, pageUrl: string, previousPageUrl: string, pageTitle: string, user: any): void => {
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event: 'virtual_page_view',
+    page_path: pagePath,
+    page_url: pageUrl,
+    previous_page_url: previousPageUrl,
+    page_title: pageTitle,
+    user_id: user?.userId,
+    user: user
+  });
+};
+
+
+
 export function TipTapEditor({ newsletterId }: TextEditorProps) {
     const [newsletter, setNewsletter] = useState<UserNewsletter | null>(null);
     const [loading, setLoading] = useState(false);
@@ -55,15 +70,12 @@ export function TipTapEditor({ newsletterId }: TextEditorProps) {
     useEffect(() => {
         const fetchNewsletter = async () => {
             if (!newsletterId) return;
-    
             try {
                 setLoading(true);
-
-                // const data = await getNewsletter(newsletterId);
-                const data2 = await getUserNewsletter(newsletterId);
-                setNewsletter(data2);
+                const newsletter = await getUserNewsletter(newsletterId);
+                setNewsletter(newsletter);
                 setError(null);
-                return data2;
+                return newsletter;
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Failed to fetch newsletter');
             } finally {
@@ -77,33 +89,13 @@ export function TipTapEditor({ newsletterId }: TextEditorProps) {
         // Set up polling interval if newsletterId exists
         let intervalId: NodeJS.Timeout | null = null;
         if (newsletterId) {
-
-            window.dataLayer = window.dataLayer || [];
-            window.dataLayer.push({
-                event: 'virtual_page_view',
-                page_path: '/wait',
-                page_url: 'https://newsletter.creoscope.com/wait',
-                previous_page_url: 'https://newsletter.creoscope.com/list',
-                page_title: 'Nwsl wait',
-                user_id: user?.userId,
-                user: user
-            });
+            pushVirtualPageView('/wait', 'https://newsletter.creoscope.com/wait', 'https://newsletter.creoscope.com/list', 'Nwsl wait', user);
 
             intervalId = setInterval(async () => {
                 const data = await fetchNewsletter();
                 // Clear interval if status is no longer PENDING
                 if (data && data.status !== 'PENDING') {
-
-                    window.dataLayer = window.dataLayer || [];
-                    window.dataLayer.push({
-                        event: 'virtual_page_view',
-                        page_path: '/edit',
-                        page_url: 'https://newsletter.creoscope.com/edit',
-                        previous_page_url: 'https://newsletter.creoscope.com/wait',
-                        page_title: 'Nwsl edit',
-                        user_id: user?.userId,
-                        user: user
-                    });
+                    pushVirtualPageView('/edit', 'https://newsletter.creoscope.com/edit', 'https://newsletter.creoscope.com/wait', 'Nwsl edit', user);
 
                     if (intervalId) clearInterval(intervalId);
                 }
