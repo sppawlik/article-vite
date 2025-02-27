@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { useGetUserArticles } from './hooks/useGetUserArticles';
 import {
   Table,
@@ -15,11 +15,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Zap } from "lucide-react";
 
 interface UserArticlesTableProps {
   newsletterUuid: string;
   age: number;
+  onSelectedArticlesChange?: (selectedArticles: string[]) => void;
 }
 
 const getRelativeTime = (dateString: string | undefined, fallbackDate: string): string => {
@@ -45,11 +47,100 @@ const getRelativeTime = (dateString: string | undefined, fallbackDate: string): 
   return "just now";
 };
 
+// Memoized table row component to prevent unnecessary re-renders
+const ArticleRow = React.memo(({ 
+  article, 
+  isSelected, 
+  onToggleSelection 
+}: { 
+  article: any, 
+  isSelected: boolean, 
+  onToggleSelection: (url: string) => void 
+}) => {
+  const handleToggle = useCallback(() => {
+    onToggleSelection(article.url);
+  }, [article.url, onToggleSelection]);
+
+  return (
+    <TableRow key={article.url}>
+      <TableCell className="text-center">
+        <Button
+          variant={isSelected ? "default" : "outline"}
+          size="sm"
+          onClick={handleToggle}
+          aria-label={`${isSelected ? "Remove from" : "Add to"} summary list: ${article.title}`}
+          className="h-6 w-6 p-0"
+        >
+        </Button>
+      </TableCell>
+      <TableCell className="text-left">{article.siteName}</TableCell>
+      <TableCell className="font-medium text-left">
+        <a 
+          href={article.url} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="text-primary hover:underline"
+        >
+          {article.title}
+        </a>
+        <div className="text-sm text-muted-foreground mt-2">
+          {article.summary}
+        </div>
+      </TableCell>
+      <TableCell className="text-right">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <span>{(article.rating / 10).toFixed(1)}</span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Relevance: {(article.relevance / 10).toFixed(1)}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </TableCell>
+      <TableCell className="text-right">{getRelativeTime(article.publishedDate, article.createdAt)}</TableCell>
+    </TableRow>
+  );
+});
+
+ArticleRow.displayName = 'ArticleRow';
+
 export const UserArticlesTable: React.FC<UserArticlesTableProps> = ({ 
   newsletterUuid,
-  age 
+  age,
+  onSelectedArticlesChange 
 }) => {
   const { articles, loading, error } = useGetUserArticles(newsletterUuid, age);
+  const [selectedArticles, setSelectedArticles] = useState<Record<string, boolean>>({});
+
+  // Memoize the selected articles array to prevent unnecessary recalculations
+  const selectedArticlesArray = useMemo(() => {
+    return Object.keys(selectedArticles).filter(url => selectedArticles[url]);
+  }, [selectedArticles]);
+
+  // Optimize the toggle handler with useCallback
+  const handleToggleSelection = useCallback((url: string) => {
+    setSelectedArticles(prev => {
+      const newSelected = { ...prev };
+      
+      // Toggle the selection state
+      if (newSelected[url]) {
+        delete newSelected[url];
+      } else {
+        newSelected[url] = true;
+      }
+      
+      return newSelected;
+    });
+  }, []);
+
+  // Call the parent callback when selected articles change
+  useEffect(() => {
+    if (onSelectedArticlesChange) {
+      onSelectedArticlesChange(selectedArticlesArray);
+    }
+  }, [selectedArticlesArray, onSelectedArticlesChange]);
 
   if (loading) {
     return (
@@ -68,43 +159,21 @@ export const UserArticlesTable: React.FC<UserArticlesTableProps> = ({
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-[50px]">Summarize</TableHead>
             <TableHead className="text-left">Site Name</TableHead>
-            <TableHead className="text-left">Title</TableHead>
+            <TableHead className="text-left">Title and summary</TableHead>
             <TableHead className="text-right">Rating</TableHead>
             <TableHead className="text-right">Age</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {articles.map((article) => (
-            <TableRow key={article.url}>
-              <TableCell className="text-left">{article.siteName}</TableCell>
-              <TableCell className="font-medium text-left">
-                <a 
-                  href={article.url} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline"
-                >
-                  {article.title}
-                </a>
-                <div className="text-sm text-muted-foreground mt-2">
-                  {article.summary}
-                </div>
-              </TableCell>
-              <TableCell className="text-right">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger>
-                      <span>{(article.rating / 10).toFixed(1)}</span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Relevance: {(article.relevance / 10).toFixed(1)}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </TableCell>
-              <TableCell className="text-right">{getRelativeTime(article.publishedDate, article.createdAt)}</TableCell>
-            </TableRow>
+            <ArticleRow 
+              key={article.url}
+              article={article}
+              isSelected={!!selectedArticles[article.url]}
+              onToggleSelection={handleToggleSelection}
+            />
           ))}
         </TableBody>
       </Table>
