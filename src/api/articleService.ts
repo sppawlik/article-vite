@@ -56,6 +56,20 @@ interface GetCustomUrlResponse {
     };
 }
 
+interface RatedArticle {
+    newsletterUuid: string;
+    publishedDate: string;
+    rating: number;
+    relevance: number;
+    siteName: string;
+    summary: string;
+    title: string;
+    url: string;
+}
+
+interface GetRatedArticlesResponse {
+    getRatedArticles: RatedArticle[];
+}
 
 export async function getUserArticles(link: string): Promise<UserArticle> {
     const result = (await client.graphql({
@@ -239,6 +253,35 @@ export async function getCustomUrl(url: string) {
         return response.data?.getCustomUrl;
     } catch (error) {
         console.error("Error fetching custom URL:", error);
+        throw error;
+    }
+}
+
+export async function getRatedArticles(newsletterUuid: string): Promise<RatedArticle[]> {
+    try {
+        const result = (await client.graphql({
+            query: `
+                query GetRatedArticles($newsletterUuid: String!) {
+                    getRatedArticles(newsletterUuid: $newsletterUuid) {
+                        newsletterUuid
+                        publishedDate
+                        rating
+                        relevance
+                        siteName
+                        summary
+                        title
+                        url
+                    }
+                }
+            `,
+            variables: {
+                newsletterUuid
+            }
+        })) as GraphQLResult<GetRatedArticlesResponse>;
+
+        return result.data?.getRatedArticles ?? [];
+    } catch (error) {
+        console.error("Error fetching rated articles:", error);
         throw error;
     }
 }
