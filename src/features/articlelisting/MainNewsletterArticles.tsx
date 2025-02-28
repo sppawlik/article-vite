@@ -56,6 +56,15 @@ export function MainNewsletterArticles() {
               {selectedArticles.length} article{selectedArticles.length !== 1 ? 's' : ''} selected
             </div>
           )}
+          <Button
+            variant="outline"
+            onClick={() => {
+              console.log('selectedArticles', selectedArticles);
+            }}
+            disabled={selectedArticles.length === 0}
+          >
+            Generate Newsletter
+          </Button>
           <a
             href="#"
             onClick={(e) => {
