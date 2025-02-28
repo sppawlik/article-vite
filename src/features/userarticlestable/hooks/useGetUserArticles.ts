@@ -1,26 +1,16 @@
 import { generateClient } from "aws-amplify/data";
 import { GraphQLResult } from "@aws-amplify/api-graphql";
 import { useState, useEffect } from "react";
+import { Article } from '../types';
 
 const client = generateClient();
 
-interface UserArticle {
-  createdAt: string;
-  publishedDate: string;
-  rating: number;
-  siteName: string;
-  summary: string;
-  title: string;
-  url: string;
-  relevance: number;
-}
-
 interface GetUserArticlesResponse {
-  getUserArticles: UserArticle[];
+  getUserArticles: Article[];
 }
 
 export const useGetUserArticles = (newsletterUuid: string, age: number = 1000) => {
-  const [articles, setArticles] = useState<UserArticle[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
