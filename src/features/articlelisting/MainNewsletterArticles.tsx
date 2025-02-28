@@ -3,13 +3,8 @@ import { useAuthenticator } from '@aws-amplify/ui-react';
 import { LogOut, Loader2 } from "lucide-react";
 import { UserArticlesTable } from '../userarticlestable/UserArticlesTable';
 import { useNewsletterConfig } from './hooks/useNewsletterConfig';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useNewsletterGeneration } from './hooks/useNewsletterGeneration';
+import { TimePeriodSelector } from './components/TimePeriodSelector';
 import { Button } from "@/components/ui/button";
 
 export function MainNewsletterArticles() {
@@ -17,6 +12,11 @@ export function MainNewsletterArticles() {
   const { mainNewsletterUuid, loading, error } = useNewsletterConfig();
   const [selectedAge, setSelectedAge] = useState<number>(7); // Default to "1 week"
   const [selectedArticles, setSelectedArticles] = useState<string[]>([]);
+  const { isGenerating, generateNewsletter } = useNewsletterGeneration(selectedArticles);
+  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error' | null; message: string | null }>({ 
+    type: null, 
+    message: null 
+  });
 
   console.log("Logged in user:", user?.username);
 
@@ -25,31 +25,38 @@ export function MainNewsletterArticles() {
     console.log("Selected articles:", articles);
   };
 
+  const handleGenerateNewsletter = async () => {
+    if (selectedArticles.length === 0) {
+      setStatusMessage({
+        type: 'error',
+        message: 'Please select at least one article to generate a newsletter.'
+      });
+      return;
+    }
+    
+    setStatusMessage({ type: null, message: null });
+    
+    try {
+      await generateNewsletter();
+      setStatusMessage({
+        type: 'success',
+        message: 'Your newsletter has been generated and opened in a new tab.'
+      });
+    } catch (error) {
+      setStatusMessage({
+        type: 'error',
+        message: 'There was an error generating your newsletter. Please try again.'
+      });
+    }
+  };
+
   return (
     <div className="space-y-4 min-w-[800px]">
       <div className="flex justify-between items-center p-4">
-        <div className="flex items-center space-x-2">
-          <label htmlFor="age-select" className="text-sm font-medium">
-            Time Period:
-          </label>
-          <Select 
-            onValueChange={(value) => setSelectedAge(Number(value))}
-            defaultValue="7"
-            value={selectedAge.toString()}
-          >
-            <SelectTrigger className="w-[180px]" id="age-select">
-              <SelectValue placeholder="Select age filter" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1">1 day</SelectItem>
-              <SelectItem value="3">3 days</SelectItem>
-              <SelectItem value="7">1 week</SelectItem>
-              <SelectItem value="14">2 weeks</SelectItem>
-              <SelectItem value="30">1 month</SelectItem>
-              <SelectItem value="1000">Any</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <TimePeriodSelector 
+          selectedAge={selectedAge} 
+          onAgeChange={setSelectedAge} 
+        />
         <div className="flex items-center space-x-4">
           {selectedArticles.length > 0 && (
             <div className="text-sm">
@@ -58,12 +65,17 @@ export function MainNewsletterArticles() {
           )}
           <Button
             variant="outline"
-            onClick={() => {
-              console.log('selectedArticles', selectedArticles);
-            }}
-            disabled={selectedArticles.length === 0}
+            onClick={handleGenerateNewsletter}
+            disabled={selectedArticles.length === 0 || isGenerating}
           >
-            Generate Newsletter
+            {isGenerating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating...
+              </>
+            ) : (
+              'Generate Newsletter'
+            )}
           </Button>
           <a
             href="#"
@@ -78,6 +90,16 @@ export function MainNewsletterArticles() {
           </a>
         </div>
       </div>
+      
+      {statusMessage.message && (
+        <div className={`px-4 py-2 rounded-md ${
+          statusMessage.type === 'error' 
+            ? 'bg-destructive/15 text-destructive' 
+            : 'bg-green-100 text-green-800'
+        }`}>
+          {statusMessage.message}
+        </div>
+      )}
       
       {loading ? (
         <div className="flex justify-center p-8">

@@ -1,6 +1,7 @@
 ---
-description: 
-globs: 
+description: general ruless for react
+globs: *.tsx
+alwaysApply: false
 ---
 
 # Your rule content
