@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import { GraphQLResult } from '@aws-amplify/api-graphql';
-import { useNewsletterJob } from '@/features/statusdialog/NewsletterJobContext';
 
 // Create GraphQL client
 const client = generateClient();
@@ -16,10 +15,9 @@ export interface CreateNewsletterJobResponse {
 
 export const useNewsletterGeneration = (selectedArticles: string[]) => {
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
-  const { setJobUuid } = useNewsletterJob();
 
-  const generateNewsletter = async (newsletterUuid?: string) => {
-    if (selectedArticles.length === 0 || !newsletterUuid) return;
+  const generateNewsletter = async (newsletterUuid?: string): Promise<string | null> => {
+    if (selectedArticles.length === 0 || !newsletterUuid) return null;
     
     setIsGenerating(true);
     
@@ -55,14 +53,13 @@ export const useNewsletterGeneration = (selectedArticles: string[]) => {
       const newsletterJobUuid = result.data?.createNewsletterJob?.newsletterJobUuid;
       console.log('Newsletter job created:', newsletterJobUuid);
       
-      // Instead of opening a new tab, set the job UUID in the context to show the status dialog
-      if (newsletterJobUuid) {
-        setJobUuid(newsletterJobUuid);
-      }
+      // Instead of setting the job UUID in context, return it
+      return newsletterJobUuid || null;
       
     } catch (err) {
       console.error('Error creating newsletter job:', err);
       // Here you could add error handling logic
+      return null;
     } finally {
       setIsGenerating(false);
     }

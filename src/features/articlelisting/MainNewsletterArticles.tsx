@@ -6,6 +6,7 @@ import { useNewsletterConfig } from './hooks/useNewsletterConfig';
 import { useNewsletterGeneration } from './hooks/useNewsletterGeneration';
 import { TimePeriodSelector } from './components/TimePeriodSelector';
 import { Button } from "@/components/ui/button";
+import { JobNewsletterStatus } from '@/features/statusdialog/JobNewsletterStatus';
 
 export function MainNewsletterArticles() {
   const { user, signOut } = useAuthenticator();
@@ -17,6 +18,7 @@ export function MainNewsletterArticles() {
     type: null, 
     message: null 
   });
+  const [jobUuid, setJobUuid] = useState<string | null>(null);
 
   console.log("Logged in user:", user?.username);
 
@@ -45,11 +47,15 @@ export function MainNewsletterArticles() {
     setStatusMessage({ type: null, message: null });
     
     try {
-      await generateNewsletter(mainNewsletterUuid);
-      setStatusMessage({
-        type: 'success',
-        message: 'Your newsletter has been generated and opened in a new tab.'
-      });
+      const newJobUuid = await generateNewsletter(mainNewsletterUuid);
+      if (newJobUuid) {
+        setJobUuid(newJobUuid);
+      } else {
+        setStatusMessage({
+          type: 'error',
+          message: 'Failed to generate newsletter. Please try again.'
+        });
+      }
     } catch (error) {
       setStatusMessage({
         type: 'error',
@@ -58,8 +64,17 @@ export function MainNewsletterArticles() {
     }
   };
 
+  const handleJobStatusClose = () => {
+    setJobUuid(null);
+  };
+
   return (
     <div className="space-y-4 min-w-[800px]">
+      <JobNewsletterStatus 
+        jobUuid={jobUuid} 
+        onClose={handleJobStatusClose} 
+      />
+      
       <div className="flex justify-between items-center p-4">
         <TimePeriodSelector 
           selectedAge={selectedAge} 

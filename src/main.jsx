@@ -8,7 +8,6 @@ import {Amplify} from "aws-amplify";
 import {MainNewsletterArticles} from "@/features/articlelisting/MainNewsletterArticles";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { NewsletterView } from '@/features/newsletter';
-import NewsletterStatusWrapper from '@/features/statusdialog/NewsletterStatusWrapper';
 
 Amplify.configure(outputs);
 const currentConfig = Amplify.getConfig();
@@ -32,14 +31,12 @@ Amplify.configure({
 createRoot(document.getElementById('root')).render(
     <StrictMode>
         <Authenticator>
-            <NewsletterStatusWrapper>
-                <BrowserRouter>
-                    <Routes>
-                        <Route path="/" element={<div className='flex justify-center'><MainNewsletterArticles /></div>} />
-                        <Route path="/newsletter/:uuid" element={<NewsletterView />} />
-                    </Routes>
-                </BrowserRouter>
-            </NewsletterStatusWrapper>
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<div className='flex justify-center'><MainNewsletterArticles /></div>} />
+                    <Route path="/newsletter/:uuid" element={<NewsletterView />} />
+                </Routes>
+            </BrowserRouter>
         </Authenticator>
     </StrictMode>
 );
