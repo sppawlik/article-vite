@@ -34,10 +34,18 @@ export function MainNewsletterArticles() {
       return;
     }
     
+    if (!mainNewsletterUuid) {
+      setStatusMessage({
+        type: 'error',
+        message: 'No newsletter configuration found. Please try again later.'
+      });
+      return;
+    }
+    
     setStatusMessage({ type: null, message: null });
     
     try {
-      await generateNewsletter();
+      await generateNewsletter(mainNewsletterUuid);
       setStatusMessage({
         type: 'success',
         message: 'Your newsletter has been generated and opened in a new tab.'

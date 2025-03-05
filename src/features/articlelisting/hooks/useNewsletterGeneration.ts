@@ -1,22 +1,25 @@
 import { useState } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import { GraphQLResult } from '@aws-amplify/api-graphql';
+import { useNewsletterJob } from '@/features/statusdialog/NewsletterJobContext';
 
 // Create GraphQL client
 const client = generateClient();
 
-// Define the response type for the createNewsletter mutation
-export interface CreateNewsletterResponse {
-  createNewsletter: {
-    newsletter_uuid: string;
+// Define the response type for the createNewsletterJob mutation
+export interface CreateNewsletterJobResponse {
+  createNewsletterJob: {
+    newsletterJobUuid: string;
+    status: string;
   }
 }
 
 export const useNewsletterGeneration = (selectedArticles: string[]) => {
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const { setJobUuid } = useNewsletterJob();
 
-  const generateNewsletter = async () => {
-    if (selectedArticles.length === 0) return;
+  const generateNewsletter = async (newsletterUuid?: string) => {
+    if (selectedArticles.length === 0 || !newsletterUuid) return;
     
     setIsGenerating(true);
     
@@ -24,35 +27,41 @@ export const useNewsletterGeneration = (selectedArticles: string[]) => {
       // Create config array from selectedArticles
       const config = selectedArticles.map(url => ({
         url,
-        summary_config: { size: "medium" }
+        summaryConfig: {
+          context: "",
+          length: "medium"
+        }
       }));
       
-      // Execute the createNewsletter mutation
-      const result = await client.graphql<CreateNewsletterResponse>({
+      // Execute the createNewsletterJob mutation
+      const result = await client.graphql<CreateNewsletterJobResponse>({
         query: `
-          mutation CreateNewsletter($config: [NewsletterConfigInput!]!) {
-            createNewsletter(config: $config) {
-              newsletter_uuid
+          mutation CreateNewsletterJob($newsletterUuid: String!, $config: [NewsletterJobArticleInput!]!) {
+            createNewsletterJob(
+              newsletterUuid: $newsletterUuid,
+              config: $config
+            ) {
+              newsletterJobUuid
+              status
             }
           }
         `,
         variables: {
+          newsletterUuid,
           config
         }
-      }) as GraphQLResult<CreateNewsletterResponse>;
+      }) as GraphQLResult<CreateNewsletterJobResponse>;
       
-      const newsletterUuid = result.data?.createNewsletter?.newsletter_uuid;
-      console.log('Newsletter created:', newsletterUuid);
+      const newsletterJobUuid = result.data?.createNewsletterJob?.newsletterJobUuid;
+      console.log('Newsletter job created:', newsletterJobUuid);
       
-      // Open a new browser tab with the newsletter UUID
-      if (newsletterUuid) {
-        // You can customize the URL format based on your application's routing
-        const newsletterUrl = `/newsletter/${newsletterUuid}`;
-        window.open(newsletterUrl, '_blank');
+      // Instead of opening a new tab, set the job UUID in the context to show the status dialog
+      if (newsletterJobUuid) {
+        setJobUuid(newsletterJobUuid);
       }
       
     } catch (err) {
-      console.error('Error creating newsletter:', err);
+      console.error('Error creating newsletter job:', err);
       // Here you could add error handling logic
     } finally {
       setIsGenerating(false);
