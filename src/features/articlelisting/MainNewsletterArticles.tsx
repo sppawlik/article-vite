@@ -7,12 +7,13 @@ import { useNewsletterGeneration } from './hooks/useNewsletterGeneration';
 import { TimePeriodSelector } from './components/TimePeriodSelector';
 import { Button } from "@/components/ui/button";
 import { JobNewsletterStatus } from '@/features/statusdialog/JobNewsletterStatus';
+import { SelectedArticle } from '../userarticlestable/types';
 
 export function MainNewsletterArticles() {
   const { user, signOut } = useAuthenticator();
   const { mainNewsletterUuid, loading, error } = useNewsletterConfig();
   const [selectedAge, setSelectedAge] = useState<number>(7); // Default to "1 week"
-  const [selectedArticles, setSelectedArticles] = useState<string[]>([]);
+  const [selectedArticles, setSelectedArticles] = useState<SelectedArticle[]>([]);
   const { isGenerating, generateNewsletter } = useNewsletterGeneration(selectedArticles);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error' | null; message: string | null }>({ 
     type: null, 
@@ -20,9 +21,7 @@ export function MainNewsletterArticles() {
   });
   const [jobUuid, setJobUuid] = useState<string | null>(null);
 
-  console.log("Logged in user:", user?.username);
-
-  const handleSelectedArticlesChange = (articles: string[]) => {
+  const handleSelectedArticlesChange = (articles: SelectedArticle[]) => {
     setSelectedArticles(articles);
     console.log("Selected articles:", articles);
   };
@@ -47,7 +46,9 @@ export function MainNewsletterArticles() {
     setStatusMessage({ type: null, message: null });
     
     try {
+      // Pass only the newsletter UUID to the generation function
       const newJobUuid = await generateNewsletter(mainNewsletterUuid);
+      
       if (newJobUuid) {
         setJobUuid(newJobUuid);
       } else {

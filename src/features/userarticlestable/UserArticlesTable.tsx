@@ -11,29 +11,47 @@ import { Loader2 } from "lucide-react";
 import ArticleRow from './components/ArticleRow';
 import { UserArticlesTableProps } from './types';
 
+// Define the structure for storing article selection with context
+interface SelectedArticleInfo {
+  selected: boolean;
+  context?: string;
+  length?: 'short' | 'medium' | 'long';
+}
+
 export const UserArticlesTable: React.FC<UserArticlesTableProps> = ({ 
   newsletterUuid,
   age,
   onSelectedArticlesChange 
 }) => {
   const { articles, loading, error } = useGetUserArticles(newsletterUuid, age);
-  const [selectedArticles, setSelectedArticles] = useState<Record<string, boolean>>({});
+  const [selectedArticles, setSelectedArticles] = useState<Record<string, SelectedArticleInfo>>({});
 
   // Memoize the selected articles array to prevent unnecessary recalculations
   const selectedArticlesArray = useMemo(() => {
-    return Object.keys(selectedArticles).filter(url => selectedArticles[url]);
+    return Object.entries(selectedArticles)
+      .filter(([_, info]) => info.selected)
+      .map(([url, info]) => ({
+        url,
+        context: info.context || '',
+        length: info.length || 'medium'
+      }));
   }, [selectedArticles]);
 
   // Optimize the toggle handler with useCallback
-  const handleToggleSelection = useCallback((url: string) => {
+  const handleToggleSelection = useCallback((url: string, context?: string, length?: 'short' | 'medium' | 'long') => {
     setSelectedArticles(prev => {
       const newSelected = { ...prev };
       
-      // Toggle the selection state
-      if (newSelected[url]) {
+      // If the article is already selected
+      if (newSelected[url]?.selected) {
         delete newSelected[url];
       } else {
-        newSelected[url] = true;
+        // Add the article with context if provided
+        newSelected[url] = {
+          selected: true,
+          context: context || '',
+          length: length || 'medium'
+        };
       }
       
       return newSelected;
@@ -76,7 +94,7 @@ export const UserArticlesTable: React.FC<UserArticlesTableProps> = ({
             <ArticleRow 
               key={article.url}
               article={article}
-              isSelected={!!selectedArticles[article.url]}
+              isSelected={!!selectedArticles[article.url]?.selected}
               onToggleSelection={handleToggleSelection}
             />
           ))}

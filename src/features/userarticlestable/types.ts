@@ -4,17 +4,23 @@
 
 export interface Article {
   url: string;
-  siteName: string;
   title: string;
   summary: string;
+  siteName: string;
+  publishedDate: string;
+  createdAt: string;
   rating: number;
   relevance: number;
-  publishedDate?: string;
-  createdAt: string;
+}
+
+export interface SelectedArticle {
+  url: string;
+  context: string;
+  length: 'short' | 'medium' | 'long';
 }
 
 export interface UserArticlesTableProps {
   newsletterUuid: string;
   age: number;
-  onSelectedArticlesChange?: (selectedArticles: string[]) => void;
+  onSelectedArticlesChange?: (articles: SelectedArticle[]) => void;
 } 

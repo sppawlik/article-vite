@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { generateClient } from 'aws-amplify/api';
 import { GraphQLResult } from '@aws-amplify/api-graphql';
+import { SelectedArticle } from '../../userarticlestable/types';
 
 // Create GraphQL client
 const client = generateClient();
@@ -13,23 +14,27 @@ export interface CreateNewsletterJobResponse {
   }
 }
 
-export const useNewsletterGeneration = (selectedArticles: string[]) => {
+export const useNewsletterGeneration = (selectedArticles: SelectedArticle[]) => {
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
-  const generateNewsletter = async (newsletterUuid?: string): Promise<string | null> => {
+  const generateNewsletter = async (
+    newsletterUuid?: string
+  ): Promise<string | null> => {
     if (selectedArticles.length === 0 || !newsletterUuid) return null;
     
     setIsGenerating(true);
     
     try {
       // Create config array from selectedArticles
-      const config = selectedArticles.map(url => ({
-        url,
-        summaryConfig: {
-          context: "",
-          length: "medium"
-        }
-      }));
+      const config = selectedArticles.map(article => {
+        return {
+          url: article.url,
+          summaryConfig: {
+            context: article.context || "",
+            length: article.length || "medium"
+          }
+        };
+      });
       
       // Execute the createNewsletterJob mutation
       const result = await client.graphql<CreateNewsletterJobResponse>({
