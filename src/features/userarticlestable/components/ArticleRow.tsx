@@ -50,10 +50,22 @@ const ArticleRow = React.memo(({
     return text.slice(0, maxLength).trim() + '...';
   };
 
+  const handleRowClick = useCallback((e: React.MouseEvent) => {
+    window.open(article.url, '_blank', 'noopener,noreferrer');
+  }, [article.url]);
+
+  const handleCellClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent row click when clicking the button cell
+  }, []);
+
   return (
     <>
-      <TableRow key={article.url}>
-        <TableCell className="text-center">
+      <TableRow 
+        key={article.url} 
+        onClick={handleRowClick}
+        className="cursor-pointer hover:bg-muted/50"
+      >
+        <TableCell className="text-center" onClick={handleCellClick}>
           <Button
             variant={isSelected ? "default" : "outline"}
             size="sm"
@@ -65,17 +77,10 @@ const ArticleRow = React.memo(({
         </TableCell>
         <TableCell className="text-left">{article.siteName}</TableCell>
         <TableCell className="font-medium text-left">
-          <a 
-            href={article.url} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="block text-primary hover:underline"
-          >
-              {article.title}
-              <span className="text-sm text-muted-foreground ml-2">
-                {truncateText(article.summary)}
-              </span>
-          </a>
+          {article.title}
+          <span className="text-sm text-muted-foreground ml-2">
+            {truncateText(article.summary)}
+          </span>
         </TableCell>
         <TableCell className="text-right">
           <TooltipProvider>
