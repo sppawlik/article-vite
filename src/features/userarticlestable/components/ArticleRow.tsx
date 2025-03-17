@@ -45,11 +45,6 @@ const ArticleRow = React.memo(({
     setIsDialogOpen(false);
   }, []);
 
-  const truncateText = (text: string, maxLength: number = 400): string => {
-    if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength).trim() + '...';
-  };
-
   const handleRowClick = useCallback((e: React.MouseEvent) => {
     window.open(article.url, '_blank', 'noopener,noreferrer');
   }, [article.url]);
@@ -77,10 +72,12 @@ const ArticleRow = React.memo(({
         </TableCell>
         <TableCell className="text-left">{article.siteName}</TableCell>
         <TableCell className="font-medium text-left">
-          {article.title}
-          <span className="text-sm text-muted-foreground ml-2">
-            {truncateText(article.summary)}
-          </span>
+          <div className="flex flex-col">
+            <span className="text-base font-medium">{article.title}</span>
+            <span className="text-sm text-muted-foreground line-clamp-2">
+              {article.summary}
+            </span>
+          </div>
         </TableCell>
         <TableCell className="text-right">
           <TooltipProvider>
