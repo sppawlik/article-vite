@@ -60,16 +60,6 @@ const ArticleRow = React.memo(({
         onClick={handleRowClick}
         className="cursor-pointer hover:bg-muted/50"
       >
-        <TableCell className="text-center" onClick={handleCellClick}>
-          <Button
-            variant={isSelected ? "default" : "outline"}
-            size="sm"
-            onClick={handleButtonClick}
-            aria-label={`${isSelected ? "Remove from" : "Add to"} summary list: ${article.title}`}
-            className="h-6 w-6 p-0"
-          >
-          </Button>
-        </TableCell>
         <TableCell className="text-left">{article.siteName}</TableCell>
         <TableCell className="font-medium text-left">
           <div className="flex flex-col">
@@ -92,6 +82,16 @@ const ArticleRow = React.memo(({
           </TooltipProvider>
         </TableCell>
         <TableCell className="text-right">{getRelativeTime(article.publishedDate, article.createdAt)}</TableCell>
+        <TableCell className="text-center" onClick={handleCellClick}>
+          <Button
+            variant={isSelected ? "default" : "outline"}
+            size="sm"
+            onClick={handleButtonClick}
+            aria-label={`${isSelected ? "Remove from" : "Add to"} summary list: ${article.title}`}
+            className="h-6 w-6 p-0"
+          >
+          </Button>
+        </TableCell>
       </TableRow>
 
       <ArticleContextDialog
