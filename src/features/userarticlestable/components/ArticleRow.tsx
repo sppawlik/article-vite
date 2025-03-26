@@ -69,18 +69,6 @@ const ArticleRow = React.memo(({
             </span>
           </div>
         </TableCell>
-        <TableCell className="text-right">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <span>{(article.rating / 10).toFixed(1)}</span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Relevance: {(article.relevance / 10).toFixed(1)}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </TableCell>
         <TableCell className="text-right">{getRelativeTime(article.publishedDate, article.createdAt)}</TableCell>
         <TableCell className="text-center" onClick={handleCellClick}>
           <Button

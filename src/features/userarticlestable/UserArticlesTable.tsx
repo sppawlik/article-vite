@@ -84,7 +84,6 @@ export const UserArticlesTable: React.FC<UserArticlesTableProps> = ({
           <TableRow>
             <TableHead className="text-left">Site Name</TableHead>
             <TableHead className="text-left">Title and summary</TableHead>
-            <TableHead className="text-right">Rating</TableHead>
             <TableHead className="text-right">Age</TableHead>
             <TableHead className="w-[50px]">Summarize</TableHead>
           </TableRow>

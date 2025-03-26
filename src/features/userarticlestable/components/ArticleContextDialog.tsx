@@ -40,10 +40,20 @@ export function ArticleContextDialog({
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Summary settings</DialogTitle>
-        </DialogHeader>
         <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
+            <Label htmlFor="length" className="font-medium">Summary Template</Label>
+            <Select value={length} onValueChange={(value: 'short' | 'medium' | 'long') => setLength(value)}>
+              <SelectTrigger id="length">
+                <SelectValue placeholder="Select" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="short">Short</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="long">Long</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="grid gap-2">
             <Label htmlFor="context" className="font-medium">Context</Label>
             <Textarea
@@ -53,19 +63,6 @@ export function ArticleContextDialog({
               onChange={(e) => setContext(e.target.value)}
               className="min-h-[100px]"
             />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="length" className="font-medium">Summary Length</Label>
-            <Select value={length} onValueChange={(value: 'short' | 'medium' | 'long') => setLength(value)}>
-              <SelectTrigger id="length">
-                <SelectValue placeholder="Select length" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="short">Short</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="long">Long</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
         <DialogFooter>
