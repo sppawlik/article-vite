@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { LogOut, Loader2 } from "lucide-react";
+import { LogOut, Loader2, Plus } from "lucide-react";
 import { UserArticlesTable } from '../userarticlestable/UserArticlesTable';
 import { useNewsletterConfig } from './hooks/useNewsletterConfig';
 import { useNewsletterGeneration } from './hooks/useNewsletterGeneration';
@@ -8,6 +8,7 @@ import { TimePeriodSelector } from './components/TimePeriodSelector';
 import { Button } from "@/components/ui/button";
 import { JobNewsletterStatus } from '@/features/statusdialog/JobNewsletterStatus';
 import { SelectedArticle } from '../userarticlestable/types';
+import { AddCustomArticleDialog } from './components/AddCustomArticleDialog';
 
 export function MainNewsletterArticles() {
   const { user, signOut } = useAuthenticator();
@@ -20,6 +21,7 @@ export function MainNewsletterArticles() {
     message: null 
   });
   const [jobUuid, setJobUuid] = useState<string | null>(null);
+  const [showAddArticleDialog, setShowAddArticleDialog] = useState(false);
 
   const handleSelectedArticlesChange = (articles: SelectedArticle[]) => {
     setSelectedArticles(articles);
@@ -69,11 +71,38 @@ export function MainNewsletterArticles() {
     setJobUuid(null);
   };
 
+  const handleAddArticleSuccess = () => {
+    // Force a refresh by updating the selected age
+    // This will trigger the UserArticlesTable to re-fetch data
+    setSelectedAge(prevAge => {
+      // Toggle and reset to trigger a re-render
+      setTimeout(() => setSelectedAge(prevAge), 0);
+      return prevAge === 7 ? 8 : 7;
+    });
+    
+    setStatusMessage({
+      type: 'success',
+      message: 'Article added successfully.'
+    });
+    
+    // Auto-dismiss the success message after 3 seconds
+    setTimeout(() => {
+      setStatusMessage({ type: null, message: null });
+    }, 3000);
+  };
+
   return (
     <div className="space-y-4 min-w-[800px]">
       <JobNewsletterStatus 
         jobUuid={jobUuid} 
         onClose={handleJobStatusClose} 
+      />
+      
+      <AddCustomArticleDialog
+        open={showAddArticleDialog}
+        onOpenChange={setShowAddArticleDialog}
+        newsletterUuid={mainNewsletterUuid || ''}
+        onSuccess={handleAddArticleSuccess}
       />
       
       <div className="flex justify-between items-center p-4">
@@ -87,6 +116,14 @@ export function MainNewsletterArticles() {
               {selectedArticles.length} article{selectedArticles.length !== 1 ? 's' : ''} selected
             </div>
           )}
+          <Button
+            variant="outline"
+            onClick={() => setShowAddArticleDialog(true)}
+            disabled={!mainNewsletterUuid}
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add article
+          </Button>
           <Button
             variant="outline"
             onClick={handleGenerateNewsletter}

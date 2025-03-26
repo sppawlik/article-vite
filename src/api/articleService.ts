@@ -71,6 +71,21 @@ interface GetRatedArticlesResponse {
     getRatedArticles: RatedArticle[];
 }
 
+interface AddCustomUrlResponse {
+  addCustomUrl: {
+    createdAt: string;
+    depth: number;
+    newsletterUuid: string;
+    publishedDate: string;
+    rating: number;
+    siteName: string;
+    relevance: number;
+    title: string;
+    summary: string;
+    url: string;
+  };
+}
+
 export async function getUserArticles(link: string): Promise<UserArticle> {
     const result = (await client.graphql({
         query: `
@@ -284,6 +299,41 @@ export async function getRatedArticles(newsletterUuid: string): Promise<RatedArt
         console.error("Error fetching rated articles:", error);
         throw error;
     }
+}
+
+export async function addCustomUrl(url: string, newsletterUuid: string) {
+  try {
+    const response = (await client.graphql({
+      query: `
+        mutation AddCustomUrl($url: String!, $newsletterUuid: String!) {
+          addCustomUrl(
+            url: $url,
+            newsletterUuid: $newsletterUuid
+          ) {
+            createdAt
+            depth
+            newsletterUuid
+            publishedDate
+            rating
+            siteName
+            relevance
+            title
+            summary
+            url
+          }
+        }
+      `,
+      variables: {
+        url,
+        newsletterUuid,
+      },
+    })) as GraphQLResult<AddCustomUrlResponse>;
+
+    return response.data.addCustomUrl;
+  } catch (error) {
+    console.error("Error adding custom URL:", error);
+    throw error;
+  }
 }
 
 function getRelativeTime(pastDate: Date, currentDate: Date): string {
