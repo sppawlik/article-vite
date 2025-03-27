@@ -43,7 +43,7 @@ export const useCustomArticle = (): UseCustomArticleResult => {
       console.log('Article added successfully:', result);
       return result;
     } catch (err) {
-      setError('Failed to add article. Please try again.');
+      setError('Sorry, we can’t access this article due to the publisher’s server settings. We’ll work on improving this in future versions of the app.');
       console.error('Error adding custom URL:', err);
       throw err;
     } finally {
