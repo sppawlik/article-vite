@@ -10,8 +10,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { addCustomUrl } from '@/api/articleService';
 import { Loader2 } from "lucide-react";
+import { useCustomArticle } from '../hooks/useCustomArticle';
 
 interface AddCustomArticleDialogProps {
   open: boolean;
@@ -27,34 +27,21 @@ export function AddCustomArticleDialog({
   onSuccess 
 }: AddCustomArticleDialogProps) {
   const [url, setUrl] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { addArticle, isLoading, error } = useCustomArticle();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!url.trim()) {
-      setError('Please enter a valid URL');
-      return;
-    }
-
     try {
-      setIsLoading(true);
-      setError(null);
-      
-      const result = await addCustomUrl(url, newsletterUuid);
-      console.log('Article added successfully:', result);
-      
+      await addArticle(url, newsletterUuid);
       setUrl('');
       onOpenChange(false);
       if (onSuccess) {
         onSuccess();
       }
     } catch (err) {
-      setError('Failed to add article. Please try again.');
-      console.error('Error adding custom URL:', err);
-    } finally {
-      setIsLoading(false);
+      // Error is already handled in the hook
+      console.error('Error in dialog component:', err);
     }
   };
 
