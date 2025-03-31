@@ -8,6 +8,7 @@ import {Amplify} from "aws-amplify";
 import {MainNewsletterArticles} from "@/features/articlelisting/MainNewsletterArticles";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { NewsletterView } from '@/features/newsletter';
+import Onboarding from '@/features/onboarding/Onboarding';
 
 Amplify.configure(outputs);
 const currentConfig = Amplify.getConfig();
@@ -35,6 +36,7 @@ createRoot(document.getElementById('root')).render(
                 <Routes>
                     <Route path="/" element={<div className='flex justify-center'><MainNewsletterArticles /></div>} />
                     <Route path="/newsletter/:uuid" element={<NewsletterView />} />
+                    <Route path="/onboarding" element={<Onboarding />} />
                 </Routes>
             </BrowserRouter>
         </Authenticator>
