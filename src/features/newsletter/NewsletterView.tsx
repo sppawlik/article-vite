@@ -11,6 +11,8 @@ import ListItem from '@tiptap/extension-list-item';
 import TextStyle from '@tiptap/extension-text-style';
 import Link from '@tiptap/extension-link';
 import { TextEditorMenuBar } from './TextEditorMenuBar';
+import { useAuthenticator } from '@aws-amplify/ui-react';
+import { useDataLayer } from '@/hooks/useDataLayer';
 import './styles.scss';
 
 interface NewsletterJobStatus {
@@ -25,10 +27,22 @@ interface GetNewsletterJobStatusResponse {
 export const NewsletterView = () => {
   // Get the UUID from the URL parameters
   const { uuid } = useParams<{ uuid: string }>();
+  const { user } = useAuthenticator();
   const [newsletterContent, setNewsletterContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
+
+  // Add dataLayer tracking
+
+  //                   pushVirtualPageView('/edit', 'https://newsletter.creoscope.com/edit', 'https://newsletter.creoscope.com/wait', 'Nwsl edit', user);
+  useDataLayer({
+    pagePath: '/edit',
+    pageUrl: 'https://newsletter.creoscope.com/edit',
+    previousPageUrl: 'https://newsletter.creoscope.com/wait',
+    pageTitle: 'Newsletter edit',
+    user: user
+  });
 
   useEffect(() => {
     const fetchNewsletterJobStatus = async () => {

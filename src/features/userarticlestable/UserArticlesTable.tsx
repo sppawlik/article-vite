@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import ArticleRow from './components/ArticleRow';
 import { UserArticlesTableProps } from './types';
 
+
 // Define the structure for storing article selection with context
 interface SelectedArticleInfo {
   selected: boolean;
@@ -25,6 +26,8 @@ export const UserArticlesTable: React.FC<UserArticlesTableProps> = ({
 }) => {
   const { articles, loading, error } = useGetUserArticles(newsletterUuid, age);
   const [selectedArticles, setSelectedArticles] = useState<Record<string, SelectedArticleInfo>>({});
+
+
 
   // Memoize the selected articles array to prevent unnecessary recalculations
   const selectedArticlesArray = useMemo(() => {

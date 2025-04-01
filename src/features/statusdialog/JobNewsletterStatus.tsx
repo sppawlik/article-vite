@@ -5,15 +5,26 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useNewsletterJobStatus } from "./useNewsletterJobStatus"
+import { useDataLayer } from '@/hooks/useDataLayer'
 
 interface JobNewsletterStatusProps {
   jobUuid: string | null
   onClose: () => void
+  user: any
 }
 
-export const JobNewsletterStatus: React.FC<JobNewsletterStatusProps> = ({ jobUuid, onClose }) => {
+export const JobNewsletterStatus: React.FC<JobNewsletterStatusProps> = ({ jobUuid, onClose, user }) => {
   const [open, setOpen] = useState<boolean>(!!jobUuid)
   const { jobStatus, error, getStatusText, getProgressPercentage } = useNewsletterJobStatus(jobUuid)
+
+  // Use the dataLayer hook at the component level
+  useDataLayer({
+    pagePath: '/wait',
+    pageUrl: 'https://newsletter.creoscope.com/wait',
+    previousPageUrl: 'https://newsletter.creoscope.com/list',
+    pageTitle: 'Nwsl wait',
+    user: user
+  });
 
   useEffect(() => {
     setOpen(!!jobUuid)

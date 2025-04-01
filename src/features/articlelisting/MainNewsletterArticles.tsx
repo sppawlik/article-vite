@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { LogOut, Loader2, Plus } from "lucide-react";
 import { UserArticlesTable } from '../userarticlestable/UserArticlesTable';
@@ -9,6 +9,14 @@ import { Button } from "@/components/ui/button";
 import { JobNewsletterStatus } from '@/features/statusdialog/JobNewsletterStatus';
 import { SelectedArticle } from '../userarticlestable/types';
 import { AddCustomArticleDialog } from './components/AddCustomArticleDialog';
+import { useDataLayer } from '@/hooks/useDataLayer';
+
+// Add dataLayer type declaration
+declare global {
+  interface Window {
+    dataLayer: any[];
+  }
+}
 
 export function MainNewsletterArticles() {
   const { user, signOut } = useAuthenticator();
@@ -22,6 +30,15 @@ export function MainNewsletterArticles() {
   });
   const [jobUuid, setJobUuid] = useState<string | null>(null);
   const [showAddArticleDialog, setShowAddArticleDialog] = useState(false);
+
+
+  useDataLayer({
+    pagePath: '/list',
+    pageUrl: 'https://newsletter.creoscope.com/list',
+    previousPageUrl: 'https://newsletter.creoscope.com/login',
+    pageTitle: 'Article listing',
+    user: user
+  });
 
   const handleSelectedArticlesChange = (articles: SelectedArticle[]) => {
     setSelectedArticles(articles);
@@ -96,6 +113,7 @@ export function MainNewsletterArticles() {
       <JobNewsletterStatus 
         jobUuid={jobUuid} 
         onClose={handleJobStatusClose} 
+        user={user}
       />
       
       <AddCustomArticleDialog
