@@ -5,7 +5,7 @@ import {Authenticator} from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import outputs from '../amplify_outputs.json';
 import {Amplify} from "aws-amplify";
-import {MainNewsletterArticles} from "@/features/articlelisting/MainNewsletterArticles";
+import {MainPanel} from "@/features/articlelisting/MainPanel";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { NewsletterView } from '@/features/newsletter';
 import Onboarding from '@/features/onboarding/Onboarding';
@@ -34,7 +34,7 @@ createRoot(document.getElementById('root')).render(
         <Authenticator>
             <BrowserRouter>
                 <Routes>
-                    <Route path="/" element={<div className='flex justify-center'><MainNewsletterArticles /></div>} />
+                    <Route path="/" element={<div className='flex justify-center'><MainPanel /></div>} />
                     <Route path="/newsletter/:uuid" element={<NewsletterView />} />
                     <Route path="/onboarding" element={<Onboarding />} />
                 </Routes>

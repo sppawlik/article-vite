@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { LogOut, Loader2, Plus } from "lucide-react";
 import { UserArticlesTable } from '../userarticlestable/UserArticlesTable';
-import { useNewsletterConfig } from './hooks/useNewsletterConfig';
 import { useNewsletterGeneration } from './hooks/useNewsletterGeneration';
 import { TimePeriodSelector } from './components/TimePeriodSelector';
 import { Button } from "@/components/ui/button";
@@ -18,9 +17,12 @@ declare global {
   }
 }
 
-export function MainNewsletterArticles() {
+type MainNewsletterArticlesProps = {
+  newsletterUuid: string;
+};
+
+export function MainNewsletterArticles({ newsletterUuid }: MainNewsletterArticlesProps): React.ReactElement {
   const { user, signOut } = useAuthenticator();
-  const { mainNewsletterUuid, loading, error } = useNewsletterConfig();
   const [selectedAge, setSelectedAge] = useState<number>(7); // Default to "1 week"
   const [selectedArticles, setSelectedArticles] = useState<SelectedArticle[]>([]);
   const { isGenerating, generateNewsletter } = useNewsletterGeneration(selectedArticles);
@@ -54,19 +56,13 @@ export function MainNewsletterArticles() {
       return;
     }
     
-    if (!mainNewsletterUuid) {
-      setStatusMessage({
-        type: 'error',
-        message: 'No newsletter configuration found. Please try again later.'
-      });
-      return;
-    }
+
     
     setStatusMessage({ type: null, message: null });
     
     try {
-      // Pass only the newsletter UUID to the generation function
-      const newJobUuid = await generateNewsletter(mainNewsletterUuid);
+      // Pass the newsletter UUID to the generation function
+      const newJobUuid = await generateNewsletter(newsletterUuid);
       
       if (newJobUuid) {
         setJobUuid(newJobUuid);
@@ -119,7 +115,7 @@ export function MainNewsletterArticles() {
       <AddCustomArticleDialog
         open={showAddArticleDialog}
         onOpenChange={setShowAddArticleDialog}
-        newsletterUuid={mainNewsletterUuid || ''}
+        newsletterUuid={newsletterUuid}
         onSuccess={handleAddArticleSuccess}
       />
       
@@ -137,7 +133,6 @@ export function MainNewsletterArticles() {
           <Button
             variant="outline"
             onClick={() => setShowAddArticleDialog(true)}
-            disabled={!mainNewsletterUuid}
           >
             <Plus className="mr-2 h-4 w-4" />
             Add article
@@ -180,25 +175,11 @@ export function MainNewsletterArticles() {
         </div>
       )}
       
-      {loading ? (
-        <div className="flex justify-center p-8">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      ) : error ? (
-        <div className="bg-destructive/15 text-destructive px-4 py-2 rounded-md">
-          {error.message}
-        </div>
-      ) : mainNewsletterUuid ? (
-        <UserArticlesTable 
-          newsletterUuid={mainNewsletterUuid} 
-          age={selectedAge} 
-          onSelectedArticlesChange={handleSelectedArticlesChange}
-        />
-      ) : (
-        <div className="bg-amber-100 text-amber-800 px-4 py-2 rounded-md">
-          No main newsletter configuration found.
-        </div>
-      )}
+      <UserArticlesTable 
+        newsletterUuid={newsletterUuid} 
+        age={selectedAge} 
+        onSelectedArticlesChange={handleSelectedArticlesChange}
+      />
     </div>
   );
 } 

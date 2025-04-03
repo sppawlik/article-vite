@@ -1,22 +1,23 @@
 import { Webchat, WebchatProvider, Fab, getClient } from "@botpress/webchat";
 import React, { useState } from "react";
-
-const clientId = '88b21852-2cfe-4bb3-bc01-b25ff873dd1d';
+import { useAuthenticator } from '@aws-amplify/ui-react';
+const clientId = "64e235cd-cd9b-4470-aafa-b0ba36adac0a";
 
 const Onboarding: React.FC = (): React.ReactElement => {
   const client = getClient({ clientId });
-  const [isWebchatOpen, setIsWebchatOpen] = useState(false);
+  const [isWebchatOpen, setIsWebchatOpen] = useState(true);
   const toggleWebchat = () => {
     setIsWebchatOpen((prevState) => !prevState);
   };
-
+  const { user } = useAuthenticator();
+  console.log(user?.signInDetails?.loginId);
   const configuration = {
     botName: "Customer Service",
     botAvatar: "", // Add your bot avatar URL here if needed
     composerPlaceholder: "Type your message...",
     themeColor: "#634433",
     themeName: "prism",
-    // You can add more configuration options as needed
+    botDescription:      "Hi! 👋  Welcome to webchat this is some description talking about what it is. This might be a bit longer when expanded.",
   };
 
   return (
@@ -24,8 +25,12 @@ const Onboarding: React.FC = (): React.ReactElement => {
       <WebchatProvider
         client={client}
         configuration={configuration}
+        userData={
+          {
+            user_name: user?.signInDetails?.loginId,
+          }
+        }
       >
-        <Fab onClick={toggleWebchat} />
         <div
           style={{
             display: isWebchatOpen ? "block" : "none",
