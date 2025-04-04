@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
-import { LogOut, Loader2, Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { UserArticlesTable } from '../userarticlestable/UserArticlesTable';
 import { useNewsletterGeneration } from './hooks/useNewsletterGeneration';
 import { TimePeriodSelector } from './components/TimePeriodSelector';
@@ -22,7 +22,7 @@ type MainNewsletterArticlesProps = {
 };
 
 export function MainNewsletterArticles({ newsletterUuid }: MainNewsletterArticlesProps): React.ReactElement {
-  const { user, signOut } = useAuthenticator();
+  const { user } = useAuthenticator();
   const [selectedAge, setSelectedAge] = useState<number>(7); // Default to "1 week"
   const [selectedArticles, setSelectedArticles] = useState<SelectedArticle[]>([]);
   const { isGenerating, generateNewsletter } = useNewsletterGeneration(selectedArticles);
@@ -151,17 +151,6 @@ export function MainNewsletterArticles({ newsletterUuid }: MainNewsletterArticle
               'Generate Newsletter'
             )}
           </Button>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              signOut();
-            }}
-            className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-          >
-            <LogOut className="h-5 w-5"/>
-            <span className="sr-only">Logout</span>
-          </a>
         </div>
       </div>
       
