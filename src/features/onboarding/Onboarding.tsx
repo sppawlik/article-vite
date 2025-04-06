@@ -1,14 +1,17 @@
 import { Webchat, WebchatProvider, useClient, Fab, getClient } from "@botpress/webchat";
 import React, { useState, useEffect } from "react";
+
 const clientId = "64e235cd-cd9b-4470-aafa-b0ba36adac0a";
 
 interface OnboardingProps {
   newsletterUuid?: string;
+  onRefreshNewsletter: () => Promise<void>;
 }
 
-const Onboarding: React.FC<OnboardingProps> = ({ newsletterUuid }): React.ReactElement => {
+const Onboarding: React.FC<OnboardingProps> = ({ newsletterUuid, onRefreshNewsletter }): React.ReactElement => {
   const client = getClient({ clientId });
   const [isWebchatOpen, setIsWebchatOpen] = useState(true);
+
   const toggleWebchat = () => {
     setIsWebchatOpen((prevState) => !prevState);
   };
@@ -24,27 +27,28 @@ const Onboarding: React.FC<OnboardingProps> = ({ newsletterUuid }): React.ReactE
     composerPlaceholder: "Type your message...",
     themeColor: "#634433",
     themeName: "prism",
-    botDescription:      "Hi! 👋  Welcome to webchat this is some description talking about what it is. This might be a bit longer when expanded.",
+    botDescription: "Hi! 👋  Welcome to webchat this is some description talking about what it is. This might be a bit longer when expanded.",
   };
 
   useEffect(() => {
-    client.on('*', (event) => {
+    client.on('*', async (event) => {
       if (event) {
         console.log("event")
-        console.log(event)
+        if (event.type === "customEvent") {
+          await onRefreshNewsletter();
+        }
       }
     })
-  }, [])
+  }, [onRefreshNewsletter])
+
   return (
     <div style={{ width: "90vw", height: "100vh" }}>
-        <WebchatProvider 
+      <WebchatProvider 
         client={client}
         configuration={configuration}
-        userData={
-          {
-            newsletter_uuid: newsletterUuid,
-          }
-        }
+        userData={{
+          newsletter_uuid: newsletterUuid,
+        }}
       >
         <div
           style={{
