@@ -20,6 +20,30 @@ interface CreateNewsletterConfigResponse {
   createNewsletterConfig: NewsletterConfig;
 }
 
+const createNewsletterConfig = async (userName: string): Promise<NewsletterConfig | undefined> => {
+  const newConfig = await client.graphql({
+    query: `
+      mutation CreateNewsletterConfig($input: CreateNewsletterConfigInput!) {
+        createNewsletterConfig(input: $input) {
+          uuid
+          name
+          main
+          status
+        }
+      }
+    `,
+    variables: {
+      input: {
+        user_name: userName,
+        main: true,
+        name: 'default',
+      },
+    },
+  }) as GraphQLResult<CreateNewsletterConfigResponse>;
+  
+  return newConfig.data?.createNewsletterConfig;
+};
+
 export const useNewsletterConfig = () => {
   const [mainNewsletter, setMainNewsletter] = useState<NewsletterConfig>();
   const [status, setStatus] = useState<string | null>(null);
@@ -37,7 +61,6 @@ export const useNewsletterConfig = () => {
       // Set the flag before creating
       isCreatingNewsletter.current = true;
       setLoading(true);
-      
       // Double-check if config still doesn't exist
       const allconfigs = (await client.graphql({
         query: `
@@ -51,37 +74,24 @@ export const useNewsletterConfig = () => {
           }
         `,
       })) as GraphQLResult<GetNewsletterConfigsResponse>;
-
       if (!allconfigs.data?.getNewsletterConfigs?.length) {
         // create new newsletter config
-        const newConfig = await client.graphql({
-          query: `
-            mutation CreateNewsletterConfig($input: CreateNewsletterConfigInput!) {
-              createNewsletterConfig(input: $input) {
-                uuid
-                name
-                main
-                status
-              }
-            }
-          `,
-          variables: {
-            input: {
-              user_name: user?.signInDetails?.loginId,
-              main: true,
-              name: 'default',
-            },
-          },
-        }) as GraphQLResult<CreateNewsletterConfigResponse>;
+        const userName = user?.signInDetails?.loginId;
+        if (!userName) {
+          throw new Error('User login ID is required to create newsletter config');
+        }
+        const newConfig = await createNewsletterConfig(userName);
         
-        if (newConfig.data?.createNewsletterConfig) {
-          setMainNewsletter(newConfig.data.createNewsletterConfig);
+        if (newConfig) {
+          setMainNewsletter(newConfig);
+          setLoading(false);
           setStatus('not_ready');
         }
       } else {
         const mainConfig = allconfigs.data?.getNewsletterConfigs.find(config => config.main === true);
         if (mainConfig) {
           setMainNewsletter(mainConfig);
+          setLoading(false);
           if (mainConfig.status === 'onboarded') {
             setStatus('not_ready');
           } else {
@@ -93,7 +103,6 @@ export const useNewsletterConfig = () => {
       setError(err instanceof Error ? err : new Error('An error occurred while fetching newsletter configurations'));
     } finally {
       isCreatingNewsletter.current = false;
-      setLoading(false);
     }
   };
 

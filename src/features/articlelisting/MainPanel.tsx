@@ -50,7 +50,6 @@ export function MainPanel(): React.ReactElement {
   
   return (
     <div className="relative">
-      <h1>MainPanel: {loading}</h1>
       <LogoutButton />
       {mainNewsletter ? (
         <div className="pt-8">
