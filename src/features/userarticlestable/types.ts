@@ -20,7 +20,6 @@ export interface SelectedArticle {
 }
 
 export interface UserArticlesTableProps {
-  newsletterUuid: string;
-  age: number;
+  articles: Article[];
   onSelectedArticlesChange?: (articles: SelectedArticle[]) => void;
 } 

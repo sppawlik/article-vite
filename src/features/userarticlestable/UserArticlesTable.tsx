@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { useGetUserArticles } from './hooks/useGetUserArticles';
 import {
   Table,
   TableBody,
@@ -7,10 +6,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2 } from "lucide-react";
 import ArticleRow from './components/ArticleRow';
 import { UserArticlesTableProps } from './types';
-
 
 // Define the structure for storing article selection with context
 interface SelectedArticleInfo {
@@ -20,14 +17,10 @@ interface SelectedArticleInfo {
 }
 
 export const UserArticlesTable: React.FC<UserArticlesTableProps> = ({ 
-  newsletterUuid,
-  age,
+  articles,
   onSelectedArticlesChange 
 }) => {
-  const { articles, loading, error } = useGetUserArticles(newsletterUuid, age);
   const [selectedArticles, setSelectedArticles] = useState<Record<string, SelectedArticleInfo>>({});
-
-
 
   // Memoize the selected articles array to prevent unnecessary recalculations
   const selectedArticlesArray = useMemo(() => {
@@ -68,18 +61,6 @@ export const UserArticlesTable: React.FC<UserArticlesTableProps> = ({
     }
   }, [selectedArticlesArray, onSelectedArticlesChange]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center p-8">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return <div className="bg-destructive/15 text-destructive px-4 py-2 rounded-md">{error.message}</div>;
-  }
- 
   return (
     <div className="space-y-4">
       <Table>

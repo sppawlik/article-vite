@@ -26,8 +26,10 @@ const LogoutButton = (): React.ReactElement => {
 };
 
 export function MainPanel(): React.ReactElement {
-  const { mainNewsletter, loading, error, refreshConfigs } = useNewsletterConfig();
+  const { mainNewsletter, status, loading, error, refreshMainConfig } = useNewsletterConfig();
   console.log("mainNewsletter", mainNewsletter);
+  console.log("status", status);
+  console.log("loading state:", loading);
   // Show loading spinner when loading
   if (loading) {
     return (
@@ -48,17 +50,20 @@ export function MainPanel(): React.ReactElement {
   
   return (
     <div className="relative">
+      <h1>MainPanel: {loading}</h1>
       <LogoutButton />
-      <div className="pt-8">
-        {mainNewsletter?.status === 'ready' ? (
-          <MainNewsletterArticles newsletterUuid={mainNewsletter.uuid} />
-        ) : (
-          <Onboarding 
-            newsletterUuid={mainNewsletter?.uuid} 
-            onRefreshNewsletter={refreshConfigs}
-          />
-        )}
-      </div>
+      {mainNewsletter ? (
+        <div className="pt-8">
+          {status === 'ready' ? (
+            <MainNewsletterArticles newsletterUuid={mainNewsletter.uuid} />
+          ) : (
+            <Onboarding 
+              newsletterUuid={mainNewsletter.uuid} 
+              onRefreshNewsletter={refreshMainConfig}
+            />
+          )}
+        </div>
+      ) : <div>ERROR</div>}
     </div>
   );
 }

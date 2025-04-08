@@ -9,6 +9,7 @@ import { JobNewsletterStatus } from '@/features/statusdialog/JobNewsletterStatus
 import { SelectedArticle } from '../userarticlestable/types';
 import { AddCustomArticleDialog } from './components/AddCustomArticleDialog';
 import { useDataLayer } from '@/hooks/useDataLayer';
+import { useGetUserArticles } from '../userarticlestable/hooks/useGetUserArticles';
 
 // Add dataLayer type declaration
 declare global {
@@ -32,7 +33,7 @@ export function MainNewsletterArticles({ newsletterUuid }: MainNewsletterArticle
   });
   const [jobUuid, setJobUuid] = useState<string | null>(null);
   const [showAddArticleDialog, setShowAddArticleDialog] = useState(false);
-
+  const { articles, loading, error } = useGetUserArticles(newsletterUuid, selectedAge);
 
   useDataLayer({
     pagePath: '/list',
@@ -56,12 +57,9 @@ export function MainNewsletterArticles({ newsletterUuid }: MainNewsletterArticle
       return;
     }
     
-
-    
     setStatusMessage({ type: null, message: null });
     
     try {
-      // Pass the newsletter UUID to the generation function
       const newJobUuid = await generateNewsletter(newsletterUuid);
       
       if (newJobUuid) {
@@ -85,14 +83,6 @@ export function MainNewsletterArticles({ newsletterUuid }: MainNewsletterArticle
   };
 
   const handleAddArticleSuccess = () => {
-    // Force a refresh by updating the selected age
-    // This will trigger the UserArticlesTable to re-fetch data
-    setSelectedAge(prevAge => {
-      // Toggle and reset to trigger a re-render
-      setTimeout(() => setSelectedAge(prevAge), 0);
-      return prevAge === 7 ? 8 : 7;
-    });
-    
     setStatusMessage({
       type: 'success',
       message: 'Article added successfully.'
@@ -103,6 +93,18 @@ export function MainNewsletterArticles({ newsletterUuid }: MainNewsletterArticle
       setStatusMessage({ type: null, message: null });
     }, 3000);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="bg-destructive/15 text-destructive px-4 py-2 rounded-md">{error.message}</div>;
+  }
 
   return (
     <div className="space-y-4 min-w-[800px]">
@@ -165,8 +167,7 @@ export function MainNewsletterArticles({ newsletterUuid }: MainNewsletterArticle
       )}
       
       <UserArticlesTable 
-        newsletterUuid={newsletterUuid} 
-        age={selectedAge} 
+        articles={articles}
         onSelectedArticlesChange={handleSelectedArticlesChange}
       />
     </div>

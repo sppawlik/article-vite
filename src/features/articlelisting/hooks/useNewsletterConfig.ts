@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { generateClient } from 'aws-amplify/api';
 import { GraphQLResult } from '@aws-amplify/api-graphql';
 import { useAuthenticator } from '@aws-amplify/ui-react';
+import { generateClient } from 'aws-amplify/api';
+import { useEffect, useState, useRef } from 'react';
 
 const client = generateClient();
 
@@ -21,16 +21,25 @@ interface CreateNewsletterConfigResponse {
 }
 
 export const useNewsletterConfig = () => {
-  const [mainNewsletter, setMainNewsletter] = useState<NewsletterConfig | null>(null);
+  const [mainNewsletter, setMainNewsletter] = useState<NewsletterConfig>();
+  const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [allConfigs, setAllConfigs] = useState<NewsletterConfig[]>([]);
   const { user } = useAuthenticator();
+  const isCreatingNewsletter = useRef(false);
 
-  const refreshConfigs = async () => {
-    setLoading(true);
+  const setMainConfig = async () => {
     try {
-      const result = (await client.graphql({
+      if (isCreatingNewsletter.current) {
+        return;
+      }
+      
+      // Set the flag before creating
+      isCreatingNewsletter.current = true;
+      setLoading(true);
+      
+      // Double-check if config still doesn't exist
+      const allconfigs = (await client.graphql({
         query: `
           query GetNewsletterConfigs {
             getNewsletterConfigs {
@@ -43,28 +52,7 @@ export const useNewsletterConfig = () => {
         `,
       })) as GraphQLResult<GetNewsletterConfigsResponse>;
 
-      if (result.data?.getNewsletterConfigs) {
-        const configs = result.data.getNewsletterConfigs;
-        setAllConfigs(configs);
-        
-        const mainConfig = configs.find(config => config.main === true);
-        if (mainConfig) {
-          if (mainConfig.status === "onboarded") {
-            mainConfig.status = "ready";
-            // Execute mutation: mutation RefreshArticles {
-            //  refreshArticles(newsletterUuid: "")
-            // }
-            await client.graphql({
-              query: `
-                mutation RefreshArticles($newsletterUuid: String!) {
-                  refreshArticles(newsletterUuid: $newsletterUuid)
-                }
-              `,
-            });
-          }
-          setMainNewsletter(mainConfig);
-        }
-      } else {
+      if (!allconfigs.data?.getNewsletterConfigs?.length) {
         // create new newsletter config
         const newConfig = await client.graphql({
           query: `
@@ -85,21 +73,56 @@ export const useNewsletterConfig = () => {
             },
           },
         }) as GraphQLResult<CreateNewsletterConfigResponse>;
-
+        
         if (newConfig.data?.createNewsletterConfig) {
           setMainNewsletter(newConfig.data.createNewsletterConfig);
+          setStatus('not_ready');
+        }
+      } else {
+        const mainConfig = allconfigs.data?.getNewsletterConfigs.find(config => config.main === true);
+        if (mainConfig) {
+          setMainNewsletter(mainConfig);
+          if (mainConfig.status === 'onboarded') {
+            setStatus('not_ready');
+          } else {
+            setStatus('ready');
+          }
         }
       }
     } catch (err) {
       setError(err instanceof Error ? err : new Error('An error occurred while fetching newsletter configurations'));
     } finally {
+      isCreatingNewsletter.current = false;
       setLoading(false);
     }
   };
 
+  const refreshMainConfig = async () => {
+    setLoading(true);
+    try { 
+        await client.graphql({
+          query: `
+            mutation RefreshArticles($newsletterUuid: String!) {
+              refreshArticles(newsletterUuid: $newsletterUuid)
+            }
+          `,
+          variables: {
+            newsletterUuid: mainNewsletter?.uuid,
+          },
+        });
+        setStatus('ready');
+      }
+    catch (err) {
+      setError(err instanceof Error ? err : new Error('An error occurred while fetching newsletter configurations'));
+    } finally {
+      setLoading(false);
+    }
+   
+  };
+
   useEffect(() => {
-    refreshConfigs();
+    setMainConfig();
   }, []);
 
-  return { mainNewsletter, loading, error, allConfigs, refreshConfigs };
+  return { mainNewsletter,status,  loading, error, refreshMainConfig };
 }; 

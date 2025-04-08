@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 const clientId = "64e235cd-cd9b-4470-aafa-b0ba36adac0a";
 
 interface OnboardingProps {
-  newsletterUuid?: string;
+  newsletterUuid: string;
   onRefreshNewsletter: () => Promise<void>;
 }
 
@@ -33,8 +33,8 @@ const Onboarding: React.FC<OnboardingProps> = ({ newsletterUuid, onRefreshNewsle
   useEffect(() => {
     client.on('*', async (event) => {
       if (event) {
-        console.log("event")
         if (event.type === "customEvent") {
+          console.log("event.data", event.payload);
           await onRefreshNewsletter();
         }
       }
@@ -43,6 +43,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ newsletterUuid, onRefreshNewsle
 
   return (
     <div style={{ width: "90vw", height: "100vh" }}>
+      <h1>{newsletterUuid}</h1>
       <WebchatProvider 
         client={client}
         configuration={configuration}
