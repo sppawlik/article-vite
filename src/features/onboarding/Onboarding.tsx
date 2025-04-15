@@ -1,5 +1,13 @@
-import { Webchat, WebchatProvider, useClient, Fab, getClient } from "@botpress/webchat";
+import {Webchat, WebchatProvider, useClient, Fab, getClient, Container, MessageList, Composer} from "@botpress/webchat";
 import React, { useState, useEffect } from "react";
+import {buildTheme} from "@botpress/webchat-generator";
+// const { theme, style } = buildTheme({
+//   themeName: "prism",
+//   themeColor: "#634433",
+// });
+
+import './style.css';
+import { theme } from './theme';
 
 const clientId = "64e235cd-cd9b-4470-aafa-b0ba36adac0a";
 
@@ -25,9 +33,6 @@ const Onboarding: React.FC<OnboardingProps> = ({ newsletterUuid, onRefreshNewsle
     botName: "Onboarding Service",
     botAvatar: "", // Add your bot avatar URL here if needed
     composerPlaceholder: "Type your message...",
-    themeColor: "#634433",
-    themeName: "prism",
-    botDescription: "Hi! 👋  Welcome to webchat this is some description talking about what it is. This might be a bit longer when expanded.",
   };
 
   useEffect(() => {
@@ -42,22 +47,16 @@ const Onboarding: React.FC<OnboardingProps> = ({ newsletterUuid, onRefreshNewsle
   }, [onRefreshNewsletter])
 
   return (
-    <div style={{ width: "90vw", height: "100vh" }}>
-      <h1>{newsletterUuid}</h1>
-      <WebchatProvider 
+    <div style={{ width: "800px", height: "90vh", textAlign: "left" }}>
+      <WebchatProvider
         client={client}
         configuration={configuration}
         userData={{
           newsletter_uuid: newsletterUuid,
         }}
+        theme={theme}
       >
-        <div
-          style={{
-            display: isWebchatOpen ? "block" : "none",
-          }}
-        >
           <Webchat />
-        </div>
       </WebchatProvider>
     </div>
   );
@@ -65,9 +64,9 @@ const Onboarding: React.FC<OnboardingProps> = ({ newsletterUuid, onRefreshNewsle
 
 export default Onboarding;
 
-
+//
 // return (
-//   <div style={{ width: "90vw", height: "80vh", border: "1px solid red" }}>
+//   <div style={{ width: "800px", height: "80vh", textAlign: "left", border: "1px solid red" }}>
 //     <WebchatProvider
 //       client={client}
 //       configuration={configuration}
@@ -77,12 +76,11 @@ export default Onboarding;
 //         }
 //       }
 //     >
-//       <h2 style={{ display: 'flex', justifyContent: 'center', fontSize: '40px', fontWeight: 'bold', color: '#666' }}>Coming Soon</h2>
 //       <Container  style={{
 //             height: "100%",
 //             width: "100%",
 //             display: "flex",
-//             justifyContent: "space-between",
+//             justifyContent: "left",
 //           }}
 //         >
 //         <MessageList />
@@ -93,7 +91,7 @@ export default Onboarding;
 //   </div>
 // );
 // };
-
+//
 // export default Onboarding;
 
 /**

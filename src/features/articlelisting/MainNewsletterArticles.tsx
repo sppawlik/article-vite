@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuthenticator } from '@aws-amplify/ui-react';
 import { Loader2, Plus } from "lucide-react";
 import { UserArticlesTable } from '../userarticlestable/UserArticlesTable';
@@ -10,6 +10,7 @@ import { SelectedArticle } from '../userarticlestable/types';
 import { AddCustomArticleDialog } from './components/AddCustomArticleDialog';
 import { useDataLayer } from '@/hooks/useDataLayer';
 import { useGetUserArticles } from '../userarticlestable/hooks/useGetUserArticles';
+import { RefreshProgress } from './components/RefreshProgress';
 
 // Add dataLayer type declaration
 declare global {
@@ -20,9 +21,10 @@ declare global {
 
 type MainNewsletterArticlesProps = {
   newsletterUuid: string;
+  refreshMode?: boolean;
 };
 
-export function MainNewsletterArticles({ newsletterUuid }: MainNewsletterArticlesProps): React.ReactElement {
+export function MainNewsletterArticles({ newsletterUuid, refreshMode = false }: MainNewsletterArticlesProps): React.ReactElement {
   const { user } = useAuthenticator();
   const [selectedAge, setSelectedAge] = useState<number>(7); // Default to "1 week"
   const [selectedArticles, setSelectedArticles] = useState<SelectedArticle[]>([]);
@@ -33,7 +35,7 @@ export function MainNewsletterArticles({ newsletterUuid }: MainNewsletterArticle
   });
   const [jobUuid, setJobUuid] = useState<string | null>(null);
   const [showAddArticleDialog, setShowAddArticleDialog] = useState(false);
-  const { articles, loading, error } = useGetUserArticles(newsletterUuid, selectedAge);
+  const { articles, loading, error, progress, refreshing } = useGetUserArticles(newsletterUuid, refreshMode, selectedAge);
 
   useDataLayer({
     pagePath: '/list',
@@ -43,10 +45,10 @@ export function MainNewsletterArticles({ newsletterUuid }: MainNewsletterArticle
     user: user
   });
 
-  const handleSelectedArticlesChange = (articles: SelectedArticle[]) => {
+  const handleSelectedArticlesChange = useCallback((articles: SelectedArticle[]) => {
     setSelectedArticles(articles);
     console.log("Selected articles:", articles);
-  };
+  }, []);
 
   const handleGenerateNewsletter = async () => {
     if (selectedArticles.length === 0) {
@@ -120,6 +122,10 @@ export function MainNewsletterArticles({ newsletterUuid }: MainNewsletterArticle
         newsletterUuid={newsletterUuid}
         onSuccess={handleAddArticleSuccess}
       />
+      
+      {refreshing && (
+        <RefreshProgress progress={progress} />
+      )}
       
       <div className="flex justify-between items-center p-4">
         <TimePeriodSelector 

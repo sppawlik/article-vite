@@ -47,6 +47,7 @@ const createNewsletterConfig = async (userName: string): Promise<NewsletterConfi
 export const useNewsletterConfig = () => {
   const [mainNewsletter, setMainNewsletter] = useState<NewsletterConfig>();
   const [status, setStatus] = useState<string | null>(null);
+  const [refreshMode, setRefreshMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const { user } = useAuthenticator();
@@ -74,6 +75,8 @@ export const useNewsletterConfig = () => {
           }
         `,
       })) as GraphQLResult<GetNewsletterConfigsResponse>;
+
+      // Check if config doesn't exist
       if (!allconfigs.data?.getNewsletterConfigs?.length) {
         // create new newsletter config
         const userName = user?.signInDetails?.loginId;
@@ -92,10 +95,10 @@ export const useNewsletterConfig = () => {
         if (mainConfig) {
           setMainNewsletter(mainConfig);
           setLoading(false);
-          if (mainConfig.status === 'onboarded') {
-            setStatus('not_ready');
-          } else {
+          if (mainConfig.status === 'ready') {
             setStatus('ready');
+          } else {
+            setStatus('not_ready');
           }
         }
       }
@@ -107,31 +110,13 @@ export const useNewsletterConfig = () => {
   };
 
   const refreshMainConfig = async () => {
-    setLoading(true);
-    try { 
-        await client.graphql({
-          query: `
-            mutation RefreshArticles($newsletterUuid: String!) {
-              refreshArticles(newsletterUuid: $newsletterUuid)
-            }
-          `,
-          variables: {
-            newsletterUuid: mainNewsletter?.uuid,
-          },
-        });
-        setStatus('ready');
-      }
-    catch (err) {
-      setError(err instanceof Error ? err : new Error('An error occurred while fetching newsletter configurations'));
-    } finally {
-      setLoading(false);
-    }
-   
+    setRefreshMode(true);
+    setStatus('ready');
   };
 
   useEffect(() => {
     setMainConfig();
   }, []);
 
-  return { mainNewsletter,status,  loading, error, refreshMainConfig };
+  return { mainNewsletter, status, refreshMode, loading, error, refreshMainConfig };
 }; 

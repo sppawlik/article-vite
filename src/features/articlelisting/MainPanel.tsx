@@ -9,7 +9,7 @@ const LogoutButton = (): React.ReactElement => {
   const { signOut } = useAuthenticator();
   
   return (
-    <div className="absolute right-2">
+    <div className="fixed top-2 right-2">
       <a
         href="#"
         onClick={(e) => {
@@ -26,10 +26,9 @@ const LogoutButton = (): React.ReactElement => {
 };
 
 export function MainPanel(): React.ReactElement {
-  const { mainNewsletter, status, loading, error, refreshMainConfig } = useNewsletterConfig();
+  const { mainNewsletter, status, refreshMode, loading, error, refreshMainConfig } = useNewsletterConfig();
   console.log("mainNewsletter", mainNewsletter);
   console.log("status", status);
-  console.log("loading state:", loading);
   // Show loading spinner when loading
   if (loading) {
     return (
@@ -54,7 +53,7 @@ export function MainPanel(): React.ReactElement {
       {mainNewsletter ? (
         <div className="pt-8">
           {status === 'ready' ? (
-            <MainNewsletterArticles newsletterUuid={mainNewsletter.uuid} />
+            <MainNewsletterArticles newsletterUuid={mainNewsletter.uuid} refreshMode={true} />
           ) : (
             <Onboarding 
               newsletterUuid={mainNewsletter.uuid} 
