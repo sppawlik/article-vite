@@ -1,4 +1,4 @@
-import {Webchat, WebchatProvider, useClient, Fab, getClient, Container, MessageList, Composer} from "@botpress/webchat";
+import {Webchat, WebchatProvider,  useClient, Fab, getClient, Container, MessageList, Composer, WebchatClient} from "@botpress/webchat";
 import React, { useState, useEffect } from "react";
 import {buildTheme} from "@botpress/webchat-generator";
 // const { theme, style } = buildTheme({
@@ -16,36 +16,30 @@ interface OnboardingProps {
   onRefreshNewsletter: () => Promise<void>;
 }
 
+const configuration = {
+  botName: "Onboarding Service",
+  botAvatar: "", // Add your bot avatar URL here if needed
+  composerPlaceholder: "Type your message...",
+};
+
 const Onboarding: React.FC<OnboardingProps> = ({ newsletterUuid, onRefreshNewsletter }): React.ReactElement => {
-  const client = getClient({ clientId });
-  const [isWebchatOpen, setIsWebchatOpen] = useState(true);
+  const [client, setClient] = useState<WebchatClient | null>(null);
 
-  const toggleWebchat = () => {
-    setIsWebchatOpen((prevState) => !prevState);
-  };
 
   useEffect(() => {
-    console.log("first mount");
-  }, []); // Empty dependency array means this runs once on mount
-
-  console.log(newsletterUuid);
-  const configuration = {
-    botName: "Onboarding Service",
-    botAvatar: "", // Add your bot avatar URL here if needed
-    composerPlaceholder: "Type your message...",
-  };
-
-  useEffect(() => {
+    const client = getClient({ clientId })
+    setClient(client)
     client.on('*', async (event) => {
       if (event) {
         if (event.type === "customEvent") {
-          console.log("event.data", event.payload);
           await onRefreshNewsletter();
         }
       }
     })
   }, [onRefreshNewsletter])
-
+  if (!client) {
+    return <div>Loading...</div>
+  }
   return (
     <div style={{ width: "800px", height: "90vh", textAlign: "left" }}>
       <WebchatProvider
