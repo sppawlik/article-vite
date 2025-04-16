@@ -9,7 +9,7 @@ import {buildTheme} from "@botpress/webchat-generator";
 import './style.css';
 import { theme } from './theme';
 
-const clientId = "64e235cd-cd9b-4470-aafa-b0ba36adac0a";
+const clientId = "88b21852-2cfe-4bb3-bc01-b25ff873dd1d";
 
 interface OnboardingProps {
   newsletterUuid: string;
