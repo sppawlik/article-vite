@@ -39,18 +39,12 @@ alwaysApply: false
 ### Code Style
 - Use tabs for indentation
 - Use single quotes for strings (except to avoid escaping)
-- Omit semicolons (unless required for disambiguation)
-- Eliminate unused variables
 - Add space after keywords
 - Add space before function declaration parentheses
-- Always use strict equality (===) instead of loose equality (==)
 - Space infix operators
 - Add space after commas
 - Keep else statements on the same line as closing curly braces
 - Use curly braces for multi-line if statements
-- Always handle error parameters in callbacks
-- Limit line length to 80 characters
-- Use trailing commas in multiline object/array literals
 
 ### Naming Conventions
 General Rules
@@ -76,12 +70,8 @@ General Rules
 
 
 ### React Best Practices
-Component Architecture
 - Use functional components with TypeScript interfaces
-- Define components using the function keyword
 - Extract reusable logic into custom hooks
-- Implement proper component composition
-- Use React.memo() strategically for performance
 - Implement proper cleanup in useEffect hooks
 
 ### Next.js Best Practices
@@ -109,7 +99,6 @@ Core Concepts
     - Apply composition patterns to create modular, reusable components.
 
 ### Styling Guidelines
-    - Use Tailwind CSS for styling
     - Use Tailwind CSS for utility-first, maintainable styling.
     - Design with mobile-first, responsive principles for flexibility across devices.
     - Implement dark mode using CSS variables or Tailwind’s dark mode features.

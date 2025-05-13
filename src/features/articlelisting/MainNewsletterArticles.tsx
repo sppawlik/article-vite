@@ -36,7 +36,7 @@ export function MainNewsletterArticles({ newsletterUuid, refreshMode = false }: 
   const [jobUuid, setJobUuid] = useState<string | null>(null);
   const [showAddArticleDialog, setShowAddArticleDialog] = useState(false);
   const { articles, loading, error, progress, refreshing } = useGetUserArticles(newsletterUuid, refreshMode, selectedAge);
-
+  console.log("refreshMode: ", refreshMode);
   useDataLayer({
     pagePath: '/list',
     pageUrl: 'https://newsletter.creoscope.com/list',

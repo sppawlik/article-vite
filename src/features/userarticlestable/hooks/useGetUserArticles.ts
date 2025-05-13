@@ -16,32 +16,7 @@ export const useGetUserArticles = (newsletterUuid: string, refreshMode: boolean,
   const [progress, setProgress] = useState<number>(0);
   const [refreshing, setRefreshing] = useState<boolean>(refreshMode);
 
-  // Progress tracking effect
-  // useEffect(() => {
-  //   if (refreshing) {
-  //     console.log("refreshing");
-  //     setProgress(0);
-  //     const duration = 60000; // 60 seconds
-  //     const interval = 100; // Update every 100ms
-  //     const steps = duration / interval;
-  //     let currentStep = 0;
 
-  //     const timer = setInterval(() => {
-  //       currentStep++;
-  //       setProgress((currentStep / steps) * 100);
-        
-  //       if (currentStep >= steps) {
-  //         clearInterval(timer);
-  //         setRefreshing(false);
-  //         setProgress(0);
-  //       }
-  //     }, interval);
-
-  //     return () => clearInterval(timer);
-  //   }
-  // }, [refreshing]);
-
-  // Articles fetching effect
   useEffect(() => {
     console.log("fetching articles");
     const fetchArticles = async () => {

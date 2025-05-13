@@ -27,8 +27,6 @@ const LogoutButton = (): React.ReactElement => {
 
 export function MainPanel(): React.ReactElement {
   const { mainNewsletter, status, refreshMode, loading, error, refreshMainConfig } = useNewsletterConfig();
-  console.log("mainNewsletter", mainNewsletter);
-  console.log("status", status);
   // Show loading spinner when loading
   if (loading) {
     return (

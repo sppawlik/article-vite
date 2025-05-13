@@ -3,17 +3,13 @@ import {createRoot} from 'react-dom/client';
 import './index.css';
 import {Authenticator} from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
-import outputs from '../amplify_outputs.json';
 import {Amplify} from "aws-amplify";
 import {MainPanel} from "@/features/articlelisting/MainPanel";
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { NewsletterView } from '@/features/newsletter';
 import Onboarding from '@/features/onboarding/Onboarding';
 
-Amplify.configure(outputs);
-const currentConfig = Amplify.getConfig();
 Amplify.configure({
-    ...currentConfig,
     Auth: {
         Cognito: {
             userPoolId: "eu-central-1_FhFqdxUtA",
