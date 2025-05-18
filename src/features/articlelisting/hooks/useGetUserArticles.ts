@@ -1,7 +1,7 @@
 import { GraphQLResult } from "@aws-amplify/api-graphql";
 import { generateClient } from "aws-amplify/data";
 import { useEffect, useState } from "react";
-import { Article } from '../types';
+import { Article } from '../../userarticlestable/types';
 
 const client = generateClient();
 
@@ -9,15 +9,53 @@ interface GetUserArticlesResponse {
   getUserArticles: Article[];
 }
 
+interface RefreshProgress {
+  inProgress: boolean;
+  lastRefresh: string;
+  totalArticles: number;
+  finishedArticles: number;
+}
+
 export const useGetUserArticles = (newsletterUuid: string, refreshMode: boolean, age: number = 1000) => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [progress, setProgress] = useState<number>(0);
-  const [refreshing, setRefreshing] = useState<boolean>(refreshMode);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
+  // Fetch refresh progress from GraphQL
+  const fetchRefreshProgress = async (newsletterUuid: string) => {
+    try {
+      const result = await client.graphql({
+        query: `query GetRefreshProgress($newsletterUuid: String!) { 
+          getRefreshProgress(newsletterUuid: $newsletterUuid) { 
+            inProgress 
+            lastRefresh
+            totalArticles
+            finishedArticles
+          } 
+        }`,
+        variables: { newsletterUuid },
+      }) as GraphQLResult<{ getRefreshProgress: RefreshProgress }>;
+      console.log("result.data?.getRefreshProgress", result.data?.getRefreshProgress)
+      if (result.data?.getRefreshProgress) {
+        const refreshData = result.data.getRefreshProgress;
+        setRefreshing(refreshData.inProgress);
+        
+        // Calculate progress percentage
+        if (refreshData.totalArticles > 0) {
+          const progressPercentage = Math.round((refreshData.finishedArticles / refreshData.totalArticles) * 100);
+          setProgress(progressPercentage);
+        }
+      }
+    } catch (err) {
+      // fallback: do not update refreshing on error
+    }
+  };
 
   useEffect(() => {
+    // Always check refresh progress before fetching articles
+    fetchRefreshProgress(newsletterUuid);
     console.log("fetching articles");
     const fetchArticles = async () => {
       try {
@@ -43,26 +81,7 @@ export const useGetUserArticles = (newsletterUuid: string, refreshMode: boolean,
         })) as GraphQLResult<GetUserArticlesResponse>;
 
         if (result.data?.getUserArticles) {
-          // Check if the first article is older than 5 minutes
-
-          
           setArticles(result.data.getUserArticles);
-          setProgress(Math.round(result.data.getUserArticles.length/2));
-          if (result.data.getUserArticles.length >= 200) {
-            setRefreshing(false);
-          }
-          if (result.data.getUserArticles.length > 0) {
-            const now = new Date();
-            const articleCreatedAt = new Date(result.data.getUserArticles[0].createdAt);
-            const fiveMinutesInMs = 10 * 60 * 1000; // 5 minutes in milliseconds
-            const isOlderThanFiveMinutes = now.getTime() - articleCreatedAt.getTime() > fiveMinutesInMs;
-            console.log(articleCreatedAt)
-            console.log(isOlderThanFiveMinutes)
-            if (isOlderThanFiveMinutes) {
-              console.log("First article is older than 10 minutes");
-              setRefreshing(false)
-            }
-          }
         }
       } catch (err) {
         setError(err instanceof Error ? err : new Error('An error occurred'));
@@ -77,7 +96,10 @@ export const useGetUserArticles = (newsletterUuid: string, refreshMode: boolean,
     let intervalId: NodeJS.Timeout;
     // Set up interval for periodic refresh
     if (refreshing) {
-      intervalId = setInterval(fetchArticles, 5000); // 5000ms = 5 seconds
+      intervalId = setInterval(() => {
+        fetchRefreshProgress(newsletterUuid);
+        fetchArticles();
+      }, 5000); // 5000ms = 5 seconds
     }
 
     // Cleanup function to clear the interval when component unmounts

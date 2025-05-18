@@ -9,7 +9,7 @@ import { JobNewsletterStatus } from '@/features/statusdialog/JobNewsletterStatus
 import { SelectedArticle } from '../userarticlestable/types';
 import { AddCustomArticleDialog } from './components/AddCustomArticleDialog';
 import { useDataLayer } from '@/hooks/useDataLayer';
-import { useGetUserArticles } from '../userarticlestable/hooks/useGetUserArticles';
+import { useGetUserArticles } from './hooks/useGetUserArticles';
 import { RefreshProgress } from './components/RefreshProgress';
 
 // Add dataLayer type declaration

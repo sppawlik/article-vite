@@ -33,7 +33,10 @@ export const GET_NEWSLETTER_CONFIGS = `
 `;
 
 export const REFRESH_NEWSLETTER = `
-    mutation RefreshNewsletter($newsletter_uuid: String!) {
-        refreshNewsletter(newsletter_uuid: $newsletter_uuid)
+    mutation RefreshNewsletter($newsletterUuid: String!) {
+        refreshNewsletter(newsletterUuid: $newsletterUuid)
+        {
+            refreshJobId
+        }
     }
 `;

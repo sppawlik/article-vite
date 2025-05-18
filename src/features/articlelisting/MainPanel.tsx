@@ -32,10 +32,10 @@ export function MainPanel(): React.ReactElement {
       {mainNewsletter && status ? (
         <div className="pt-8">
           {status === 'ready' ? (
-            <MainNewsletterArticles newsletterUuid={mainNewsletter.uuid} refreshMode={true} />
+            <MainNewsletterArticles newsletterUuid={mainNewsletter.newsletterUuid} refreshMode={true} />
           ) : (
             <Onboarding 
-              newsletterUuid={mainNewsletter.uuid} 
+              newsletterUuid={mainNewsletter.newsletterUuid} 
               onRefreshNewsletter={refreshMainConfig}
             />
           )}
