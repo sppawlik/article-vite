@@ -13,13 +13,6 @@ function getDiffHours(now: Date, lastRefresh: Date): number {
     return (now.getTime() - lastRefresh.getTime()) / (1000 * 60 * 60);
 }
 
-interface NewsletterConfig {
-    main: boolean;
-    name: string;
-    uuid: string;
-    status: string;
-}
-
 // TypeScript types for the response
 export type UserProfileType = 'premium' | 'free';
 
@@ -48,75 +41,85 @@ interface GetDefaultNewsletterConfigResponse {
     getDefaultNewsletterConfig: DefaultNewsletterConfig;
 }
 
+// Helper function to encapsulate premium user auto-refresh logic
+const _handlePremiumUserAutoRefresh = async (
+    configData: DefaultNewsletterConfig,
+    currentNewsletterUuid: string,
+    // Pass functions from the hook's scope
+    doRefreshNewsletter: (uuid: string) => Promise<string | null>,
+) => {
+    // Ensure we have the correct user profile and config type
+    if (configData.userProfile === 'premium' && configData.userProfileConfig?.__typename === 'PremiumUserProfile') {
+        const premiumConfig = configData.userProfileConfig as PremiumUserProfile; // Safe to cast here after check
+        const now = new Date();
+        const lastRefresh = new Date(configData.lastRefresh);
+        const diffHours = getDiffHours(now, lastRefresh);
+
+        if (diffHours > premiumConfig.refreshEveryHours) {
+            console.log(`Premium user data is ${diffHours.toFixed(1)} hours old (threshold: ${premiumConfig.refreshEveryHours}h). Triggering auto-refresh for UUID: ${currentNewsletterUuid}.`);
+            const jobId = await doRefreshNewsletter(currentNewsletterUuid);
+            if (jobId) {
+                console.log("Auto-refresh for premium user initiated, job ID:", jobId);
+            } else {
+                console.error("Auto-refresh mutation call for premium user failed to return a job ID.");
+            }
+        } else {
+            console.log(`Premium user data is ${diffHours.toFixed(1)} hours old (threshold: ${premiumConfig.refreshEveryHours}h). No auto-refresh needed for UUID: ${currentNewsletterUuid}.`);
+        }
+    }
+};
+
 export const useNewsletterConfig = () => {
     const [mainNewsletter, setMainNewsletter] = useState<DefaultNewsletterConfig>();
-    const [newsletterUuid, setNewsletterUuid] = useState<string>();
     const [status, setStatus] = useState<string | null>(null);
-    const [refreshMode, setRefreshMode] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
-    const [refreshJobId, setRefreshJobId] = useState<string | null>(null);
 
     const setMainConfig = async () => {
         try {
             setLoading(true);
+            setError(null); // Reset error at the beginning
+            console.log("Status before fetching default newsletter config:", status);
             const defaultNewsletterConfigResponse = await client.graphql({
                 query: GET_DEFAULT_NEWSLETTER_CONFIG
             }) as GraphQLResult<GetDefaultNewsletterConfigResponse>;
             if (!defaultNewsletterConfigResponse.data?.getDefaultNewsletterConfig) {
-                throw new Error("Something went wrong");
+                throw new Error("Failed to retrieve default newsletter configuration from API.");
             }
-            const defaultNewsletterConfig = defaultNewsletterConfigResponse.data.getDefaultNewsletterConfig;
+            const fetchedConfig = defaultNewsletterConfigResponse.data.getDefaultNewsletterConfig;
 
-            console.log("defaultNewsletterConfig", defaultNewsletterConfig);
+            console.log("Fetched defaultNewsletterConfig:", fetchedConfig);
+            
+            setMainNewsletter(fetchedConfig);
 
-            if (defaultNewsletterConfig) {
-                setMainNewsletter(defaultNewsletterConfig);
-                if (defaultNewsletterConfig.status === 'ready') {
-                    const newsletterUuid = defaultNewsletterConfig.newsletterUuid;
-                    setNewsletterUuid(newsletterUuid);
-                    console.log("defaultNewsletterConfig", defaultNewsletterConfig);
-                    switch (defaultNewsletterConfig.userProfile) {
-                        case 'premium':
-                            // check if defaultNewsletterConfig.lastRefresh is older then defaultNewsletterConfig.userProfileConfig.refreshEveryHours
-                            const now = new Date();
-                            const lastRefresh = new Date(defaultNewsletterConfig.lastRefresh);
-                            const diffHours = getDiffHours(now, lastRefresh);
-                            console.log("diffHours", diffHours);
-                            if (diffHours > (defaultNewsletterConfig.userProfileConfig as PremiumUserProfile).refreshEveryHours) {
-                                // launch refresh
-                                console.log("launching refresh");
-                                const refreshJobId = await refreshNewsletter(newsletterUuid);
-                                console.log("refreshJobId", refreshJobId);
-                                if (refreshJobId) {
-                                    setRefreshJobId(refreshJobId);
-                                }
-                            } else {
-                                console.log("not launching refresh");
-                            }
-                            break;
-                        case 'free':
-                            break;
-                        default:
-                            break;
-                    }
-                    setStatus('ready');
-                } else {
-                    setStatus('not_ready');
-                }
-                setLoading(false);
+            if (fetchedConfig.status === 'ready') {
+                const currentUuid = fetchedConfig.newsletterUuid;
+                
+                // Handle auto-refresh logic for premium users
+                await _handlePremiumUserAutoRefresh(
+                    fetchedConfig,
+                    currentUuid,
+                    refreshNewsletter, // Pass the hook's refreshNewsletter function
+                );
+                // The original switch statement only had logic for 'premium', which is now handled above.
+                // 'free' and 'default' cases were no-ops.
+
+                setStatus('ready');
             } else {
-                throw new Error("No main config found");
+                setStatus('not_ready');
             }
         } catch (err) {
+            console.error("Error in setMainConfig:", err);
             setError(err instanceof Error ? err : new Error('An error occurred while fetching newsletter configurations'));
+            setStatus('error'); // Set status to error
         } finally {
+            setLoading(false); // Ensure loading is always set to false
         }
     };
 
     const refreshMainConfig = async () => {
-        setRefreshMode(true);
         setStatus('ready');
+        console.log("refreshMainConfig", mainNewsletter);
     };
 
     /**
@@ -134,10 +137,9 @@ export const useNewsletterConfig = () => {
             }) as GraphQLResult<{ refreshNewsletter: string }>;
             console.log("REFRESH_NEWSLETTER result", result);
             if (result.data?.refreshNewsletter) {
-                setStatus('refreshing');
                 return result.data.refreshNewsletter;
             } else {
-                setError(new Error('Failed to refresh newsletter.'));
+                setError(new Error('Failed to refresh newsletter. No job ID returned.'));
                 return null;
             }
         } catch (err) {
@@ -150,8 +152,9 @@ export const useNewsletterConfig = () => {
 
 
     useEffect(() => {
+        console.log("useEffect");
         setMainConfig();
     }, []);
 
-    return { mainNewsletter, status, refreshMode, loading, error, refreshMainConfig, refreshNewsletter, newsletterUuid, refreshJobId };
+    return { mainNewsletter, status, loading, error, refreshMainConfig, refreshNewsletter };
 }; 

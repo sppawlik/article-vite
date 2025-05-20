@@ -36,7 +36,9 @@ export const REFRESH_NEWSLETTER = `
     mutation RefreshNewsletter($newsletterUuid: String!) {
         refreshNewsletter(newsletterUuid: $newsletterUuid)
         {
+            newsletterUuid
             refreshJobId
+            status
         }
     }
 `;

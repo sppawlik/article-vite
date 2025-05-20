@@ -7,7 +7,7 @@ import Onboarding from '../onboarding/Onboarding';
 import LogoutButton from './components/LogoutButton';
 
 export function MainPanel(): React.ReactElement {
-  const { mainNewsletter, status, refreshMode, loading, error, refreshMainConfig, newsletterUuid, refreshJobId } = useNewsletterConfig();
+  const { mainNewsletter, status, loading, error, refreshMainConfig,  } = useNewsletterConfig();
   // Show loading spinner when loading
   if (loading) {
     return (
